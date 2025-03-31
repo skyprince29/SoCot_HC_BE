@@ -1,0 +1,6 @@
+@SoCot_HC_BE_HostAddress = http://localhost:5119
+
+GET {{SoCot_HC_BE_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
