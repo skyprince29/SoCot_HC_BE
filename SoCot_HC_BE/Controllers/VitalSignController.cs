@@ -69,6 +69,65 @@ namespace SoCot_HC_BE.Controllers
                 ModelState.AddModelError("Systolic", "");
             }
 
+            if (vitalSign.Diastolic == 0)
+            {
+                ModelState.AddModelError("Diastolic", "Systolic is required");
+                isValid = false;
+            } else
+            {
+                ModelState.AddModelError("Diastolic", "");
+            }
+
+            if (vitalSign.Diastolic == 0)
+            {
+                ModelState.AddModelError("Temperature", "Temperature is required");
+                isValid = false;
+            }
+            else
+            {
+                ModelState.AddModelError("Temperature", "");
+            }
+
+            if (vitalSign.Diastolic == 0)
+            {
+                ModelState.AddModelError("Height", "Height is required");
+                isValid = false;
+            }
+            else
+            {
+                ModelState.AddModelError("Height", "");
+            }
+
+
+            if (vitalSign.Diastolic == 0)
+            {
+                ModelState.AddModelError("Weight", "Weight is required");
+                isValid = false;
+            }
+            else
+            {
+                ModelState.AddModelError("Weight", "");
+            }
+
+            if (vitalSign.Diastolic == 0)
+            {
+                ModelState.AddModelError("RespiratoryRate", "RespiratoryRate is required");
+                isValid = false;
+            }
+            else
+            {
+                ModelState.AddModelError("RespiratoryRate", "");
+            }
+
+            if (vitalSign.Diastolic == 0)
+            {
+                ModelState.AddModelError("CardiacRate", "CardiacRate is required");
+                isValid = false;
+            }
+            else
+            {
+                ModelState.AddModelError("CardiacRate", "");
+            }
             if (isValid)
             {
                 ModelState.Clear();
@@ -95,10 +154,10 @@ namespace SoCot_HC_BE.Controllers
             {
                 return BadRequest(new { message = "Page number and limit must be greater than zero." });
             }
-
+            int skip = (pageNo - 1);
             int totalRecord = await db.VitalSigns.CountAsync();
             List<VitalSign> getVitalSign = await db.VitalSigns
-                                            .Skip(pageNo)
+                                            .Skip(skip)
                                             .Take(limit).ToListAsync();
             var paginatedResult = new PaginationHandler<VitalSign>(getVitalSign, totalRecord, pageNo, limit);
             return Ok(paginatedResult);
