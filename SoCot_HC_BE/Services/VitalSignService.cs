@@ -1,5 +1,5 @@
 ﻿using SoCot_HC_BE.Model;
-using SoCot_HC_BE.Repositories.Intefaces;
+using SoCot_HC_BE.Repositories.Interfaces;
 using SoCot_HC_BE.Services.Interfaces;
 
 namespace SoCot_HC_BE.Services

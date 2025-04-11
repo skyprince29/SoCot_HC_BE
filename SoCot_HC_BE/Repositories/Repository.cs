@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
-using SoCot_HC_BE.Repositories.Intefaces;
+using SoCot_HC_BE.Repositories.Interfaces;
 
 namespace SoCot_HC_BE.Repositories
 {

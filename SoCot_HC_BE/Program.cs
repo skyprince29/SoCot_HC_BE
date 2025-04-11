@@ -1,23 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
-using SoCot_HC_BE.Repositories.Intefaces;
 using SoCot_HC_BE.Repositories;
-using SoCot_HC_BE.Services; // Assuming this is where your service is
+using SoCot_HC_BE.Repositories.Interfaces;
+using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Swagger Setup (API documentation)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add CORS
+// CORS Configuration (consider tightening this in production)
 builder.Services.AddCors(options =>
 {
+
     options.AddDefaultPolicy(builder =>
     {
         builder.AllowAnyOrigin()
@@ -26,15 +26,18 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add Database Context
+// Add Database Context with SQL Server connection
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register generic repository
+// Register Generic Repository
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
-// Register specific service
+// Register Specific Service
 builder.Services.AddScoped<IVitalSignService, VitalSignService>();
+
+// Register HttpContextAccessor for cancellation token usage (optional, but useful)
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 var app = builder.Build();
 
@@ -47,10 +50,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Apply CORS policy
 app.UseCors();
 
+// Apply Authorization middleware (only needed if you have authorization in place)
 app.UseAuthorization();
 
+// Map controllers to endpoints
 app.MapControllers();
 
+// Run the application
 app.Run();

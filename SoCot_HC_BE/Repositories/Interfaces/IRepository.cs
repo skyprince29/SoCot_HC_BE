@@ -1,4 +1,4 @@
-﻿namespace SoCot_HC_BE.Repositories.Intefaces
+﻿namespace SoCot_HC_BE.Repositories.Interfaces
 {
     public interface IRepository<T, TKey> where T : class
     {
