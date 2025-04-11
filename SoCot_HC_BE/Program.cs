@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
+using SoCot_HC_BE.Repositories.Intefaces;
+using SoCot_HC_BE.Repositories;
+using SoCot_HC_BE.Services; // Assuming this is where your service is
+using SoCot_HC_BE.Services.Interfaces;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +29,12 @@ builder.Services.AddCors(options =>
 // Add Database Context
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register generic repository
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+
+// Register specific service
+builder.Services.AddScoped<IVitalSignService, VitalSignService>();
 
 var app = builder.Build();
 

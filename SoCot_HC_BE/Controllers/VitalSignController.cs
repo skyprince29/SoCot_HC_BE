@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SCHC_API.Handler;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Services.Interfaces;
 
 namespace SoCot_HC_BE.Controllers
 {
@@ -10,23 +11,25 @@ namespace SoCot_HC_BE.Controllers
     [ApiController]
     public class VitalSignController : Controller
     {
-        private readonly AppDbContext db;
-        public VitalSignController(AppDbContext context)
+        private readonly IVitalSignService _vitalSignService;
+
+        public VitalSignController(IVitalSignService vitalSignService)
         {
-            db = context;
+            _vitalSignService = vitalSignService;
         }
 
         [HttpPost(Name = "SaveVitalSign")]
         public async Task<IActionResult> SaveVitalSign(VitalSign vitalSign)
         {
             bool isNew = vitalSign.VitalSignId == 0;
+
             if (vitalSign == null)
             {
                 return BadRequest("VitalSign data is null.");
             }
-            //ModelState.Clear();
+
             ValidateFields(vitalSign);
-            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+
             if (!ModelState.IsValid)
             {
                 var modelErrors = ModelState.ToDictionary(
@@ -38,131 +41,157 @@ namespace SoCot_HC_BE.Controllers
 
             if (isNew)
             {
-                db.VitalSigns.Add(vitalSign);
-                await db.SaveChangesAsync();
+                await _vitalSignService.AddAsync(vitalSign);
                 return CreatedAtAction(nameof(GetVitalSign), new { id = vitalSign.VitalSignId }, vitalSign);
             }
             else
             {
-                var existingVitalSign = await db.VitalSigns.FindAsync(vitalSign.VitalSignId);
+                var existingVitalSign = await _vitalSignService.GetAsync(vitalSign.VitalSignId);
                 if (existingVitalSign == null)
                 {
                     return NotFound(new { success = false, message = "VitalSign not found." });
                 }
-                db.Entry(existingVitalSign).CurrentValues.SetValues(vitalSign);
-                await db.SaveChangesAsync();
+
+                await _vitalSignService.UpdateAsync(vitalSign);
                 return Ok(new { success = true, message = "VitalSign updated successfully.", data = vitalSign });
             }
         }
 
         private void ValidateFields(VitalSign vitalSign)
         {
-
-            bool isValid = true;
+            // Validate Systolic
             if (vitalSign.Systolic == 0)
             {
                 ModelState.AddModelError("Systolic", "Systolic is required");
-                isValid = false;
             }
             else
             {
-                ModelState.AddModelError("Systolic", "");
+                // Clear previous validation error for this field if it's valid
+                if (ModelState.ContainsKey("Systolic"))
+                {
+                    ModelState.Remove("Systolic");
+                }
             }
 
+            // Validate Diastolic
             if (vitalSign.Diastolic == 0)
             {
-                ModelState.AddModelError("Diastolic", "Systolic is required");
-                isValid = false;
-            } else
+                ModelState.AddModelError("Diastolic", "Diastolic is required");
+            }
+            else
             {
-                ModelState.AddModelError("Diastolic", "");
+                if (ModelState.ContainsKey("Diastolic"))
+                {
+                    ModelState.Remove("Diastolic");
+                }
             }
 
-            if (vitalSign.Diastolic == 0)
+            // Validate other fields similarly...
+            if (vitalSign.Temperature == 0)
             {
                 ModelState.AddModelError("Temperature", "Temperature is required");
-                isValid = false;
             }
             else
             {
-                ModelState.AddModelError("Temperature", "");
+                if (ModelState.ContainsKey("Temperature"))
+                {
+                    ModelState.Remove("Temperature");
+                }
             }
 
-            if (vitalSign.Diastolic == 0)
+            if (vitalSign.Height == 0)
             {
                 ModelState.AddModelError("Height", "Height is required");
-                isValid = false;
             }
             else
             {
-                ModelState.AddModelError("Height", "");
+                if (ModelState.ContainsKey("Height"))
+                {
+                    ModelState.Remove("Height");
+                }
             }
 
-
-            if (vitalSign.Diastolic == 0)
+            if (vitalSign.Weight == 0)
             {
                 ModelState.AddModelError("Weight", "Weight is required");
-                isValid = false;
             }
             else
             {
-                ModelState.AddModelError("Weight", "");
+                if (ModelState.ContainsKey("Weight"))
+                {
+                    ModelState.Remove("Weight");
+                }
             }
 
-            if (vitalSign.Diastolic == 0)
+            if (vitalSign.RespiratoryRate == 0)
             {
                 ModelState.AddModelError("RespiratoryRate", "RespiratoryRate is required");
-                isValid = false;
             }
             else
             {
-                ModelState.AddModelError("RespiratoryRate", "");
+                if (ModelState.ContainsKey("RespiratoryRate"))
+                {
+                    ModelState.Remove("RespiratoryRate");
+                }
             }
 
-            if (vitalSign.Diastolic == 0)
+            if (vitalSign.CardiacRate == 0)
             {
                 ModelState.AddModelError("CardiacRate", "CardiacRate is required");
-                isValid = false;
             }
             else
             {
-                ModelState.AddModelError("CardiacRate", "");
+                if (ModelState.ContainsKey("CardiacRate"))
+                {
+                    ModelState.Remove("CardiacRate");
+                }
             }
-            if (isValid)
-            {
-                ModelState.Clear();
-            }
+            // If all fields are valid, you don't need to do anything further.
         }
 
         // api/v1/VitalSign/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVitalSign(long id)
         {
-            var vitalsign = await db.VitalSigns.FindAsync(id);
-            if (vitalsign == null)
+            var vitalSign = await _vitalSignService.GetAsync(id);
+            if (vitalSign == null)
             {
                 return NotFound(new { success = false, message = "VitalSign not found." });
             }
 
-            return Ok(vitalsign);
+            return Ok(vitalSign);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetVitalSigns(int pageNo, int limit, string? keyword)
         {
-            if (pageNo < 0 || limit < 0)
+            if (pageNo <= 0 || limit <= 0)
             {
                 return BadRequest(new { message = "Page number and limit must be greater than zero." });
             }
-            int skip = (pageNo - 1);
-            int totalRecord = await db.VitalSigns.CountAsync();
-            List<VitalSign> getVitalSign = await db.VitalSigns
-                                            .Skip(skip)
-                                            .Take(limit).ToListAsync();
-            var paginatedResult = new PaginationHandler<VitalSign>(getVitalSign, totalRecord, pageNo, limit);
+
+            // Fetch paginated list of vital signs
+            var vitalSigns = await _vitalSignService.GetAllWithPagingAsync(pageNo, limit, keyword);
+
+            // Get the total count of records for pagination purposes
+            var totalRecords = await _vitalSignService.CountAsync(keyword);
+
+            var paginatedResult = new PaginationHandler<VitalSign>(vitalSigns, totalRecords, pageNo, limit);
+
             return Ok(paginatedResult);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteVitalSign(long id)
+        {
+            var existingVitalSign = await _vitalSignService.GetAsync(id);
+            if (existingVitalSign == null)
+            {
+                return NotFound(new { success = false, message = "VitalSign not found." });
+            }
 
+            await _vitalSignService.DeleteAsync(id);
+            return Ok(new { success = true, message = "VitalSign deleted successfully." });
+        }
     }
 }
