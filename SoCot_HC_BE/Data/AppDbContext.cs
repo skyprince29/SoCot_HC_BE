@@ -11,5 +11,7 @@ namespace SoCot_HC_BE.Data
         }
 
         public DbSet<VitalSign> VitalSigns { get; set; }
+        public DbSet<Province> Provice {  get; set; }
+        public DbSet<CityMunicipality> CityMunicipality { get; set; }
     }
 }
