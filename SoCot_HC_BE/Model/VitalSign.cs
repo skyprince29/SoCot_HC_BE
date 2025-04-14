@@ -1,12 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SoCot_HC_BE.Model.BaseModels;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoCot_HC_BE.Model
 {
-    public class VitalSign
+    public class VitalSign : AuditInfo
     {
         [Key]
-        public long VitalSignId { get; set; }
+        public Guid VitalSignId { get; set; }
         [Column(TypeName = "decimal(5,2)")]
         public decimal Temperature { get; set; }
         [Column(TypeName = "decimal(5,2)")]

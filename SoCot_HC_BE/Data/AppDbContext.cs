@@ -56,11 +56,14 @@ namespace SoCot_HC_BE.Data
             var fullName = _httpContextAccessor.HttpContext?.User?.FindFirst("FullName")?.Value;
             var designation = _httpContextAccessor.HttpContext?.User?.FindFirst("Designation")?.Value; // Using Designation
 
+            // Define a default GUID to use when the actual userIdClaim is missing or invalid
+            var defaultUserId = Guid.Parse("00000001-0001-0001-0001-000000000001"); // Your default GUID here
+
             return new UserData
             {
-                UserId = Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty,
-                FullName = fullName,
-                Designation = designation  // Now using Designation
+                UserId = Guid.TryParse(userIdClaim, out var userId) ? userId : defaultUserId, // Assign the default GUID if invalid
+                FullName = fullName ?? "Default User",  // Default value for FullName
+                Designation = designation ?? "No Designation" // Default value for Designation
             };
         }
     }

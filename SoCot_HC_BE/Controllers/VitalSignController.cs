@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SCHC_API.Handler;
-using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Model;
-using SoCot_HC_BE.Services.Interfaces;
 
 namespace SoCot_HC_BE.Controllers
 {
@@ -18,18 +15,21 @@ namespace SoCot_HC_BE.Controllers
             _vitalSignService = vitalSignService;
         }
 
+        // Save or update a VitalSign
         [HttpPost(Name = "SaveVitalSign")]
-        public async Task<IActionResult> SaveVitalSign(VitalSign vitalSign)
+        public async Task<IActionResult> SaveVitalSign(VitalSign vitalSign, CancellationToken cancellationToken)
         {
-            bool isNew = vitalSign.VitalSignId == 0;
+            bool isNew = vitalSign.VitalSignId == Guid.Empty;
 
             if (vitalSign == null)
             {
                 return BadRequest("VitalSign data is null.");
             }
 
+            // Validate fields before processing
             ValidateFields(vitalSign);
 
+            // If the model is not valid, return errors
             if (!ModelState.IsValid)
             {
                 var modelErrors = ModelState.ToDictionary(
@@ -41,32 +41,32 @@ namespace SoCot_HC_BE.Controllers
 
             if (isNew)
             {
-                await _vitalSignService.AddAsync(vitalSign);
+                await _vitalSignService.AddAsync(vitalSign, cancellationToken);
                 return CreatedAtAction(nameof(GetVitalSign), new { id = vitalSign.VitalSignId }, vitalSign);
             }
             else
             {
-                var existingVitalSign = await _vitalSignService.GetAsync(vitalSign.VitalSignId);
+                var existingVitalSign = await _vitalSignService.GetAsync(vitalSign.VitalSignId, cancellationToken);
                 if (existingVitalSign == null)
                 {
                     return NotFound(new { success = false, message = "VitalSign not found." });
                 }
 
-                await _vitalSignService.UpdateAsync(vitalSign);
+                await _vitalSignService.UpdateAsync(vitalSign, cancellationToken);
                 return Ok(new { success = true, message = "VitalSign updated successfully.", data = vitalSign });
             }
         }
 
+        // Method to validate fields in the VitalSign model
         private void ValidateFields(VitalSign vitalSign)
         {
             // Validate Systolic
             if (vitalSign.Systolic == 0)
             {
-                ModelState.AddModelError("Systolic", "Systolic is required");
+                ModelState.AddModelError("Systolic", "Systolic is required.");
             }
             else
             {
-                // Clear previous validation error for this field if it's valid
                 if (ModelState.ContainsKey("Systolic"))
                 {
                     ModelState.Remove("Systolic");
@@ -76,7 +76,7 @@ namespace SoCot_HC_BE.Controllers
             // Validate Diastolic
             if (vitalSign.Diastolic == 0)
             {
-                ModelState.AddModelError("Diastolic", "Diastolic is required");
+                ModelState.AddModelError("Diastolic", "Diastolic is required.");
             }
             else
             {
@@ -86,10 +86,10 @@ namespace SoCot_HC_BE.Controllers
                 }
             }
 
-            // Validate other fields similarly...
+            // Validate Temperature
             if (vitalSign.Temperature == 0)
             {
-                ModelState.AddModelError("Temperature", "Temperature is required");
+                ModelState.AddModelError("Temperature", "Temperature is required.");
             }
             else
             {
@@ -99,9 +99,10 @@ namespace SoCot_HC_BE.Controllers
                 }
             }
 
+            // Validate Height
             if (vitalSign.Height == 0)
             {
-                ModelState.AddModelError("Height", "Height is required");
+                ModelState.AddModelError("Height", "Height is required.");
             }
             else
             {
@@ -111,9 +112,10 @@ namespace SoCot_HC_BE.Controllers
                 }
             }
 
+            // Validate Weight
             if (vitalSign.Weight == 0)
             {
-                ModelState.AddModelError("Weight", "Weight is required");
+                ModelState.AddModelError("Weight", "Weight is required.");
             }
             else
             {
@@ -123,9 +125,10 @@ namespace SoCot_HC_BE.Controllers
                 }
             }
 
+            // Validate Respiratory Rate
             if (vitalSign.RespiratoryRate == 0)
             {
-                ModelState.AddModelError("RespiratoryRate", "RespiratoryRate is required");
+                ModelState.AddModelError("RespiratoryRate", "Respiratory Rate is required.");
             }
             else
             {
@@ -135,9 +138,10 @@ namespace SoCot_HC_BE.Controllers
                 }
             }
 
+            // Validate Cardiac Rate
             if (vitalSign.CardiacRate == 0)
             {
-                ModelState.AddModelError("CardiacRate", "CardiacRate is required");
+                ModelState.AddModelError("CardiacRate", "Cardiac Rate is required.");
             }
             else
             {
@@ -146,14 +150,13 @@ namespace SoCot_HC_BE.Controllers
                     ModelState.Remove("CardiacRate");
                 }
             }
-            // If all fields are valid, you don't need to do anything further.
         }
 
-        // api/v1/VitalSign/5
+        // Get a specific VitalSign by ID
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetVitalSign(long id)
+        public async Task<IActionResult> GetVitalSign(Guid id, CancellationToken cancellationToken)
         {
-            var vitalSign = await _vitalSignService.GetAsync(id);
+            var vitalSign = await _vitalSignService.GetAsync(id, cancellationToken);
             if (vitalSign == null)
             {
                 return NotFound(new { success = false, message = "VitalSign not found." });
@@ -162,35 +165,33 @@ namespace SoCot_HC_BE.Controllers
             return Ok(vitalSign);
         }
 
+        // Get all VitalSigns with paging
         [HttpGet]
-        public async Task<IActionResult> GetVitalSigns(int pageNo, int limit, string? keyword)
+        public async Task<IActionResult> GetVitalSigns(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
         {
             if (pageNo <= 0 || limit <= 0)
             {
                 return BadRequest(new { message = "Page number and limit must be greater than zero." });
             }
 
-            // Fetch paginated list of vital signs
-            var vitalSigns = await _vitalSignService.GetAllWithPagingAsync(pageNo, limit, keyword);
-
-            // Get the total count of records for pagination purposes
-            var totalRecords = await _vitalSignService.CountAsync(keyword);
+            var vitalSigns = await _vitalSignService.GetAllWithPagingAsync(pageNo, limit, keyword, cancellationToken);
+            var totalRecords = await _vitalSignService.CountAsync(keyword, cancellationToken);
 
             var paginatedResult = new PaginationHandler<VitalSign>(vitalSigns, totalRecords, pageNo, limit);
-
             return Ok(paginatedResult);
         }
 
+        // Delete a VitalSign
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVitalSign(long id)
+        public async Task<IActionResult> DeleteVitalSign(Guid id, CancellationToken cancellationToken)
         {
-            var existingVitalSign = await _vitalSignService.GetAsync(id);
+            var existingVitalSign = await _vitalSignService.GetAsync(id, cancellationToken);
             if (existingVitalSign == null)
             {
                 return NotFound(new { success = false, message = "VitalSign not found." });
             }
 
-            await _vitalSignService.DeleteAsync(id);
+            await _vitalSignService.DeleteAsync(id, cancellationToken);
             return Ok(new { success = true, message = "VitalSign deleted successfully." });
         }
     }

@@ -1,16 +1,15 @@
 ﻿using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Repositories.Interfaces;
 
-namespace SoCot_HC_BE.Services.Interfaces
+public interface IVitalSignService : IRepository<VitalSign, Guid>
 {
-    public interface IVitalSignService
-    {
-        Task<List<VitalSign>> GetAllAsync();
-        Task<VitalSign?> GetAsync(long id);
-        Task AddAsync(VitalSign entity);
-        Task UpdateAsync(VitalSign entity);
-        Task DeleteAsync(long id);
-        Task<List<VitalSign>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null);
-        Task<int> CountAsync(string? keyword = null);
-    }
+    // Get a list of VitalSigns with paging, using CancellationToken for async cancellation support.
+    Task<List<VitalSign>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default);
 
+    // Get the total count of VitalSigns, again supporting async cancellation.
+    Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default);
+
+    // This method could still be useful, but ideally, you want everything to use CancellationToken.
+    // If you're doing a method without CancellationToken, it's best to reconsider whether it's needed.
+    Task<List<VitalSign>> GetAllWithoutTokenAsync();
 }

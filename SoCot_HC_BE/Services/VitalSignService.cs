@@ -1,57 +1,51 @@
-﻿using SoCot_HC_BE.Model;
-using SoCot_HC_BE.Repositories.Interfaces;
-using SoCot_HC_BE.Services.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using SoCot_HC_BE.Data;
+using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Repositories;
 
 namespace SoCot_HC_BE.Services
 {
-    public class VitalSignService : IVitalSignService
+    public class VitalSignService : Repository<VitalSign, Guid>, IVitalSignService
     {
-        private readonly IRepository<VitalSign, long> _repository;
-
-        // Injecting the generic repository for CRUD operations
-        public VitalSignService(IRepository<VitalSign, long> repository)
+        public VitalSignService(AppDbContext context) : base(context)
         {
-            _repository = repository;
         }
 
-        // CRUD Operations
-        public async Task<List<VitalSign>> GetAllAsync() => await _repository.GetAllAsync();
-        public async Task<VitalSign?> GetAsync(long id) => await _repository.GetAsync(id);
-        public async Task AddAsync(VitalSign entity) => await _repository.AddAsync(entity);
-        public async Task UpdateAsync(VitalSign entity) => await _repository.UpdateAsync(entity);
-        public async Task DeleteAsync(long id) => await _repository.DeleteAsync(id);
-
-        // Pagination & Filtering (added methods)
-        public async Task<List<VitalSign>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null)
+        // Get a list of VitalSigns with paging and cancellation support.
+        public async Task<List<VitalSign>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
         {
-            // Fetch the list of VitalSigns from the repository
-            var vitalSigns = await GetAllAsync();
+            var query = _dbSet.AsQueryable();
 
-            // Apply filtering based on the keyword, if provided
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                /*vitalSigns = vitalSigns.Where(v => v.Name.Contains(keyword)).ToList();*/ // Adjust filtering as needed
-            }
+            // If keyword is provided, filter based on it (example: searching by BloodPressure)
+            //if (!string.IsNullOrEmpty(keyword))
+            //{
+            //    query = query.Where(v => v.BloodPressure.Contains(keyword)); // You can adjust this to your need
+            //}
 
-            // Apply pagination (skip and take)
-            return vitalSigns.Skip((pageNo - 1) * limit).Take(limit).ToList();
+            return await query
+                .Skip((pageNo - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken); // Pass the CancellationToken here
         }
 
-        // Count total records for pagination
-        public async Task<int> CountAsync(string? keyword = null)
+        // Count the number of VitalSigns, supporting cancellation.
+        public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
         {
-            // Fetch the list of VitalSigns from the repository
-            var vitalSigns = await GetAllAsync();
+            var query = _dbSet.AsQueryable();
 
-            // Apply filtering based on the keyword, if provided
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                /*vitalSigns = vitalSigns.Where(v => v.Name.Contains(keyword)).ToList();*/ // Adjust filtering as needed
-            }
+            // If keyword is provided, filter based on it (example: searching by BloodPressure)
+            //if (!string.IsNullOrEmpty(keyword))
+            //{
+            //    query = query.Where(v => v.BloodPressure.Contains(keyword)); // You can adjust this to your need
+            //}
 
-            // Return the count of records
-            return vitalSigns.Count();
+            return await query.CountAsync(cancellationToken); // Pass the CancellationToken here
+        }
+
+        // Optional: Get all VitalSigns without cancellation support (not recommended for production)
+        public async Task<List<VitalSign>> GetAllWithoutTokenAsync()
+        {
+            return await _dbSet.ToListAsync();
         }
     }
-
 }

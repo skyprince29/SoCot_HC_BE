@@ -1,75 +1,51 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Repositories.Interfaces;
+using System.Threading;
 
 namespace SoCot_HC_BE.Repositories
 {
     public class Repository<T, TKey> : IRepository<T, TKey> where T : class
     {
-        private readonly AppDbContext _context;
-        private readonly DbSet<T> _dbSet;
+        protected readonly AppDbContext _context;
+        protected readonly DbSet<T> _dbSet;
 
-        // Constructor that accepts the AppDbContext
         public Repository(AppDbContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();
         }
 
-        // Get a single entity by its ID
-        public async Task<T?> GetAsync(TKey id)
+        public virtual async Task<T?> GetAsync(TKey id, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.FindAsync(id); // This will now return null if not found
+            return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
         }
 
-        // Get all entities
-        public async Task<List<T>> GetAllAsync()
+        public virtual async Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _dbSet.ToListAsync();
+            return await _dbSet.ToListAsync(cancellationToken);
         }
 
-        // Add a new entity
-        public async Task AddAsync(T entity)
+        public virtual async Task AddAsync(T entity, CancellationToken cancellationToken = default)
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity), "Entity cannot be null");
-            }
-
-            await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            await _dbSet.AddAsync(entity, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        // Update an existing entity
-        public async Task UpdateAsync(T entity)
+        public virtual async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity), "Entity cannot be null");
-            }
-
             _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        // Delete an entity by its ID
-        public async Task DeleteAsync(TKey id)
+        public virtual async Task DeleteAsync(TKey id, CancellationToken cancellationToken = default)
         {
-            if (id == null)
+            var entity = await GetAsync(id, cancellationToken);
+            if (entity != null)
             {
-                throw new ArgumentNullException(nameof(id), "ID cannot be null");
+                _dbSet.Remove(entity);
+                await _context.SaveChangesAsync(cancellationToken);
             }
-
-            T? entity = await _dbSet.FindAsync(id);  // Now this can be null
-            if (entity == null)
-            {
-                throw new ArgumentException("Entity not found", nameof(id));
-            }
-
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
         }
     }
-
-
 }
