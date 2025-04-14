@@ -3,7 +3,6 @@ using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Repositories.Interfaces;
 using SoCot_HC_BE.Services;
-using SoCot_HC_BE.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
