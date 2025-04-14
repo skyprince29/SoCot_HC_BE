@@ -19,6 +19,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<Province> Provice {  get; set; }
         public DbSet<CityMunicipality> CityMunicipality { get; set; }
         public DbSet<PatientRegistry> PatientRegistry { get; set; }
+        public DbSet<ServiceClassification> ServiceClassification { get; set; }
 
         // Add more DbSets here...
 

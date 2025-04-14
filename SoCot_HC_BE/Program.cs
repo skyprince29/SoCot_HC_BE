@@ -36,6 +36,7 @@ builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 // Register Specific Service
 builder.Services.AddScoped<IVitalSignService, VitalSignService>();
 builder.Services.AddScoped<IPatientRegistryService, PatientRegistryService>();
+builder.Services.AddScoped<IServiceClassificationService, ServiceClassificationService>();
 
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
