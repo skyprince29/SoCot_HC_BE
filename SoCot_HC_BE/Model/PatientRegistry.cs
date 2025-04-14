@@ -19,11 +19,5 @@ namespace SoCot_HC_BE.Model
         public int? Age { get; set; }
         public bool IsTemporaryPatient { get; set; }
         public PatientRegistryType PatientRegistryType { get; set; }
-        [NotMapped]
-        public string? LastName { get; set; }
-        [NotMapped]
-        public string? FirstName { get; set; }
-        [NotMapped]
-        public DateTime BirthDate { get; set; }
     }
 }

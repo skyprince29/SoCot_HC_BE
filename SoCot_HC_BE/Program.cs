@@ -3,6 +3,7 @@ using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Repositories.Interfaces;
 using SoCot_HC_BE.Services;
+using SoCot_HC_BE.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,7 @@ builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
 // Register Specific Service
 builder.Services.AddScoped<IVitalSignService, VitalSignService>();
+builder.Services.AddScoped<IPatientRegistryService, PatientRegistryService>();
 
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
