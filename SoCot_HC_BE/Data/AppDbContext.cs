@@ -21,6 +21,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<Barangay> Barangay { get; set; }
         public DbSet<PatientRegistry> PatientRegistry { get; set; }
         public DbSet<ServiceClassification> ServiceClassification { get; set; }
+        public DbSet<Facility> Facility { get; set; }
 
         // Add more DbSets here...
 

@@ -49,7 +49,6 @@ namespace SoCot_HC_BE.Services
             bool isNew = patientRegistry.PatientRegistryId == Guid.Empty;
             ValidateFields(patientRegistry);
 
-
             if (isNew)
             {
                 patientRegistry.PatientRegistryId = Guid.NewGuid();
