@@ -18,7 +18,7 @@ namespace SoCot_HC_BE.Controllers
         }
 
         // Get a specific Facility by ID
-        [HttpGet("{id}")]
+        [HttpGet("GetFacility/{id}")]
         public async Task<IActionResult> GetFacility(int id, CancellationToken cancellationToken)
         {
             var facility = await _facilityService.GetAsync(id, cancellationToken);
@@ -31,7 +31,7 @@ namespace SoCot_HC_BE.Controllers
         }
 
         // Get all Facility with paging
-        [HttpGet]
+        [HttpGet("GetPagedFacilities")]
         public async Task<IActionResult> GetPagedFacilities(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
         {
             if (pageNo <= 0 || limit <= 0)
@@ -46,8 +46,16 @@ namespace SoCot_HC_BE.Controllers
             return Ok(paginatedResult);
         }
 
+        // Get facilities
+        [HttpGet("GetFacilities")]
+        public async Task<IActionResult> GetFacilities(CancellationToken cancellationToken)
+        {
+            var items = await _facilityService.GetAllAsync(cancellationToken);
+            return Ok(items);
+        }
+
         // Get all active facilities
-        [HttpGet("allActive")]
+        [HttpGet("GetAllActiveFacilities")]
         public async Task<IActionResult> GetAllActiveFacilities(CancellationToken cancellationToken)
         {
             var items = await _facilityService.GetAllActiveOnlyAsync(cancellationToken);
@@ -55,14 +63,14 @@ namespace SoCot_HC_BE.Controllers
         }
 
         // Get active facilties including a specific item
-        [HttpGet("allActive/{currentId}")]
+        [HttpGet("GetAllActiveFacilities/{currentId}")]
         public async Task<IActionResult> GetAllActiveWithCurrentFaciltities(int currentId, CancellationToken cancellationToken)
         {
             var items = await _facilityService.GetAllActiveWithCurrentAsync(currentId, cancellationToken);
             return Ok(items);
         }
 
-        [HttpPost(Name = "SaveFacility")]
+        [HttpPost("SaveFacility")]
         public async Task<IActionResult> SaveFacility(Facility facility, CancellationToken cancellationToken)
         {
             try
