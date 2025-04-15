@@ -13,6 +13,15 @@ namespace SoCot_HC_BE.Services
         {
         }
 
+        //Overloads method from Repository, Added facility to eager loading
+        public override async Task<PatientRegistry?> GetAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .Include(pr => pr.Facility)
+                .FirstOrDefaultAsync(pr => pr.PatientRegistryId == id, cancellationToken);
+        }
+
+
         public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
         {
             var query = _dbSet.AsQueryable();
@@ -28,7 +37,7 @@ namespace SoCot_HC_BE.Services
 
         public async Task<List<PatientRegistry>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
         {
-            var query = _dbSet.AsQueryable();
+            var query = _dbSet.Include(p => p.Facility).AsQueryable();
 
             if (!string.IsNullOrEmpty(keyword))
             {
@@ -68,14 +77,13 @@ namespace SoCot_HC_BE.Services
 
                 await UpdateAsync(existing, cancellationToken);
             }
-
-            await _context.SaveChangesAsync(cancellationToken);
         }
 
         private void ValidateFields(PatientRegistry patientRegistry)
         {
             var errors = new Dictionary<string, List<string>>();
 
+            ValidationHelper.IsRequired(errors, nameof(patientRegistry.FacilityId), patientRegistry.FacilityId, "Facility");
             ValidationHelper.IsRequired(errors, nameof(patientRegistry.PatientRegistryType), patientRegistry.PatientRegistryType, "Registry Type");
 
             bool isTemporary = patientRegistry.IsTemporaryPatient;

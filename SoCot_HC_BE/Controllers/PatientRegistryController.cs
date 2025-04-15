@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SCHC_API.Handler;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
 
@@ -17,7 +19,7 @@ namespace SoCot_HC_BE.Controllers
         }
 
         // Save or update a Patient Registry
-        [HttpPost(Name = "SavePatientRegistry")]
+        [HttpPost("SavePatientRegistry")]
         public async Task<IActionResult> SavePatientRegistry(PatientRegistry patientRegistry, CancellationToken cancellationToken)
         {
             try
@@ -44,7 +46,7 @@ namespace SoCot_HC_BE.Controllers
 
                 var modelErrors = ModelState.ToDictionary(
                     kvp => kvp.Key,
-                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                    kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToList()
                 );
 
                 return BadRequest(new { success = false, errors = modelErrors });
@@ -52,7 +54,7 @@ namespace SoCot_HC_BE.Controllers
         }
 
         // Get a specific Patient Registry by ID
-        [HttpGet("{id}")]
+        [HttpGet("GetPatientRegistry/{id}")]
         public async Task<IActionResult> GetPatientRegistry(Guid id, CancellationToken cancellationToken)
         {
             var patientRegistry = await _patientRegistryService.GetAsync(id, cancellationToken);
@@ -62,6 +64,22 @@ namespace SoCot_HC_BE.Controllers
             }
 
             return Ok(patientRegistry);
+        }
+
+        // Get all Patient Registry with paging
+        [HttpGet("GetPagedPatientRegistries")]
+        public async Task<IActionResult> GetPagedPatientRegistries(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
+        {
+            if (pageNo <= 0 || limit <= 0)
+            {
+                return BadRequest(new { message = "Page number and limit must be greater than zero." });
+            }
+
+            var patientRegistries = await _patientRegistryService.GetAllWithPagingAsync(pageNo, limit, keyword, cancellationToken);
+            var totalRecords = await _patientRegistryService.CountAsync(keyword, cancellationToken);
+
+            var paginatedResult = new PaginationHandler<PatientRegistry>(patientRegistries, totalRecords, pageNo, limit);
+            return Ok(paginatedResult);
         }
     }
 }
