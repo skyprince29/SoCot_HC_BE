@@ -24,9 +24,11 @@ namespace SoCot_HC_BE.Migrations
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Barangay", b =>
                 {
-                    b.Property<Guid>("BarangayId")
+                    b.Property<int>("BarangayId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BarangayId"));
 
                     b.Property<string>("BarangayName")
                         .IsRequired()
@@ -136,7 +138,7 @@ namespace SoCot_HC_BE.Migrations
 
                     b.HasKey("ProvinceId");
 
-                    b.ToTable("Provice");
+                    b.ToTable("Province");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.ServiceClassification", b =>
