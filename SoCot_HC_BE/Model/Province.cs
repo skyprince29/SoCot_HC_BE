@@ -7,8 +7,6 @@ namespace SoCot_HC_BE.Model
         [Key]
         public int ProvinceId { get; set; }
         [MaxLength(100)]
-        public string Name { get; set; }
-        [MaxLength(5)]
-        public string ProvinceCode { get; set; }
+        public string ProvinceName { get; set; }
     }
 }
