@@ -97,7 +97,7 @@ namespace SoCot_HC_BE.Controllers
 
                 var modelErrors = ModelState.ToDictionary(
                     kvp => kvp.Key,
-                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                    kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToList()
                 );
 
                 return BadRequest(new { success = false, errors = modelErrors });

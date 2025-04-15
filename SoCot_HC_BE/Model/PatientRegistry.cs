@@ -1,7 +1,6 @@
 ﻿using SoCot_HC_BE.Model.BaseModels;
 using SoCot_HC_BE.Model.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoCot_HC_BE.Model
 {
@@ -33,5 +32,12 @@ namespace SoCot_HC_BE.Model
         public bool IsTemporaryPatient { get; set; }
         [MaxLength(20)]
         public required PatientRegistryType PatientRegistryType { get; set; } // Enum stored as int
+
+        //Need to implement this if there is already a user table
+        //One-to-one with Facility (int FK)
+        //public int FacilityId { get; set; }
+
+        //[ForeignKey("FacilityId")]
+        //public Facility Facility { get; set; } = null!;
     }
 }

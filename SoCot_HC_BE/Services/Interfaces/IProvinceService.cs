@@ -6,6 +6,5 @@ namespace SoCot_HC_BE.Services.Interfaces
     public interface IProvinceService : IRepository<Province, int>
     {
         Task<List<Province>> GetProvinces(CancellationToken cancellationToken = default);
-        Task<Province> GetProvince(int ProviceId, CancellationToken cancellationToken = default);
     }
 }

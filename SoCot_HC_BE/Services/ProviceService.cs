@@ -12,11 +12,6 @@ namespace SoCot_HC_BE.Services
         {
         }
 
-        public async Task<Province> GetProvince(int ProviceId, CancellationToken cancellationToken = default)
-        {
-            return await _dbSet.(ProviceId);
-        }
-
         public async Task<List<Province>> GetProvinces(CancellationToken cancellationToken = default)
         {
             return await _dbSet.AsNoTracking().ToListAsync();
