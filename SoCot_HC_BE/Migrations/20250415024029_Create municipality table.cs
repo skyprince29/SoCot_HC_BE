@@ -5,7 +5,7 @@
 namespace SoCot_HC_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedMunicipalityTable : Migration
+    public partial class Createmunicipalitytable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

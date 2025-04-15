@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SoCot_HC_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedPatientRegistryTable : Migration
+    public partial class Createpatientregistrytable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,16 +16,16 @@ namespace SoCot_HC_BE.Migrations
                 columns: table => new
                 {
                     PatientRegistryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PatientRegistryCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ReferralNo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PatientRegistryCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
+                    ReferralNo = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
                     PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ContactNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Gender = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ContactNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
                     Age = table.Column<int>(type: "int", nullable: true),
                     IsTemporaryPatient = table.Column<bool>(type: "bit", nullable: false),
-                    PatientRegistryType = table.Column<int>(type: "int", nullable: false),
+                    PatientRegistryType = table.Column<int>(type: "int", maxLength: 20, nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),

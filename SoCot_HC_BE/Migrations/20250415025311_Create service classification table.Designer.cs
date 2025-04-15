@@ -12,8 +12,8 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250415011803_Added Barangay table")]
-    partial class AddedBarangaytable
+    [Migration("20250415025311_Create service classification table")]
+    partial class Createserviceclassificationtable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,6 +70,69 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("Municipality");
                 });
 
+            modelBuilder.Entity("SoCot_HC_BE.Model.PatientRegistry", b =>
+                {
+                    b.Property<Guid>("PatientRegistryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("Age")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContactNumber")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsTemporaryPatient")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PatientRegistryCode")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
+
+                    b.Property<int>("PatientRegistryType")
+                        .HasMaxLength(20)
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReferralNo")
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PatientRegistryId");
+
+                    b.ToTable("PatientRegistry");
+                });
+
             modelBuilder.Entity("SoCot_HC_BE.Model.Province", b =>
                 {
                     b.Property<int>("ProvinceId")
@@ -86,6 +149,27 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("ProvinceId");
 
                     b.ToTable("Province");
+                });
+
+            modelBuilder.Entity("SoCot_HC_BE.Model.ServiceClassification", b =>
+                {
+                    b.Property<int>("ServiceClassificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceClassificationId"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("ServiceClassificationId");
+
+                    b.ToTable("ServiceClassification");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.VitalSign", b =>

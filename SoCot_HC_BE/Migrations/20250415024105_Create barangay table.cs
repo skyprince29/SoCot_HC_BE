@@ -5,7 +5,7 @@
 namespace SoCot_HC_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedBarangaytable : Migration
+    public partial class Createbarangaytable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -12,8 +12,8 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250415010646_Added Municipality Table")]
-    partial class AddedMunicipalityTable
+    [Migration("20250415024105_Create barangay table")]
+    partial class Createbarangaytable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,28 @@ namespace SoCot_HC_BE.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("SoCot_HC_BE.Model.Barangay", b =>
+                {
+                    b.Property<int>("BarangayId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BarangayId"));
+
+                    b.Property<string>("BarangayName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MunicipalityId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BarangayId");
+
+                    b.HasIndex("MunicipalityId");
+
+                    b.ToTable("Barangay");
+                });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Municipality", b =>
                 {
@@ -108,6 +130,17 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("VitalSignId");
 
                     b.ToTable("VitalSigns");
+                });
+
+            modelBuilder.Entity("SoCot_HC_BE.Model.Barangay", b =>
+                {
+                    b.HasOne("SoCot_HC_BE.Model.Municipality", "Municipality")
+                        .WithMany()
+                        .HasForeignKey("MunicipalityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Municipality");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Municipality", b =>

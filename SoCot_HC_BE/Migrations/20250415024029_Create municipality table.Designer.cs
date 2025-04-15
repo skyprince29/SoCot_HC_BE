@@ -12,8 +12,8 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250415011953_Added Patient Registry Table")]
-    partial class AddedPatientRegistryTable
+    [Migration("20250415024029_Create municipality table")]
+    partial class Createmunicipalitytable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,28 +24,6 @@ namespace SoCot_HC_BE.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Barangay", b =>
-                {
-                    b.Property<int>("BarangayId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BarangayId"));
-
-                    b.Property<string>("BarangayName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MunicipalityId")
-                        .HasColumnType("int");
-
-                    b.HasKey("BarangayId");
-
-                    b.HasIndex("MunicipalityId");
-
-                    b.ToTable("Barangay");
-                });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Municipality", b =>
                 {
@@ -68,62 +46,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasIndex("ProvinceId");
 
                     b.ToTable("Municipality");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.PatientRegistry", b =>
-                {
-                    b.Property<Guid>("PatientRegistryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Age")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ContactNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsTemporaryPatient")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PatientRegistryCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PatientRegistryType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ReferralNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("PatientRegistryId");
-
-                    b.ToTable("PatientRegistry");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Province", b =>
@@ -186,17 +108,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("VitalSignId");
 
                     b.ToTable("VitalSigns");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Barangay", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Municipality", "Municipality")
-                        .WithMany()
-                        .HasForeignKey("MunicipalityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Municipality");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Municipality", b =>

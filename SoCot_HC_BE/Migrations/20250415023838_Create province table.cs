@@ -5,7 +5,7 @@
 namespace SoCot_HC_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedProvinceTable : Migration
+    public partial class Createprovincetable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -5,7 +5,7 @@
 namespace SoCot_HC_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedServiceClassificationtable : Migration
+    public partial class Createserviceclassificationtable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

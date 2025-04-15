@@ -11,7 +11,6 @@ namespace SoCot_HC_BE.Model
         [Key]
         public int ServiceClassificationId { get; set; }
 
-        [Required]
         [MaxLength(100)]
         public required string Name { get; set; }
 
