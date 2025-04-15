@@ -93,8 +93,6 @@ namespace SoCot_HC_BE.Services
 
                 await UpdateAsync(existing, cancellationToken);
             }
-
-            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }
