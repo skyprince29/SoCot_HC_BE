@@ -23,6 +23,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<ServiceClassification> ServiceClassification { get; set; }
         public DbSet<Address> Address { get; set; }
         public DbSet<Facility> Facility { get; set; }
+        public DbSet<Service> Service { get; set; }
 
         // Add more DbSets here...
 
