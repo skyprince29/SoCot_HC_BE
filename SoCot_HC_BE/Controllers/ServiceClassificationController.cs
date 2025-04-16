@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Services.Interfaces;
 
 namespace SoCot_HC_BE.Controllers
@@ -15,7 +16,7 @@ namespace SoCot_HC_BE.Controllers
         }
 
         // Get a specific service classification by ID
-        [HttpGet("{id}")]
+        [HttpGet("GetServiceClassification/{id}")]
         public async Task<IActionResult> GetServiceClassification(int id, CancellationToken cancellationToken)
         {
             var serviceClassification = await _serviceClassificationService.GetAsync(id, cancellationToken);
@@ -27,19 +28,28 @@ namespace SoCot_HC_BE.Controllers
             return Ok(serviceClassification);
         }
 
-        // Get all active service classifications
-        [HttpGet("allActive")]
-        public async Task<IActionResult> GetAllActive(CancellationToken cancellationToken)
+        [HttpGet("GetServiceClassifications")]
+        public async Task<IActionResult> GetServiceClassifications(
+        [FromQuery] bool isActiveOnly = true,
+        [FromQuery] int? currentId = null,
+        CancellationToken cancellationToken = default
+        )
         {
-            var items = await _serviceClassificationService.GetAllActiveOnlyAsync(cancellationToken);
-            return Ok(items);
-        }
+            IEnumerable<ServiceClassification> items;
 
-        // Get active service classifications including a specific item
-        [HttpGet("allActive/{currentId}")]
-        public async Task<IActionResult> GetAllActiveWithCurrent(int currentId, CancellationToken cancellationToken)
-        {
-            var items = await _serviceClassificationService.GetAllActiveWithCurrentAsync(currentId, cancellationToken);
+            if (isActiveOnly && currentId.HasValue && currentId.Value > 0)
+            {
+                items = await _serviceClassificationService.GetAllActiveWithCurrentAsync(currentId.Value, cancellationToken);
+            }
+            else if (isActiveOnly)
+            {
+                items = await _serviceClassificationService.GetAllActiveOnlyAsync(cancellationToken);
+            }
+            else
+            {
+                items = await _serviceClassificationService.GetAllAsync(cancellationToken);
+            }
+
             return Ok(items);
         }
     }
