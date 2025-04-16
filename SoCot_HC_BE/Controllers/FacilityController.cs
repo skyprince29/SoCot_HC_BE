@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
 
@@ -30,6 +31,31 @@ namespace SoCot_HC_BE.Controllers
             return Ok(facility);
         }
 
+        [HttpGet("GetFacilities")]
+        public async Task<IActionResult> GetFacilities(
+        [FromQuery] bool isActiveOnly = true,
+        [FromQuery] int? currentId = null,
+        CancellationToken cancellationToken = default
+        )
+        {
+            IEnumerable<Facility> items;
+
+            if (isActiveOnly && currentId.HasValue && currentId.Value > 0)
+            {
+                items = await _facilityService.GetAllActiveWithCurrentAsync(currentId.Value, cancellationToken);
+            }
+            else if (isActiveOnly)
+            {
+                items = await _facilityService.GetAllActiveOnlyAsync(cancellationToken);
+            }
+            else
+            {
+                items = await _facilityService.GetAllAsync(cancellationToken);
+            }
+
+            return Ok(items);
+        }
+
         // Get all Facility with paging
         [HttpGet("GetPagedFacilities")]
         public async Task<IActionResult> GetPagedFacilities(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
@@ -44,30 +70,6 @@ namespace SoCot_HC_BE.Controllers
 
             var paginatedResult = new PaginationHandler<Facility>(facilities, totalRecords, pageNo, limit);
             return Ok(paginatedResult);
-        }
-
-        // Get facilities
-        [HttpGet("GetFacilities")]
-        public async Task<IActionResult> GetFacilities(CancellationToken cancellationToken)
-        {
-            var items = await _facilityService.GetAllAsync(cancellationToken);
-            return Ok(items);
-        }
-
-        // Get all active facilities
-        [HttpGet("GetAllActiveFacilities")]
-        public async Task<IActionResult> GetAllActiveFacilities(CancellationToken cancellationToken)
-        {
-            var items = await _facilityService.GetAllActiveOnlyAsync(cancellationToken);
-            return Ok(items);
-        }
-
-        // Get active facilties including a specific item
-        [HttpGet("GetAllActiveFacilities/{currentId}")]
-        public async Task<IActionResult> GetAllActiveWithCurrentFaciltities(int currentId, CancellationToken cancellationToken)
-        {
-            var items = await _facilityService.GetAllActiveWithCurrentAsync(currentId, cancellationToken);
-            return Ok(items);
         }
 
         [HttpPost("SaveFacility")]
