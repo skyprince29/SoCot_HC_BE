@@ -25,6 +25,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<Facility> Facility { get; set; }
         public DbSet<Person> Person { get; set; }
         public DbSet<Service> Service { get; set; }
+        public DbSet<Personnel> Personnel { get; set; }
 
         // Add more DbSets here...
 
