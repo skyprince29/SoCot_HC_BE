@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250421011952_Create_Person")]
+    partial class Create_Person
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,9 +218,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FacilityId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Gender")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -240,6 +240,7 @@ namespace SoCot_HC_BE.Migrations
                         .HasColumnType("nvarchar(25)");
 
                     b.Property<int>("PatientRegistryType")
+                        .HasMaxLength(20)
                         .HasColumnType("int");
 
                     b.Property<string>("ReferralNo")
@@ -253,8 +254,6 @@ namespace SoCot_HC_BE.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("PatientRegistryId");
-
-                    b.HasIndex("FacilityId");
 
                     b.ToTable("PatientRegistry");
                 });
@@ -353,51 +352,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("ProvinceId");
 
                     b.ToTable("Province");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Service", b =>
-                {
-                    b.Property<Guid>("ServiceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("FacilityId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ServiceClassificationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ServiceName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ServiceId");
-
-                    b.HasIndex("FacilityId");
-
-                    b.HasIndex("ServiceClassificationId");
-
-                    b.ToTable("Service");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.ServiceClassification", b =>
@@ -534,36 +488,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("PersonsWithPermanentAddress");
 
                     b.Navigation("PersonsWithResidentialAddress");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.PatientRegistry", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Facility", "Facility")
-                        .WithMany()
-                        .HasForeignKey("FacilityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Facility");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Service", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Facility", "Facility")
-                        .WithMany()
-                        .HasForeignKey("FacilityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.ServiceClassification", "ServiceClassification")
-                        .WithMany()
-                        .HasForeignKey("ServiceClassificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Facility");
-
-                    b.Navigation("ServiceClassification");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Barangay", b =>

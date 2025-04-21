@@ -42,6 +42,11 @@ namespace SoCot_HC_BE.Model
         [InverseProperty("Address")]
         public virtual required Province Province { get; set; }
 
+        [InverseProperty("ResidentialAddress")]
+        public virtual ICollection<Person> PersonsWithResidentialAddress { get; set; } = new List<Person>();
+        [InverseProperty("PermanentAddress")]
+        public virtual ICollection<Person> PersonsWithPermanentAddress { get; set; } = new List<Person>();
+
         [NotMapped]
         public string FullAddress
         {
