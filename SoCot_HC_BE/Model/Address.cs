@@ -47,6 +47,9 @@ namespace SoCot_HC_BE.Model
         [InverseProperty("PermanentAddress")]
         public virtual ICollection<Person> PersonsWithPermanentAddress { get; set; } = new List<Person>();
 
+        [InverseProperty("HouseholdAddress")]
+        public virtual ICollection<Household> HouseholdAddress { get; set; } = new List<Household>();
+
         [NotMapped]
         public string FullAddress
         {

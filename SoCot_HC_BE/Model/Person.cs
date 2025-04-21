@@ -47,6 +47,10 @@ namespace SoCot_HC_BE.Model
         public virtual Address? PermanentAddress { get; set; }
 
 
+        [InverseProperty("HoHPerson")]
+        public virtual ICollection<Household> HouseholdWithHoHPerson { get; set; } = new List<Household>();
+
+
 
 
 

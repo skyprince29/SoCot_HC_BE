@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250421065033_updateResidenceNameMaxCharTo50")]
+    partial class updateResidenceNameMaxCharTo50
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -371,42 +374,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("Person");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.Personnel", b =>
-                {
-                    b.Property<Guid>("PersonnelId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("FacilityId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("PersonId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("PersonnelId");
-
-                    b.HasIndex("FacilityId");
-
-                    b.HasIndex("PersonId");
-
-                    b.ToTable("Personnel");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.Province", b =>
                 {
                     b.Property<int>("ProvinceId")
@@ -423,104 +390,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("ProvinceId");
 
                     b.ToTable("Province");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Referral", b =>
-                {
-                    b.Property<Guid>("ReferralId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("AdmissionDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ArrivalDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("AttendingPhysicianId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Complains")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DischargeDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DischargeInstructions")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<int?>("FacilityReferredFromFacilityId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("FacilityReferredToFacilityId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsAccepted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("PersonnelId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<DateTime>("ReferralDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ReferralNo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("ReferredFrom")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ReferredTo")
-                        .HasColumnType("int");
-
-                    b.Property<long>("ReferrenceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Status")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("TempRefId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("isAlreadyUse")
-                        .HasColumnType("bit");
-
-                    b.HasKey("ReferralId");
-
-                    b.HasIndex("AttendingPhysicianId");
-
-                    b.HasIndex("FacilityReferredFromFacilityId");
-
-                    b.HasIndex("FacilityReferredToFacilityId");
-
-                    b.HasIndex("PersonnelId");
-
-                    b.ToTable("Referral");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Service", b =>
@@ -725,52 +594,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("PermanentAddress");
 
                     b.Navigation("ResidentialAddress");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Personnel", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Facility", "Facility")
-                        .WithMany()
-                        .HasForeignKey("FacilityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Person", "Person")
-                        .WithMany()
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Facility");
-
-                    b.Navigation("Person");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Referral", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Personnel", "AttendingPhysician")
-                        .WithMany()
-                        .HasForeignKey("AttendingPhysicianId");
-
-                    b.HasOne("SoCot_HC_BE.Model.Facility", "FacilityReferredFrom")
-                        .WithMany()
-                        .HasForeignKey("FacilityReferredFromFacilityId");
-
-                    b.HasOne("SoCot_HC_BE.Model.Facility", "FacilityReferredTo")
-                        .WithMany()
-                        .HasForeignKey("FacilityReferredToFacilityId");
-
-                    b.HasOne("SoCot_HC_BE.Model.Personnel", "Personnel")
-                        .WithMany()
-                        .HasForeignKey("PersonnelId");
-
-                    b.Navigation("AttendingPhysician");
-
-                    b.Navigation("FacilityReferredFrom");
-
-                    b.Navigation("FacilityReferredTo");
-
-                    b.Navigation("Personnel");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Service", b =>
