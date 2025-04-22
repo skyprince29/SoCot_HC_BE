@@ -9,10 +9,12 @@ namespace SoCot_HC_BE.Model
         public int BarangayId { get; set; }
         public required string BarangayName { get; set; }
         public int MunicipalityId { get; set; }
-        [ForeignKey("MunicipalityId")]
+
+        [ForeignKey(nameof(MunicipalityId))]
+        [InverseProperty(nameof(Municipality.Barangays))]
         public virtual required Municipality Municipality { get; set; }
 
-        [InverseProperty("Barangay")]
-        public virtual ICollection<Address> Address { get; set; } = new List<Address>();
+        [InverseProperty(nameof(Address.Barangay))]
+        public ICollection<Address> Addresses { get; set; } = new List<Address>();
     }
 }

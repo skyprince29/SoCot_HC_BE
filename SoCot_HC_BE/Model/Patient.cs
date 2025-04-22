@@ -21,23 +21,21 @@ namespace SoCot_HC_BE.Model
         public int PatientIdTemp { get; set; }
         public bool IsActive { get; set; }
 
-        // Navigation Properties
         [ForeignKey(nameof(PersonIdPatient))]
-        [InverseProperty("PatientsAsSelf")]
-        public virtual required Person PatientPerson { get; set; }
+        [InverseProperty(nameof(Person.PatientsAsSelf))]
+        public virtual required Person PersonAsSelf { get; set; }
 
         [ForeignKey(nameof(PersonIdSpouse))]
-        [InverseProperty("PatientsAsSpouse")]
-        public virtual Person? SpousePerson { get; set; }
+        [InverseProperty(nameof(Person.PatientsAsSpouse))]
+        public virtual Person? PersonAsSpouse { get; set; }
 
         [ForeignKey(nameof(PersonIdMother))]
-        [InverseProperty("PatientsAsMother")]
-        public virtual Person? MotherPerson { get; set; }
+        [InverseProperty(nameof(Person.PatientsAsMother))]
+        public virtual Person? PersonAsMother { get; set; }
 
         [ForeignKey(nameof(PersonIdFather))]
-        [InverseProperty("PatientsAsFather")]
-        public virtual Person? FatherPerson { get; set; }
-
+        [InverseProperty(nameof(Person.PatientsAsFather))]
+        public virtual Person? PersonAsFather { get; set; }
 
     }
 }

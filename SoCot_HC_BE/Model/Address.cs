@@ -6,8 +6,6 @@ namespace SoCot_HC_BE.Model
     public class Address
     {
 
-
-
         [Key]
         public Guid AddressId { get; set; }
         public int BarangayId { get; set; }
@@ -30,25 +28,27 @@ namespace SoCot_HC_BE.Model
         [StringLength(30)]
         public string? Subdivision { get; set; }
 
-        [ForeignKey(nameof(BarangayId))]
-        [InverseProperty("Address")]
-        public virtual required Barangay Barangay { get; set; }
-
-        [ForeignKey(nameof(MunicipalityId))]
-        [InverseProperty("Address")]
-        public virtual required Municipality Municipality { get; set; }
-
         [ForeignKey(nameof(ProvinceId))]
-        [InverseProperty("Address")]
+        [InverseProperty(nameof(Province.Addresses))]
         public virtual required Province Province { get; set; }
 
-        [InverseProperty("ResidentialAddress")]
-        public virtual ICollection<Person> PersonsWithResidentialAddress { get; set; } = new List<Person>();
-        [InverseProperty("PermanentAddress")]
-        public virtual ICollection<Person> PersonsWithPermanentAddress { get; set; } = new List<Person>();
+        [ForeignKey(nameof(MunicipalityId))]
+        [InverseProperty(nameof(Municipality.Addresses))]
+        public virtual required Municipality Municipality { get; set; }
 
-        [InverseProperty("HouseholdAddress")]
-        public virtual ICollection<Household> HouseholdAddress { get; set; } = new List<Household>();
+        [ForeignKey(nameof(BarangayId))]
+        [InverseProperty(nameof(Barangay.Addresses))]
+        public virtual required Barangay Barangay { get; set; }
+
+        [InverseProperty(nameof(Person.AddressAsResidential))]
+        public ICollection<Person> PersonsWithResidentialAddress { get; set; } = new List<Person>();
+        [InverseProperty(nameof(Person.AddressAsPermanent))]
+        public ICollection<Person> PersonsWithPermanentAddress { get; set; } = new List<Person>();
+
+        [InverseProperty(nameof(Household.Address))]
+        public ICollection<Household> Households { get; set; } = new List<Household>();
+
+
 
         [NotMapped]
         public string FullAddress

@@ -9,12 +9,17 @@ namespace SoCot_HC_BE.Model
         [Key]
         public int MunicipalityId {  get; set; }
         public int ProvinceId { get; set; }
-        [ForeignKey("ProvinceId")]
-        public virtual required Province Province { get; set; }
         [MaxLength(100)]
         public required string MunicipalityName { get; set; }
 
-        [InverseProperty("Municipality")]
-        public virtual ICollection<Address> Address { get; set; } = new List<Address>();
+        [ForeignKey(nameof(ProvinceId))]
+        [InverseProperty(nameof(Province.Municipalities))]
+        public virtual required Province Province { get; set; }
+
+        [InverseProperty(nameof(Barangay.Municipality))]
+        public ICollection<Barangay> Barangays { get; set; } = new List<Barangay>();
+
+        [InverseProperty(nameof(Address.Municipality))]
+        public ICollection<Address> Addresses { get; set; } = new List<Address>();
     }
 }

@@ -37,35 +37,31 @@ namespace SoCot_HC_BE.Model
         [MaxLength(3)]
         public string? BloodType { get; set; }
 
-
         [ForeignKey(nameof(AddressIdResidential))]
-        [InverseProperty("PersonsWithResidentialAddress")]
-        public virtual Address? ResidentialAddress { get; set; }
+        [InverseProperty(nameof(Address.PersonsWithResidentialAddress))]
+        public virtual Address? AddressAsResidential { get; set; }
 
         [ForeignKey(nameof(AddressIdPermanent))]
-        [InverseProperty("PersonsWithPermanentAddress")]
-        public virtual Address? PermanentAddress { get; set; }
+        [InverseProperty(nameof(Address.PersonsWithPermanentAddress))]
+        public virtual Address? AddressAsPermanent { get; set; }
 
-
-        [InverseProperty("HoHPerson")]
-        public virtual ICollection<Household> HouseholdWithHoHPerson { get; set; } = new List<Household>();
-
-
-        [InverseProperty("PatientPerson")]
+        [InverseProperty(nameof(Patient.PersonAsSelf))]
         public ICollection<Patient> PatientsAsSelf { get; set; } = new List<Patient>();
 
-        [InverseProperty("SpousePerson")]
+        [InverseProperty(nameof(Patient.PersonAsSpouse))]
         public ICollection<Patient> PatientsAsSpouse { get; set; } = new List<Patient>();
 
-        [InverseProperty("MotherPerson")]
+        [InverseProperty(nameof(Patient.PersonAsMother))]
         public ICollection<Patient> PatientsAsMother { get; set; } = new List<Patient>();
 
-        [InverseProperty("FatherPerson")]
+        [InverseProperty(nameof(Patient.PersonAsFather))]
         public ICollection<Patient> PatientsAsFather { get; set; } = new List<Patient>();
 
+        [InverseProperty(nameof(Household.PersonAsHeadOfHousehold))]
+        public ICollection<Household> Households { get; set; } = new List<Household>();
 
-
-
+        [InverseProperty(nameof(Family.Person))]
+        public ICollection<Family> Families { get; set; } = new List<Family>();
 
     }
 }

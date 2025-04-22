@@ -10,8 +10,11 @@ namespace SoCot_HC_BE.Model
         [MaxLength(100)]
         public required string ProvinceName { get; set; }
 
-        [InverseProperty("Province")]
-        public virtual ICollection<Address> Address { get; set; } = new List<Address>();
+        [InverseProperty(nameof(Address.Province))]
+        public ICollection<Address> Addresses { get; set; } = new List<Address>();
+
+        [InverseProperty(nameof(Municipality.Province))]
+        public ICollection<Municipality> Municipalities { get; set; } = new List<Municipality>();
 
     }
 }
