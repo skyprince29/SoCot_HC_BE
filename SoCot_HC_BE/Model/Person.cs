@@ -51,6 +51,17 @@ namespace SoCot_HC_BE.Model
         public virtual ICollection<Household> HouseholdWithHoHPerson { get; set; } = new List<Household>();
 
 
+        [InverseProperty("PatientPerson")]
+        public ICollection<Patient> PatientsAsSelf { get; set; } = new List<Patient>();
+
+        [InverseProperty("SpousePerson")]
+        public ICollection<Patient> PatientsAsSpouse { get; set; } = new List<Patient>();
+
+        [InverseProperty("MotherPerson")]
+        public ICollection<Patient> PatientsAsMother { get; set; } = new List<Patient>();
+
+        [InverseProperty("FatherPerson")]
+        public ICollection<Patient> PatientsAsFather { get; set; } = new List<Patient>();
 
 
 
