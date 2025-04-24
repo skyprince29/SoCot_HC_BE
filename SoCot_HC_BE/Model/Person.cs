@@ -17,7 +17,7 @@ namespace SoCot_HC_BE.Model
         [MaxLength(5)]
         public string? Suffix { get; set; }
         public DateTime BirthDate { get; set; }
-        [MaxLength(50)]
+        [MaxLength(100)]
         public string? BirthPlace { get; set; }
         [MaxLength(10)]
         public required string Gender { get; set; }
@@ -32,10 +32,12 @@ namespace SoCot_HC_BE.Model
         public Guid? AddressIdResidential { get; set; }
         public Guid? AddressIdPermanent { get; set; }
         public bool IsDeceased { get; set; }
-        [MaxLength(30)]
+        [MaxLength(100)]
         public string? Citizenship { get; set; }
         [MaxLength(3)]
         public string? BloodType { get; set; }
+
+        public int PatientIdTemp { get; set; }
 
         [ForeignKey(nameof(AddressIdResidential))]
         [InverseProperty(nameof(Address.PersonsWithResidentialAddress))]

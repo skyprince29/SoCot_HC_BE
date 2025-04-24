@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250423053049_Update_Patient_PhilhealthNo_Allow_Null")]
+    partial class Update_Patient_PhilhealthNo_Allow_Null
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,8 +139,10 @@ namespace SoCot_HC_BE.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<byte>("FacilityLevel")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("FacilityLevel")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("FacilityName")
                         .IsRequired()
@@ -147,8 +152,10 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<byte>("Sector")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("Sector")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("TINNumber")
                         .HasMaxLength(15)
@@ -161,8 +168,6 @@ namespace SoCot_HC_BE.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("FacilityId");
-
-                    b.HasIndex("AddressId");
 
                     b.ToTable("Facility");
                 });
@@ -376,16 +381,16 @@ namespace SoCot_HC_BE.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("BirthPlace")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("BloodType")
                         .HasMaxLength(3)
                         .HasColumnType("nvarchar(3)");
 
                     b.Property<string>("Citizenship")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("CivilStatus")
                         .HasMaxLength(20)
@@ -739,17 +744,6 @@ namespace SoCot_HC_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Municipality");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Facility", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Address");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Family", b =>

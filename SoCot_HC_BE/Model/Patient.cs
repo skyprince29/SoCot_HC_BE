@@ -9,9 +9,9 @@ namespace SoCot_HC_BE.Model
         [Key]
         public Guid PatientId { get; set; }
         [MaxLength(30)]
-        public required string PHICMemberType { get; set; }
+        public string? PHICMemberType { get; set; }
         [MaxLength(50)]
-        public required string PhilHealthNo { get; set; }
+        public string? PhilHealthNo { get; set; }
 
         public Guid PersonIdPatient { get; set; }
 
