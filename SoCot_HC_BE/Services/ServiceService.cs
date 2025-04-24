@@ -72,31 +72,33 @@ namespace SoCot_HC_BE.Services
         {
             var errors = new Dictionary<string, List<string>>();
 
-            ValidationHelper.IsRequired(errors, nameof(service.ServiceName), service.ServiceName, "Service Name");
-            ValidationHelper.IsRequired(errors, nameof(service.FacilityId), service.FacilityId, "Facility");
-            ValidationHelper.IsRequired(errors, nameof(service.ServiceClassificationId), service.ServiceClassificationId, "Service Classification");
 
+            int facilityId = service.FacilityId;
+            ValidationHelper.IsRequired(errors, nameof(service.FacilityId), facilityId, "Facility");
             // Verify that the FacilityId exists
-            var facilityExists = _context.Facility.Any(f => f.FacilityId == service.FacilityId);
-            if (!facilityExists)
+            var facilityExists = _context.Facility.Any(f => f.FacilityId == facilityId);
+            if (!facilityExists && facilityId > 0)
             {
-                ValidationHelper.AddError(errors, nameof(service.FacilityId), "Invalid Facility selected.");
+                ValidationHelper.AddError(errors, nameof(service.FacilityId), "Facility is invalid.");
             }
 
+            int serviceClassificationId = service.ServiceClassificationId;
+            ValidationHelper.IsRequired(errors, nameof(service.ServiceClassificationId), serviceClassificationId, "Service Classification");
             // Verify that the ServiceClassificationId exists
-            var classificationExists = _context.ServiceClassification.Any(sc => sc.ServiceClassificationId == service.ServiceClassificationId);
-            if (!classificationExists)
+            var classificationExists = _context.ServiceClassification.Any(sc => sc.ServiceClassificationId == serviceClassificationId);
+            if (!classificationExists && serviceClassificationId > 0)
             {
-                ValidationHelper.AddError(errors, nameof(service.ServiceClassificationId), "Invalid Service Classification selected.");
+                ValidationHelper.AddError(errors, nameof(service.ServiceClassificationId), "Service Classification is invalid..");
             }
 
+            ValidationHelper.IsRequired(errors, nameof(service.ServiceName), service.ServiceName, "Service Name");
             bool duplicate = _dbSet.Any(s =>
                 s.ServiceName == service.ServiceName &&
                 s.FacilityId == service.FacilityId &&
                 s.ServiceId != service.ServiceId);
 
             if (duplicate)
-                ValidationHelper.AddError(errors, "", "A service with the same name already exists in this facility.");
+                ValidationHelper.AddError(errors, "", "Service is already exists in this facility.");
 
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
