@@ -1,15 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
+using SoCot_HC_BE.Utils;
 
 namespace SoCot_HC_BE.Services
 {
     public class FacilityService : Repository<Facility, int>, IFacilityService
     {
-        public FacilityService(AppDbContext context) : base(context)
+        private readonly IAddressService _addressService;
+
+        public FacilityService(AppDbContext context, IAddressService addressService) : base(context)
         {
+            _addressService = addressService;
         }
 
         // Get a list of Facility with paging and cancellation support.
@@ -72,8 +77,14 @@ namespace SoCot_HC_BE.Services
         {
             // Determine if new or existing
             bool isNew = facility.FacilityId == 0;
-            //ValidateFields(patientRegistry);
+            ValidateFields(facility);
 
+            // 🔄 Ensure the Address is unique or retrieved from DB
+            if (facility.Address != null)
+            {
+                facility.Address = await _addressService.GetOrCreateAddressAsync(facility.Address, cancellationToken);
+                facility.AddressId = facility.Address.AddressId;
+            }
 
             if (isNew)
             {
@@ -93,6 +104,38 @@ namespace SoCot_HC_BE.Services
 
                 await UpdateAsync(existing, cancellationToken);
             }
+        }
+
+        private void ValidateFields(Facility facility)
+        {
+            var errors = new Dictionary<string, List<string>>();
+
+            ValidationHelper.IsRequired(errors, nameof(facility.Address), facility.Address, "Address");
+            ValidationHelper.IsRequired(errors, nameof(facility.FacilityName), facility.FacilityName, "Facility Name");
+
+            bool duplicate = _dbSet.Any(s =>
+               s.FacilityName == facility.FacilityName &&
+               s.FacilityId != facility.FacilityId);
+
+            if (duplicate)
+                ValidationHelper.AddError(errors, nameof(facility.FacilityName), "Facility name already exists.");
+
+            ValidationHelper.IsRequired(errors, nameof(facility.Sector), facility.Sector, "Sector");
+            if (!Enum.IsDefined(typeof(Sector), facility.Sector))
+            {
+                ValidationHelper.AddError(errors, nameof(facility.Sector), "Sector is invalid.");
+            }
+            ValidationHelper.IsRequired(errors, nameof(facility.FacilityLevel), facility.FacilityLevel, "Facility Level");
+
+            if (!Enum.IsDefined(typeof(FacilityLevel), facility.FacilityLevel))
+            {
+                ValidationHelper.AddError(errors, nameof(facility.FacilityLevel), "Facility Level is invalid.");
+            }
+
+            _addressService.ValidateAddress(facility.Address, errors);
+
+            if (errors.Any())
+                throw new ModelValidationException("Validation failed", errors);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using SoCot_HC_BE.Model.BaseModels;
 using SoCot_HC_BE.Model.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoCot_HC_BE.Model
 {
@@ -11,6 +12,8 @@ namespace SoCot_HC_BE.Model
         [MaxLength(50)]
         public required string FacilityCode { get; set; }
         public required Guid AddressId { get; set; }
+        [ForeignKey("AddressId")]
+        public virtual required Address Address { get; set; }
         [MaxLength(30)]
         public string? AccreditationNo { get; set; }
         [MaxLength(300)]
@@ -24,12 +27,8 @@ namespace SoCot_HC_BE.Model
         [Range(9000000000, 9999999999, ErrorMessage = "Incorrect mobile number format. (e.g. 09XX XXXX XXX)")]
         [MaxLength(15)]
         public string? ContactNumber { get; set; }
-        [MaxLength(20)]
-        [EnumDataType(typeof(Sector))]
-        public required string Sector { get; set; }
-        [MaxLength(10)]
-        [EnumDataType(typeof(FacilityLevel))]
-        public required string FacilityLevel { get; set; }
+        public required Sector Sector { get; set; }
+        public required FacilityLevel FacilityLevel { get; set; }
         public bool IsActive { get; set; }
     }
 }

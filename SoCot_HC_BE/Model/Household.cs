@@ -19,7 +19,7 @@ namespace SoCot_HC_BE.Model
 
         [ForeignKey(nameof(PersonIdHeadOfHousehold))]
         [InverseProperty(nameof(Person.Households))]
-        public virtual required Person PersonAsHeadOfHousehold { get; set; }
+        public virtual Person? PersonAsHeadOfHousehold { get; set; }
 
 
         [ForeignKey(nameof(AddressId))]

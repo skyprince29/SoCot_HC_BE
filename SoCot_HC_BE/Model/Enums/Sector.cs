@@ -1,8 +1,8 @@
 ﻿namespace SoCot_HC_BE.Model.Enums
 {
-    public enum Sector
+    public enum Sector : byte
     {
-        Government,
-        Private
+        Government = 1,
+        Private = 2
     }
 }

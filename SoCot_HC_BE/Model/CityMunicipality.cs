@@ -14,7 +14,7 @@ namespace SoCot_HC_BE.Model
 
         [ForeignKey(nameof(ProvinceId))]
         [InverseProperty(nameof(Province.Municipalities))]
-        public virtual required Province Province { get; set; }
+        public virtual Province? Province { get; set; }
 
         [InverseProperty(nameof(Barangay.Municipality))]
         public ICollection<Barangay> Barangays { get; set; } = new List<Barangay>();

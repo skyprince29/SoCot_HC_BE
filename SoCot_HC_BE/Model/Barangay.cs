@@ -12,7 +12,7 @@ namespace SoCot_HC_BE.Model
 
         [ForeignKey(nameof(MunicipalityId))]
         [InverseProperty(nameof(Municipality.Barangays))]
-        public virtual required Municipality Municipality { get; set; }
+        public virtual Municipality? Municipality { get; set; }
 
         [InverseProperty(nameof(Address.Barangay))]
         public ICollection<Address> Addresses { get; set; } = new List<Address>();

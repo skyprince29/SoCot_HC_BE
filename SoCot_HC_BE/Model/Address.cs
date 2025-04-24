@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoCot_HC_BE.Model
 {
@@ -30,15 +30,15 @@ namespace SoCot_HC_BE.Model
 
         [ForeignKey(nameof(ProvinceId))]
         [InverseProperty(nameof(Province.Addresses))]
-        public virtual required Province Province { get; set; }
+        public virtual Province? Province { get; set; }
 
         [ForeignKey(nameof(MunicipalityId))]
         [InverseProperty(nameof(Municipality.Addresses))]
-        public virtual required Municipality Municipality { get; set; }
+        public virtual Municipality? Municipality { get; set; }
 
         [ForeignKey(nameof(BarangayId))]
         [InverseProperty(nameof(Barangay.Addresses))]
-        public virtual required Barangay Barangay { get; set; }
+        public virtual Barangay? Barangay { get; set; }
 
         [InverseProperty(nameof(Person.AddressAsResidential))]
         public ICollection<Person> PersonsWithResidentialAddress { get; set; } = new List<Person>();
