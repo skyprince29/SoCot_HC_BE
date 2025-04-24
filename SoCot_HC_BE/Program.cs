@@ -8,7 +8,12 @@ using SoCot_HC_BE.Services.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(x =>
+     {
+         x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+         x.JsonSerializerOptions.WriteIndented = true; // Optional: for prettier output
+     });
 
 // Swagger Setup (API documentation)
 builder.Services.AddEndpointsApiExplorer();

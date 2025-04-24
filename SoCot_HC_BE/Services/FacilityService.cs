@@ -16,11 +16,27 @@ namespace SoCot_HC_BE.Services
         {
             _addressService = addressService;
         }
+        public override async Task<Facility?> GetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            // You can include related data here if needed, like navigation properties
+            var facility = await _dbSet
+                .Include(f => f.Address) // Example: include navigation property if needed
+                .FirstOrDefaultAsync(f => f.FacilityId == id, cancellationToken);
+
+            return facility;
+        }
 
         // Get a list of Facility with paging and cancellation support.
         public async Task<List<Facility>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
         {
-            var query = _dbSet.AsQueryable();
+            var query = _dbSet
+                .Include(f => f.Address)
+                    .ThenInclude(a => a.Province)
+                .Include(f => f.Address)
+                    .ThenInclude(a => a.Municipality)
+                .Include(f => f.Address)
+                    .ThenInclude(a => a.Barangay)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(keyword))
             {
@@ -111,23 +127,26 @@ namespace SoCot_HC_BE.Services
             var errors = new Dictionary<string, List<string>>();
 
             ValidationHelper.IsRequired(errors, nameof(facility.Address), facility.Address, "Address");
-            ValidationHelper.IsRequired(errors, nameof(facility.FacilityName), facility.FacilityName, "Facility Name");
+            string facilityName = facility.FacilityName;
+            ValidationHelper.IsRequired(errors, nameof(facility.FacilityName), facilityName, "Facility Name");
 
             bool duplicate = _dbSet.Any(s =>
-               s.FacilityName == facility.FacilityName &&
+               s.FacilityName == facilityName &&
                s.FacilityId != facility.FacilityId);
 
             if (duplicate)
                 ValidationHelper.AddError(errors, nameof(facility.FacilityName), "Facility name already exists.");
 
-            ValidationHelper.IsRequired(errors, nameof(facility.Sector), facility.Sector, "Sector");
-            if (!Enum.IsDefined(typeof(Sector), facility.Sector))
+            Sector sector = facility.Sector;
+            ValidationHelper.IsRequired(errors, nameof(facility.Sector), sector, "Sector");
+            if (sector > 0 && !Enum.IsDefined(typeof(Sector), sector))
             {
-                ValidationHelper.AddError(errors, nameof(facility.Sector), "Sector is invalid.");
+                ValidationHelper.AddError(errors, nameof(sector), "Sector is invalid.");
             }
-            ValidationHelper.IsRequired(errors, nameof(facility.FacilityLevel), facility.FacilityLevel, "Facility Level");
 
-            if (!Enum.IsDefined(typeof(FacilityLevel), facility.FacilityLevel))
+            FacilityLevel facilityLevel = facility.FacilityLevel;
+            ValidationHelper.IsRequired(errors, nameof(facility.FacilityLevel), facilityLevel, "Facility Level");
+            if (facilityLevel > 0 && !Enum.IsDefined(typeof(FacilityLevel), facilityLevel))
             {
                 ValidationHelper.AddError(errors, nameof(facility.FacilityLevel), "Facility Level is invalid.");
             }

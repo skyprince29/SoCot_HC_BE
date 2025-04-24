@@ -30,6 +30,11 @@
             {
                 isMissing = longVal == 0;
             }
+            else if (value != null && value.GetType().IsEnum)
+            {
+                var underlying = Convert.ToInt32(value); // or Convert.ToByte(value) if you expect byte enums
+                isMissing = underlying == 0;
+            }
 
             if (isMissing)
             {
