@@ -13,7 +13,7 @@ namespace SoCot_HC_BE.Model.Enums
         [Display(Name = "COORDINATED REFERRAL")]
         COORDINATED_R = 3,
 
-        [Display(Name = "EMERGENCY CASES")]
-        EMERGENCY = 4,
+        [Display(Name = "OPD REFERRAL")]
+        OPD_R = 4,
     }
 }
