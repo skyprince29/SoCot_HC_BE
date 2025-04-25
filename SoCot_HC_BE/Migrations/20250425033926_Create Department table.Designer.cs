@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250425033926_Create Department table")]
+    partial class CreateDepartmenttable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,27 +152,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasIndex("ParentDepartmentId");
 
                     b.ToTable("Department");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DepartmentDepartmentType", b =>
-                {
-                    b.Property<Guid>("DepartmentDepartmentTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DepartmentTypeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("DepartmentDepartmentTypeId");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("DepartmentTypeId");
-
-                    b.ToTable("DepartmentDepartmentType");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.DepartmentType", b =>
@@ -861,25 +843,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("Facility");
 
                     b.Navigation("ParentDepartment");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DepartmentDepartmentType", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.DepartmentType", "DepartmentType")
-                        .WithMany()
-                        .HasForeignKey("DepartmentTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
-
-                    b.Navigation("DepartmentType");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Facility", b =>
