@@ -49,6 +49,7 @@ builder.Services.AddScoped<IProvinceService, ProvinceService>();
 builder.Services.AddScoped<ICityMunicipalService, CityMunicipalService>();
 builder.Services.AddScoped<IBarangayService, BarangayService>();
 builder.Services.AddScoped<IDepartmentTypeService, DepartmentTypeService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

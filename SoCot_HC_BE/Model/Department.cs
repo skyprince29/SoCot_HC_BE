@@ -12,14 +12,17 @@ namespace SoCot_HC_BE.Model
         public required string DepartmentCode { get; set; }
         public required int FacilityId { get; set; }
         [ForeignKey("FacilityId")]
-        public virtual required Facility Facility { get; set; }
+        public virtual Facility? Facility { get; set; }
         [MaxLength(100)]
         public required string DepartmentName { get; set; }
         public Guid? ParentDepartmentId { get; set; }
         [ForeignKey("ParentDepartmentId")]
-        public virtual required Department? ParentDepartment { get; set; }
+        public virtual Department? ParentDepartment { get; set; }
         // "Can Receive Patient Referrals" refers to referral by department
         public bool IsReferable { get; set; }
         public bool IsActive { get; set; }
+
+        // Navigation property
+        public required virtual ICollection<DepartmentDepartmentType> DepartmentTypes { get; set; }
     }
 }
