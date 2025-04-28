@@ -31,16 +31,14 @@ VALUES
 
 -- OPD Structure
 ('OPD', NULL),
+('Vital Sign', 'OPD'),
 ('Animal Bite', 'OPD'),
-('Animal Bite - Vital Sign', 'Animal Bite'),
 ('Dental', 'OPD'),
-('Dental - Vital Sign', 'Dental'),
 
 -- Others
 ('Supply', NULL),
 ('Central Supply', NULL),
 ('Pharmacy', NULL),
-('Maternal Care', NULL),
 ('Family Planning', NULL),
 
 -- Wards
