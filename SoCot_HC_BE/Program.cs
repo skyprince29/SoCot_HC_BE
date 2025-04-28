@@ -50,6 +50,7 @@ builder.Services.AddScoped<ICityMunicipalService, CityMunicipalService>();
 builder.Services.AddScoped<IBarangayService, BarangayService>();
 builder.Services.AddScoped<IDepartmentTypeService, DepartmentTypeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IServiceCategoryService, ServiceCategoryService>();
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

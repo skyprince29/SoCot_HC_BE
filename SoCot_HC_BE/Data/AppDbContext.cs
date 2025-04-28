@@ -30,6 +30,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<DepartmentType> DepartmentType { get; set; }
         public DbSet<Department> Department { get; set; }
         public DbSet<DepartmentDepartmentType> DepartmentDepartmentType { get; set; }
+        public DbSet<ServiceCategory> ServiceCategory { get; set; }
 
         // Add more DbSets here...
 
