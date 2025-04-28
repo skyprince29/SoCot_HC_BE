@@ -24,7 +24,7 @@ namespace SoCot_HC_BE.Model
 
         [ForeignKey(nameof(AddressId))]
         [InverseProperty(nameof(Address.Households))]
-        public virtual required Address Address { get; set; }
+        public virtual Address? Address { get; set; }
 
 
         [InverseProperty(nameof(Family.Household))]

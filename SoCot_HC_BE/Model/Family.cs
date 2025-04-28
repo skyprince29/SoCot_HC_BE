@@ -7,6 +7,8 @@ namespace SoCot_HC_BE.Model
     {
         [Key]
         public Guid FamilyId { get; set; }
+        [MaxLength(30)]
+        public required string FamilyNo { get; set; }
 
         public Guid HouseholdId { get; set; }
         public Guid PersonId { get; set; }
@@ -14,10 +16,11 @@ namespace SoCot_HC_BE.Model
 
         [ForeignKey(nameof(HouseholdId))]
         [InverseProperty(nameof(Household.Families))] // pointing to ICollection<Family> in Household
-        public virtual required Household Household { get; set; }
+        public virtual Household? Household { get; set; }
 
         [ForeignKey(nameof(PersonId))]
         [InverseProperty(nameof(Person.Families))] // pointing to ICollection<Family> in Person
-        public virtual required Person Person { get; set; }
+        public virtual Person? Person { get; set; }
     }
+
 }

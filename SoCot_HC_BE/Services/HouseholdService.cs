@@ -1,0 +1,156 @@
+﻿using SoCot_HC_BE.Data;
+using SoCot_HC_BE.Model;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SoCot_HC_BE.Model.Requests;
+using SoCot_HC_BE.Utils;
+
+public class HouseholdService : IHouseholdService
+{
+    private readonly AppDbContext _context;
+
+    public HouseholdService(AppDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task SaveHouseholdAsync(SaveHouseholdRequest request, CancellationToken cancellationToken = default)
+    {
+        var errors = new Dictionary<string, List<string>>();
+
+        if (request == null)
+            throw new ModelValidationException("Request is empty", errors);
+
+        if (request.Families == null || !request.Families.Any())
+            throw new ModelValidationException("At least one family is required.", errors);
+
+        // 1️⃣ Validate Persons first
+        foreach (var familyReq in request.Families)
+        {
+            foreach (var personReq in familyReq.Persons)
+            {
+                if (string.IsNullOrWhiteSpace(personReq.Firstname))
+                    AddValidationError(errors, $"Families[{request.Families.IndexOf(familyReq)}].Persons[{familyReq.Persons.IndexOf(personReq)}].Firstname", "The Firstname field is required.");
+                if (string.IsNullOrWhiteSpace(personReq.Lastname))
+                    AddValidationError(errors, $"Families[{request.Families.IndexOf(familyReq)}].Persons[{familyReq.Persons.IndexOf(personReq)}].Lastname", "The Lastname field is required.");
+                if (string.IsNullOrWhiteSpace(personReq.Birthdate))
+                    AddValidationError(errors, $"Families[{request.Families.IndexOf(familyReq)}].Persons[{familyReq.Persons.IndexOf(personReq)}].Birthdate", "The Birthdate field is required.");
+            }
+        }
+
+        if (errors.Any())
+            throw new ModelValidationException("Validation failed", errors);
+
+        // 2️⃣ Insert Address first
+        var address = new Address
+        {
+            AddressId = Guid.NewGuid(),
+            HouseNo = request.Address.HouseNo,
+            LotNo = request.Address.LotNo,
+            BlockNo = request.Address.BlockNo,
+            Street = request.Address.Street,
+            Subdivision = request.Address.Subdivision,
+            Sitio = request.Address.Sitio,
+            ProvinceId = request.Address.ProvinceId,
+            MunicipalityId = request.Address.MunicipalityId,
+            BarangayId = request.Address.BarangayId
+        };
+        await _context.Addresses.AddAsync(address, cancellationToken);
+
+        // 3️⃣ Insert all Persons first
+        var insertedPersons = new List<Person>();
+        foreach (var familyReq in request.Families)
+        {
+            if (familyReq.Persons == null || !familyReq.Persons.Any())
+                throw new ModelValidationException($"Family {request.Families.IndexOf(familyReq)} must have at least one person.", errors);
+
+            foreach (var personReq in familyReq.Persons)
+            {
+                var person = new Person
+                {
+                    PersonId = personReq.PersonId,
+                    Firstname = personReq.Firstname,
+                    Middlename = string.IsNullOrWhiteSpace(personReq.Middlename) ? null : personReq.Middlename,
+                    Lastname = personReq.Lastname,
+                    BirthDate = DateTime.Parse(personReq.Birthdate),
+                    Citizenship = "FILIPINO",
+                    IsDeceased = false,
+                    PatientIdTemp = 0
+                };
+
+                await _context.Person.AddAsync(person, cancellationToken);
+                insertedPersons.Add(person);
+            }
+        }
+
+        await _context.SaveChangesAsync(cancellationToken); // 🔥 Important: Save Persons FIRST
+
+        // 4️⃣ Now we can Insert Household (PersonIdHeadOfHousehold is valid now)
+        var firstPerson = insertedPersons.First(); // Use first inserted person as head
+        var household = new Household
+        {
+            HouseholdId = request.HouseholdId,
+            AddressId = address.AddressId,
+            ResidenceName = "Temporary Name",
+            HouseholdNo = GenerateHouseholdNo(),
+            PersonIdHeadOfHousehold = firstPerson.PersonId, // 🔥 Now head is valid
+            IsActive = true,
+        };
+        await _context.Households.AddAsync(household, cancellationToken);
+
+        await _context.SaveChangesAsync(cancellationToken); // 🔥 Save Household now
+
+        // 5️⃣ Insert Families and FamilyMembers
+        foreach (var familyReq in request.Families)
+        {
+            var familyPersonIds = familyReq.Persons.Select(p => p.PersonId).ToList();
+            var headPersonId = familyPersonIds.First();
+
+            var family = new Family
+            {
+                FamilyId = familyReq.FamilyId,
+                HouseholdId = household.HouseholdId,
+                PersonId = headPersonId,
+                IsActive = true,
+                FamilyNo = GenerateFamilyNo()
+            };
+
+            await _context.Families.AddAsync(family, cancellationToken);
+
+            foreach (var personId in familyPersonIds)
+            {
+                var familyMember = new FamilyMember
+                {
+                    FamilyMemberId = Guid.NewGuid(),
+                    FamilyId = family.FamilyId,
+                    PersonId = personId
+                };
+                await _context.FamilyMembers.AddAsync(familyMember, cancellationToken);
+            }
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+
+
+    private void AddValidationError(Dictionary<string, List<string>> errors, string fieldName, string errorMessage)
+    {
+        if (!errors.ContainsKey(fieldName))
+            errors[fieldName] = new List<string>();
+
+        errors[fieldName].Add(errorMessage);
+    }
+
+    private string GenerateHouseholdNo()
+    {
+        return $"HH-{DateTime.UtcNow:yyyyMMddHHmmssfff}";
+    }
+
+    private string GenerateFamilyNo()
+    {
+        return $"FAM-{DateTime.UtcNow:yyyyMMddHHmmssfff}";
+    }
+}
+

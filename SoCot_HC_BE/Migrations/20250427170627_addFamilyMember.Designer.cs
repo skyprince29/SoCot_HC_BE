@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250427170627_addFamilyMember")]
+    partial class addFamilyMember
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,10 +126,6 @@ namespace SoCot_HC_BE.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("FacilityId")
                         .HasColumnType("int");
@@ -281,11 +280,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<Guid>("FamilyId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FamilyNo")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
 
                     b.Property<Guid>("HouseholdId")
                         .HasColumnType("uniqueidentifier");
@@ -767,46 +761,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("Service");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.ServiceCategory", b =>
-                {
-                    b.Property<Guid>("ServiceCategoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("FacilityId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ServiceCategoryName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ServiceCategoryId");
-
-                    b.HasIndex("FacilityId");
-
-                    b.ToTable("ServiceCategory");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.ServiceClassification", b =>
                 {
                     b.Property<int>("ServiceClassificationId")
@@ -930,7 +884,7 @@ namespace SoCot_HC_BE.Migrations
             modelBuilder.Entity("SoCot_HC_BE.Model.DepartmentDepartmentType", b =>
                 {
                     b.HasOne("SoCot_HC_BE.Model.Department", "Department")
-                        .WithMany("DepartmentTypes")
+                        .WithMany()
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1145,17 +1099,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("ServiceClassification");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.ServiceCategory", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Facility", "Facility")
-                        .WithMany()
-                        .HasForeignKey("FacilityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Facility");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.Address", b =>
                 {
                     b.Navigation("Households");
@@ -1168,11 +1111,6 @@ namespace SoCot_HC_BE.Migrations
             modelBuilder.Entity("SoCot_HC_BE.Model.Barangay", b =>
                 {
                     b.Navigation("Addresses");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Department", b =>
-                {
-                    b.Navigation("DepartmentTypes");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Household", b =>

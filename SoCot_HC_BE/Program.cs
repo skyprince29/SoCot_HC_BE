@@ -45,6 +45,7 @@ builder.Services.AddScoped<IServiceClassificationService, ServiceClassificationS
 builder.Services.AddScoped<IFacilityService, FacilityService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IHouseholdService, HouseholdService>();
 builder.Services.AddScoped<IProvinceService, ProvinceService>();
 builder.Services.AddScoped<ICityMunicipalService, CityMunicipalService>();
 builder.Services.AddScoped<IBarangayService, BarangayService>();

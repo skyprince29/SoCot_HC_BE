@@ -24,6 +24,10 @@ namespace SoCot_HC_BE.Data
         public DbSet<Address> Address { get; set; }
         public DbSet<Facility> Facility { get; set; }
         public DbSet<Person> Person { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Family> Families { get; set; }
+        public DbSet<FamilyMember> FamilyMembers { get; set; }
+        public DbSet<Household> Households { get; set; }
         public DbSet<Service> Service { get; set; }
         public DbSet<Personnel> Personnel { get; set; }
         public DbSet<Referral> Referral { get; set; }
