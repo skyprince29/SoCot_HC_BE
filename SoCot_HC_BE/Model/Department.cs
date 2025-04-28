@@ -15,6 +15,8 @@ namespace SoCot_HC_BE.Model
         public virtual Facility? Facility { get; set; }
         [MaxLength(100)]
         public required string DepartmentName { get; set; }
+        [MaxLength(200)]
+        public string? Description { get; set; }
         public Guid? ParentDepartmentId { get; set; }
         [ForeignKey("ParentDepartmentId")]
         public virtual Department? ParentDepartment { get; set; }
