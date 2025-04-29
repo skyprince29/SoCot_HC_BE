@@ -67,17 +67,25 @@ public class HouseholdService : IHouseholdService
 
             foreach (var personReq in familyReq.Persons)
             {
-                var person = new Person
-                {
-                    PersonId = personReq.PersonId,
-                    Firstname = personReq.Firstname,
-                    Middlename = string.IsNullOrWhiteSpace(personReq.Middlename) ? null : personReq.Middlename,
-                    Lastname = personReq.Lastname,
-                    BirthDate = DateTime.Parse(personReq.Birthdate),
-                    Citizenship = "FILIPINO",
-                    IsDeceased = false,
-                    PatientIdTemp = 0
-                };
+              var person = new Person
+{
+    PersonId = personReq.PersonId,
+    Firstname = personReq.Firstname,
+    Middlename = string.IsNullOrWhiteSpace(personReq.Middlename) ? null : personReq.Middlename,
+    Lastname = personReq.Lastname,
+    Suffix = string.IsNullOrWhiteSpace(personReq.Suffix) ? null : personReq.Suffix,
+    BirthDate = DateTime.Parse(personReq.Birthdate),
+    BirthPlace = string.IsNullOrWhiteSpace(personReq.Birthplace) ? null : personReq.Birthplace,
+    Gender = string.IsNullOrWhiteSpace(personReq.Gender) ? null : personReq.Gender,
+    CivilStatus = string.IsNullOrWhiteSpace(personReq.CivilStatus) ? null : personReq.CivilStatus,
+    Religion = string.IsNullOrWhiteSpace(personReq.Religion) ? null : personReq.Religion,
+    ContactNo = string.IsNullOrWhiteSpace(personReq.ContactNo) ? null : personReq.ContactNo,
+    Email = string.IsNullOrWhiteSpace(personReq.Email) ? null : personReq.Email,
+    Citizenship = string.IsNullOrWhiteSpace(personReq.Citizenship) ? "FILIPINO" : personReq.Citizenship,
+    BloodType = string.IsNullOrWhiteSpace(personReq.BloodType) ? null : personReq.BloodType,
+    IsDeceased = false,
+    PatientIdTemp = 0
+};
 
                 await _context.Person.AddAsync(person, cancellationToken);
                 insertedPersons.Add(person);

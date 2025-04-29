@@ -17,22 +17,39 @@ namespace SoCot_HC_BE.Controllers
             _householdService = householdService;
         }
 
-        [HttpPost("save")]
+        [HttpPost("SaveHousehold")]
         public async Task<IActionResult> SaveHousehold([FromBody] SaveHouseholdRequest request, CancellationToken cancellationToken)
         {
             try
             {
                 await _householdService.SaveHouseholdAsync(request, cancellationToken);
-
                 return Ok(new { success = true, message = "Household saved successfully." });
             }
             catch (ModelValidationException ex)
             {
-                return BadRequest(new { success = false, message = "Please fill in all required fields.", errors = ex.Errors });
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Validation error",
+                    errors = ex.Errors
+                });
+            }
+            catch (OperationCanceledException)
+            {
+                return StatusCode(408, new
+                {
+                    success = false,
+                    message = "Request Timeout. Please try again later."
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = ex.Message });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An unexpected error occurred.",
+                    details = ex.Message
+                });
             }
         }
 
