@@ -19,18 +19,22 @@ namespace SoCot_HC_BE.Model
         [MaxLength(30)]
         public required string Lastname { get; set; }
 
-        public Suffix? Suffix { get; set; }
+        [MaxLength(5)]
+        public string? Suffix { get; set; }
 
         public DateTime BirthDate { get; set; }
 
         [MaxLength(100)]
         public string? BirthPlace { get; set; }
 
-        public Gender? Gender { get; set; }
+        [MaxLength(10)]
+        public string? Gender { get; set; }
 
-        public CivilStatus? CivilStatus { get; set; }
+        [MaxLength(20)]
+        public string? CivilStatus { get; set; }
 
-        public Religion? Religion { get; set; }
+        [MaxLength(30)]
+        public string? Religion { get; set; }
 
         [MaxLength(15)]
         public string? ContactNo { get; set; }
@@ -45,7 +49,9 @@ namespace SoCot_HC_BE.Model
 
         [MaxLength(100)]
         public string? Citizenship { get; set; }
-        public BloodType? BloodType { get; set; }
+
+        [MaxLength(5)]
+        public string? BloodType { get; set; }
 
         public int PatientIdTemp { get; set; }
 
@@ -58,22 +64,39 @@ namespace SoCot_HC_BE.Model
         [InverseProperty(nameof(Address.PersonsWithPermanentAddress))]
         public virtual Address? AddressAsPermanent { get; set; }
 
-        [InverseProperty(nameof(Patient.PersonAsSelf))]
-        public ICollection<Patient> PatientsAsSelf { get; set; } = new List<Patient>();
+        //[InverseProperty(nameof(Patient.PersonAsSelf))]
+        //public ICollection<Patient> PatientsAsSelf { get; set; } = new List<Patient>();
 
-        [InverseProperty(nameof(Patient.PersonAsSpouse))]
-        public ICollection<Patient> PatientsAsSpouse { get; set; } = new List<Patient>();
+        //[InverseProperty(nameof(Patient.PersonAsSpouse))]
+        //public ICollection<Patient> PatientsAsSpouse { get; set; } = new List<Patient>();
 
-        [InverseProperty(nameof(Patient.PersonAsMother))]
-        public ICollection<Patient> PatientsAsMother { get; set; } = new List<Patient>();
+        //[InverseProperty(nameof(Patient.PersonAsMother))]
+        //public ICollection<Patient> PatientsAsMother { get; set; } = new List<Patient>();
 
-        [InverseProperty(nameof(Patient.PersonAsFather))]
-        public ICollection<Patient> PatientsAsFather { get; set; } = new List<Patient>();
+        //[InverseProperty(nameof(Patient.PersonAsFather))]
+        //public ICollection<Patient> PatientsAsFather { get; set; } = new List<Patient>();
 
         [InverseProperty(nameof(Household.PersonAsHeadOfHousehold))]
         public ICollection<Household> Households { get; set; } = new List<Household>();
 
         [InverseProperty(nameof(Family.Person))]
         public ICollection<Family> Families { get; set; } = new List<Family>();
+
+        [InverseProperty(nameof(PersonRelation.PersonAsSelf))]
+        public ICollection<PersonRelation> PersonRelationsAsSelf { get; set; } = new List<PersonRelation>();
+
+        [InverseProperty(nameof(PersonRelation.PersonAsRelated))]
+        public ICollection<PersonRelation> PersonRelationsAsRelated { get; set; } = new List<PersonRelation>();
+
+        [NotMapped]
+        public string Fullname
+        {
+            get
+            {
+                var middleInitial = !string.IsNullOrWhiteSpace(Middlename) ? $"{Middlename.Trim()[0]}." : string.Empty;
+                return $"{Lastname}, {Firstname} {middleInitial}".Trim();
+            }
+        }
+
     }
 }

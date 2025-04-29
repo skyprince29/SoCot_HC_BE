@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250429010612_RemovePatient_AddPersonRelation")]
+    partial class RemovePatient_AddPersonRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -469,17 +472,15 @@ namespace SoCot_HC_BE.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("BloodType")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                    b.Property<int?>("BloodType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Citizenship")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("CivilStatus")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<int?>("CivilStatus")
+                        .HasColumnType("int");
 
                     b.Property<string>("ContactNo")
                         .HasMaxLength(15)
@@ -494,10 +495,8 @@ namespace SoCot_HC_BE.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<int?>("Gender")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsDeceased")
                         .HasColumnType("bit");
@@ -514,13 +513,11 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<int>("PatientIdTemp")
                         .HasColumnType("int");
 
-                    b.Property<string>("Religion")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                    b.Property<int?>("Religion")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Suffix")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                    b.Property<int?>("Suffix")
+                        .HasColumnType("int");
 
                     b.HasKey("PersonId");
 
@@ -548,8 +545,7 @@ namespace SoCot_HC_BE.Migrations
 
                     b.Property<string>("RelationType")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PersonRelationId");
 
@@ -860,43 +856,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("VitalSignId");
 
                     b.ToTable("VitalSigns");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.WoundType", b =>
-                {
-                    b.Property<int>("WoundTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WoundTypeId"));
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("WoundTypeName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("WoundTypeId");
-
-                    b.ToTable("WoundType");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Address", b =>
