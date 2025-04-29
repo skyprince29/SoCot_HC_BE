@@ -122,10 +122,11 @@ namespace SoCot_HC_BE.Services
             ValidationHelper.IsRequired(errors, nameof(serviceCategory.ServiceCategoryName), serviceCategory.ServiceCategoryName, "Service Category Name");
             bool duplicate = _dbSet.Any(s =>
                 s.ServiceCategoryName == serviceCategory.ServiceCategoryName &&
-                s.FacilityId == serviceCategory.FacilityId);
+                s.FacilityId == serviceCategory.FacilityId &&
+                s.ServiceCategoryId != serviceCategory.ServiceCategoryId);
 
             if (duplicate)
-                ValidationHelper.AddError(errors, "", "Service Category Name is already exists in this facility.");
+                ValidationHelper.AddError(errors, nameof(serviceCategory.ServiceCategoryName), "Service Category Name is already exists in this facility.");
 
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
