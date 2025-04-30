@@ -1,4 +1,5 @@
 ﻿using SoCot_HC_BE.Model.BaseModels;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

@@ -1,0 +1,112 @@
+﻿using Microsoft.EntityFrameworkCore;
+using SoCot_HC_BE.Data;
+using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Model.Enums;
+using SoCot_HC_BE.Models.Enums;
+using SoCot_HC_BE.Repositories;
+using SoCot_HC_BE.Persons.Interfaces;
+using SoCot_HC_BE.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using SoCot_HC_BE.DTO;
+
+namespace SoCot_HC_BE.Services
+{
+    public class PersonService : Repository<Person, Guid>, IPersonService
+    {
+        //private readonly IPersonService _personService;
+
+        public PersonService(AppDbContext context) : base(context)
+        {
+        }
+
+        public async Task<List<Person>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.ToListAsync(cancellationToken); 
+        }
+
+        public async Task<List<PersonDto>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
+        {
+            var query = _dbSet.AsQueryable();
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(p =>
+                    p.Firstname.Contains(keyword) ||
+                    p.Lastname.Contains(keyword) ||
+                    (p.Middlename != null && p.Middlename.Contains(keyword)));
+            }
+
+            return await query
+                   .OrderBy(p => p.Lastname)
+                   .Skip((pageNo - 1) * limit)
+                   .Take(limit)
+                   .Select(p => new PersonDto
+                   {
+                       PersonId = p.PersonId,
+                       Firstname = p.Firstname,
+                       Middlename = p.Middlename,
+                       Lastname = p.Lastname,
+                       BirthDate = p.BirthDate
+                   })
+                   .ToListAsync(cancellationToken);
+        }
+
+        public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
+        {
+            var query = _dbSet.AsQueryable();
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(p =>
+                    p.Firstname.Contains(keyword) ||
+                    p.Lastname.Contains(keyword) ||
+                    (p.Middlename != null && p.Middlename.Contains(keyword)));
+            }
+
+            return await query.CountAsync(cancellationToken);
+        }
+
+        public async Task SavePersonAsync(Person person, CancellationToken cancellationToken = default)
+        {
+            bool isNew = person.PersonId == Guid.Empty;
+            ValidateFields(person);
+
+            if (isNew)
+            {
+                person.PersonId = Guid.NewGuid();
+                await AddAsync(person, cancellationToken);
+            }
+            else
+            {
+                var existing = await _dbSet
+                    .FirstOrDefaultAsync(p => p.PersonId == person.PersonId, cancellationToken);
+
+                if (existing == null)
+                    throw new Exception("Person not found.");
+
+                _context.Entry(existing).CurrentValues.SetValues(person);
+                await UpdateAsync(existing, cancellationToken);
+            }
+        }
+
+        private void ValidateFields(Person person)
+        {
+            var errors = new Dictionary<string, List<string>>();
+
+            ValidationHelper.IsRequired(errors, nameof(person.Firstname), person.Firstname, "Firstname");
+            ValidationHelper.IsRequired(errors, nameof(person.Lastname), person.Lastname, "Lastname");
+            ValidationHelper.IsRequired(errors, nameof(person.BirthDate), person.BirthDate, "Birthdate");
+            ValidationHelper.IsRequired(errors, nameof(person.BirthPlace), person.BirthPlace, "Birth Place");
+            ValidationHelper.IsRequired(errors, nameof(person.ContactNo), person.ContactNo, "Contact No");
+            ValidationHelper.IsRequired(errors, nameof(person.Email), person.Email, "Email");
+            ValidationHelper.IsRequired(errors, nameof(person.Citizenship), person.Citizenship, "Citizenship");
+
+            if (errors.Any())
+                throw new ModelValidationException("Validation failed", errors);
+        }
+    }
+}

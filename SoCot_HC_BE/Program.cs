@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
+using SoCot_HC_BE.Personnels;
+using SoCot_HC_BE.Personnels.Interfaces;
+using SoCot_HC_BE.Persons.Interfaces;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Repositories.Interfaces;
 using SoCot_HC_BE.Services;
@@ -46,6 +49,8 @@ builder.Services.AddScoped<IFacilityService, FacilityService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IHouseholdService, HouseholdService>();
+builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<IPersonnelService, PersonnelService>();
 builder.Services.AddScoped<IProvinceService, ProvinceService>();
 builder.Services.AddScoped<ICityMunicipalService, CityMunicipalService>();
 builder.Services.AddScoped<IBarangayService, BarangayService>();
