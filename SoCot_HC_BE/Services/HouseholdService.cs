@@ -9,10 +9,98 @@ using SoCot_HC_BE.Utils;
 public class HouseholdService : IHouseholdService
 {
     private readonly AppDbContext _context;
+    private readonly DbSet<Household> _dbSet;
 
     public HouseholdService(AppDbContext context)
     {
         _context = context;
+        _dbSet = _context.Set<Household>();
+    }
+
+    public async Task<Household?> GetAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+        .Include(h => h.PersonAsHeadOfHousehold)
+        .Include(h => h.Address)
+            .ThenInclude(a => a.Barangay)
+        .Include(h => h.Address)
+            .ThenInclude(a => a.Municipality)
+        .Include(h => h.Address)
+            .ThenInclude(a => a.Province)
+        .Include(h => h.Families)
+        .FirstOrDefaultAsync(h => h.HouseholdId == id, cancellationToken);
+    }
+
+
+    public async Task<List<Household>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(h => h.PersonAsHeadOfHousehold)
+            .Include(h => h.Address)
+                .ThenInclude(a => a.Barangay)
+            .Include(h => h.Address)
+                .ThenInclude(a => a.Municipality)
+            .Include(h => h.Address)
+                .ThenInclude(a => a.Province)
+            .Include(h => h.Families)
+            .ToListAsync(cancellationToken);
+
+    }
+
+    public async Task AddAsync(Household entity, CancellationToken cancellationToken = default)
+    {
+        await _dbSet.AddAsync(entity, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task UpdateAsync(Household entity, CancellationToken cancellationToken = default)
+    {
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var household = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+        if (household != null)
+        {
+            _dbSet.Remove(household);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public async Task<List<Household>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
+    {
+        var query = _dbSet
+             .Include(h => h.PersonAsHeadOfHousehold)
+             .Include(h => h.Address).ThenInclude(a => a.Barangay)
+             .Include(h => h.Address).ThenInclude(a => a.Municipality)
+             .Include(h => h.Address).ThenInclude(a => a.Province)
+             .Include(h => h.Families)
+             .AsQueryable();
+
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            query = query.Where(h => h.HouseholdNo.Contains(keyword));
+        }
+
+        return await query
+            .Skip((pageNo - 1) * limit)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
+    {
+        var query = _dbSet.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            query = query.Where(h => h.HouseholdNo.Contains(keyword));
+        }
+
+        return await query.CountAsync(cancellationToken);
     }
 
     public async Task SaveHouseholdAsync(SaveHouseholdRequest request, CancellationToken cancellationToken = default)
@@ -68,24 +156,24 @@ public class HouseholdService : IHouseholdService
             foreach (var personReq in familyReq.Persons)
             {
               var person = new Person
-{
-    PersonId = personReq.PersonId,
-    Firstname = personReq.Firstname,
-    Middlename = string.IsNullOrWhiteSpace(personReq.Middlename) ? null : personReq.Middlename,
-    Lastname = personReq.Lastname,
-    Suffix = string.IsNullOrWhiteSpace(personReq.Suffix) ? null : personReq.Suffix,
-    BirthDate = DateTime.Parse(personReq.Birthdate),
-    BirthPlace = string.IsNullOrWhiteSpace(personReq.Birthplace) ? null : personReq.Birthplace,
-    Gender = string.IsNullOrWhiteSpace(personReq.Gender) ? null : personReq.Gender,
-    CivilStatus = string.IsNullOrWhiteSpace(personReq.CivilStatus) ? null : personReq.CivilStatus,
-    Religion = string.IsNullOrWhiteSpace(personReq.Religion) ? null : personReq.Religion,
-    ContactNo = string.IsNullOrWhiteSpace(personReq.ContactNo) ? null : personReq.ContactNo,
-    Email = string.IsNullOrWhiteSpace(personReq.Email) ? null : personReq.Email,
-    Citizenship = string.IsNullOrWhiteSpace(personReq.Citizenship) ? "FILIPINO" : personReq.Citizenship,
-    BloodType = string.IsNullOrWhiteSpace(personReq.BloodType) ? null : personReq.BloodType,
-    IsDeceased = false,
-    PatientIdTemp = 0
-};
+              {
+                    PersonId = personReq.PersonId,
+                    Firstname = personReq.Firstname,
+                    Middlename = string.IsNullOrWhiteSpace(personReq.Middlename) ? null : personReq.Middlename,
+                    Lastname = personReq.Lastname,
+                    Suffix = string.IsNullOrWhiteSpace(personReq.Suffix) ? null : personReq.Suffix,
+                    BirthDate = DateTime.Parse(personReq.Birthdate),
+                    BirthPlace = string.IsNullOrWhiteSpace(personReq.Birthplace) ? null : personReq.Birthplace,
+                    Gender = string.IsNullOrWhiteSpace(personReq.Gender) ? null : personReq.Gender,
+                    CivilStatus = string.IsNullOrWhiteSpace(personReq.CivilStatus) ? null : personReq.CivilStatus,
+                    Religion = string.IsNullOrWhiteSpace(personReq.Religion) ? null : personReq.Religion,
+                    ContactNo = string.IsNullOrWhiteSpace(personReq.ContactNo) ? null : personReq.ContactNo,
+                    Email = string.IsNullOrWhiteSpace(personReq.Email) ? null : personReq.Email,
+                    Citizenship = string.IsNullOrWhiteSpace(personReq.Citizenship) ? "FILIPINO" : personReq.Citizenship,
+                    BloodType = string.IsNullOrWhiteSpace(personReq.BloodType) ? null : personReq.BloodType,
+                    IsDeceased = false,
+                    PatientIdTemp = 0
+              };
 
                 await _context.Person.AddAsync(person, cancellationToken);
                 insertedPersons.Add(person);
