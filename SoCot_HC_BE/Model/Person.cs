@@ -88,6 +88,9 @@ namespace SoCot_HC_BE.Model
         [InverseProperty(nameof(PersonRelation.PersonAsRelated))]
         public ICollection<PersonRelation> PersonRelationsAsRelated { get; set; } = new List<PersonRelation>();
 
+        [InverseProperty(nameof(UserAccount.PersonAsUserAccount))]
+        public ICollection<UserAccount> UserAccountsAsPerson { get; set; } = new List<UserAccount>();
+
         [NotMapped]
         public string Fullname
         {

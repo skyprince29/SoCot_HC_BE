@@ -15,5 +15,7 @@ namespace SoCot_HC_BE.Model
 
         public bool IsActive { get; set; }
 
+        [InverseProperty(nameof(UserAccount.UserGroupAsUserAccount))]
+        public ICollection<UserAccount> UserAccountsAsUserGroup { get; set; } = new List<UserAccount>();
     }
 }

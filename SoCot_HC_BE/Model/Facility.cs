@@ -30,5 +30,8 @@ namespace SoCot_HC_BE.Model
         public required Sector Sector { get; set; }
         public required FacilityLevel FacilityLevel { get; set; }
         public bool IsActive { get; set; }
+
+        [InverseProperty(nameof(UserAccount.FacilityAsUserAccount))]
+        public ICollection<UserAccount> UserAccountsAsFacility { get; set; } = new List<UserAccount>();
     }
 }
