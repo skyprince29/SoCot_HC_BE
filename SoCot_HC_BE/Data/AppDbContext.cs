@@ -37,6 +37,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<ServiceCategory> ServiceCategory { get; set; }
         public DbSet<WoundType> WoundType { get; set; }
         public DbSet<UserGroup> UserGroup { get; set; }
+        public DbSet<Designation> Designation { get; set; }
         // Add more DbSets here...
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

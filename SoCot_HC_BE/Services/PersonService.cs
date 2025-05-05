@@ -30,7 +30,11 @@ namespace SoCot_HC_BE.Services
 
         public async Task<List<PersonDto>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
         {
-            var query = _dbSet.AsQueryable();
+            var query = _dbSet
+           .Include(p => p.FamilyMemberships)
+               .ThenInclude(m => m.Family)
+                   .ThenInclude(f => f!.Household)
+           .AsQueryable();
 
             if (!string.IsNullOrEmpty(keyword))
             {
@@ -50,7 +54,17 @@ namespace SoCot_HC_BE.Services
                        Firstname = p.Firstname,
                        Middlename = p.Middlename,
                        Lastname = p.Lastname,
-                       BirthDate = p.BirthDate
+                       BirthDate = p.BirthDate,
+                       Gender = p.Gender,
+                       HouseholdNo = p.FamilyMemberships
+                        .Where(m => m.Family != null && m.Family.Household != null)
+                        .Select(m => m.Family!.Household!.HouseholdNo)
+                        .FirstOrDefault(),
+                                           FamilyNo = p.FamilyMemberships
+                        .Where(m => m.Family != null)
+                        .Select(m => m.Family!.FamilyNo)
+                        .FirstOrDefault(),
+
                    })
                    .ToListAsync(cancellationToken);
         }

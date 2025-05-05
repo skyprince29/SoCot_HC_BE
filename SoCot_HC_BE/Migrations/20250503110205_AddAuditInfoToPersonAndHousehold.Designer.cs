@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250503110205_AddAuditInfoToPersonAndHousehold")]
+    partial class AddAuditInfoToPersonAndHousehold
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -209,42 +212,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("DepartmentTypeId");
 
                     b.ToTable("DepartmentType");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Designation", b =>
-                {
-                    b.Property<Guid>("DesignationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DesignationCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("DesignationName")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("DesignationId");
-
-                    b.ToTable("Designation");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Facility", b =>
@@ -631,9 +598,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("DesignationId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("FacilityId")
                         .HasColumnType("int");
 
@@ -650,8 +614,6 @@ namespace SoCot_HC_BE.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("PersonnelId");
-
-                    b.HasIndex("DesignationId");
 
                     b.HasIndex("FacilityId");
 
@@ -1152,7 +1114,7 @@ namespace SoCot_HC_BE.Migrations
                         .IsRequired();
 
                     b.HasOne("SoCot_HC_BE.Model.Person", "Person")
-                        .WithMany("FamilyMemberships")
+                        .WithMany()
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1239,12 +1201,6 @@ namespace SoCot_HC_BE.Migrations
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Personnel", b =>
                 {
-                    b.HasOne("SoCot_HC_BE.Model.Designation", "Designation")
-                        .WithMany()
-                        .HasForeignKey("DesignationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("SoCot_HC_BE.Model.Facility", "Facility")
                         .WithMany()
                         .HasForeignKey("FacilityId")
@@ -1256,8 +1212,6 @@ namespace SoCot_HC_BE.Migrations
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Designation");
 
                     b.Navigation("Facility");
 
@@ -1387,8 +1341,6 @@ namespace SoCot_HC_BE.Migrations
             modelBuilder.Entity("SoCot_HC_BE.Model.Person", b =>
                 {
                     b.Navigation("Families");
-
-                    b.Navigation("FamilyMemberships");
 
                     b.Navigation("Households");
 

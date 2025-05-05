@@ -31,18 +31,8 @@ namespace SoCot_HC_BE.Controllers
                     return BadRequest(new { message = "Page number and limit must be greater than zero." });
                 }
 
-                var people = await _personService.GetAllWithPagingAsync(pageNo, limit, keyword, cancellationToken);
+                var dtoList = await _personService.GetAllWithPagingAsync(pageNo, limit, keyword, cancellationToken);
                 var totalRecords = await _personService.CountAsync(keyword, cancellationToken);
-
-                // ✅ Convert to DTOs
-                var dtoList = people.Select(p => new PersonDto
-                {
-                    PersonId = p.PersonId,
-                    Firstname = p.Firstname,
-                    Middlename = p.Middlename,
-                    Lastname = p.Lastname,
-                    BirthDate = p.BirthDate
-                }).ToList();
 
                 var paginatedResult = new PaginationHandler<PersonDto>(dtoList, totalRecords, pageNo, limit);
                 return Ok(paginatedResult);

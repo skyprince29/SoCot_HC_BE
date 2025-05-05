@@ -172,7 +172,8 @@ public class HouseholdService : IHouseholdService
                     Citizenship = string.IsNullOrWhiteSpace(personReq.Citizenship) ? "FILIPINO" : personReq.Citizenship,
                     BloodType = string.IsNullOrWhiteSpace(personReq.BloodType) ? null : personReq.BloodType,
                     IsDeceased = false,
-                    PatientIdTemp = 0
+                    PatientIdTemp = 0,
+                    CreatedDate = DateTime.UtcNow
               };
 
                 await _context.Person.AddAsync(person, cancellationToken);
@@ -190,12 +191,13 @@ public class HouseholdService : IHouseholdService
             AddressId = address.AddressId,
             ResidenceName = "Temporary Name",
             HouseholdNo = GenerateHouseholdNo(),
-            PersonIdHeadOfHousehold = firstPerson.PersonId, // 🔥 Now head is valid
+            PersonIdHeadOfHousehold = firstPerson.PersonId,
             IsActive = true,
+            CreatedDate = DateTime.UtcNow,
         };
         await _context.Households.AddAsync(household, cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken); // 🔥 Save Household now
+        await _context.SaveChangesAsync(cancellationToken); 
 
         // 5️⃣ Insert Families and FamilyMembers
         foreach (var familyReq in request.Families)

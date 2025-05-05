@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
+using SoCot_HC_BE.Designations.Interfaces;
 using SoCot_HC_BE.Personnels;
 using SoCot_HC_BE.Personnels.Interfaces;
 using SoCot_HC_BE.Persons.Interfaces;
@@ -58,6 +59,7 @@ builder.Services.AddScoped<IDepartmentTypeService, DepartmentTypeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IServiceCategoryService, ServiceCategoryService>();
 builder.Services.AddScoped<IWoundTypeService, WoundTypeService>();
+builder.Services.AddScoped<IDesignationService, DesignationService>();
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

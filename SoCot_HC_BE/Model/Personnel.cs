@@ -18,5 +18,9 @@ namespace SoCot_HC_BE.Model
         [ForeignKey("PersonId")]
         public Person? Person { get; set; }
         public bool IsActive { get; set; }
+
+        [ForeignKey("DesignationId")]
+        public Designation? Designation { get; set; }
+        public Guid DesignationId { get; set; } 
     }
 }

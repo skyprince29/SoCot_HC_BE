@@ -18,6 +18,7 @@ namespace SoCot_HC_BE.Personnels
             var query = _dbSet
                 .Include(s => s.Facility)
                 .Include(s => s.Person)
+                .Include(s => s.Designation)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(keyword))

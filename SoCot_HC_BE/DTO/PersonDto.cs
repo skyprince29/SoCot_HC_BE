@@ -7,6 +7,10 @@
         public string? Middlename { get; set; }
         public string? Lastname { get; set; }
         public DateTime BirthDate { get; set; }
+        public string? Gender { get; set; }
+        public string? HouseholdNo { get; set; }
+        public string? FamilyNo { get; set; }
+
 
         public string Fullname
         {

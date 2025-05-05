@@ -2,10 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Models.Enums;
+using SoCot_HC_BE.Model.BaseModels;
 
 namespace SoCot_HC_BE.Model
 {
-    public class Person
+    public class Person : AuditInfo
     {
         [Key]
         public Guid PersonId { get; set; }
@@ -81,6 +82,9 @@ namespace SoCot_HC_BE.Model
 
         [InverseProperty(nameof(Family.Person))]
         public ICollection<Family> Families { get; set; } = new List<Family>();
+        [InverseProperty(nameof(FamilyMember.Person))]
+        public ICollection<FamilyMember> FamilyMemberships { get; set; } = new List<FamilyMember>();
+
 
         [InverseProperty(nameof(PersonRelation.PersonAsSelf))]
         public ICollection<PersonRelation> PersonRelationsAsSelf { get; set; } = new List<PersonRelation>();
