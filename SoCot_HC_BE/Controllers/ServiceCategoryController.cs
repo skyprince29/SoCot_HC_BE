@@ -31,20 +31,25 @@ namespace SoCot_HC_BE.Controllers
 
         [HttpGet("GetServiceCategories")]
         public async Task<IActionResult> GetServiceCategories(
-        [FromQuery] bool isActiveOnly = true,
+        [FromQuery] int? facilityId = null,
         [FromQuery] Guid? currentId = null,
+        [FromQuery] bool isActiveOnly = true,
         CancellationToken cancellationToken = default
         )
         {
             IEnumerable<ServiceCategory> items;
 
-            if (isActiveOnly && currentId.HasValue && currentId.Value != Guid.Empty)
+            if (isActiveOnly && (facilityId.HasValue && facilityId.Value >0) && (currentId.HasValue && currentId.Value != Guid.Empty))
             {
-                items = await _serviceCategoryService.GetAllActiveWithCurrentAsync(currentId.Value, cancellationToken);
+                items = await _serviceCategoryService.GetAllActiveWithCurrentAsync(facilityId.Value, currentId.Value, cancellationToken);
             }
-            else if (isActiveOnly)
+            else if (isActiveOnly && (facilityId.HasValue && facilityId.Value > 0))
             {
-                items = await _serviceCategoryService.GetAllActiveOnlyAsync(cancellationToken);
+                items = await _serviceCategoryService.GetAllActiveOnlyAsync(facilityId.Value, cancellationToken);
+            }
+            else if (facilityId.HasValue && facilityId.Value > 0)
+            {
+                items = await _serviceCategoryService.GetAllByFacilityAsync(facilityId.Value, cancellationToken);
             }
             else
             {

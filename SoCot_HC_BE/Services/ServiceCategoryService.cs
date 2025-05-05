@@ -53,18 +53,50 @@ namespace SoCot_HC_BE.Services
             return await query.CountAsync(cancellationToken); // Pass the CancellationToken here
         }
 
-        public async Task<List<ServiceCategory>> GetAllActiveOnlyAsync(CancellationToken cancellationToken = default)
+        public async Task<List<ServiceCategory>> GetAllByFacilityAsync(int facilityId, CancellationToken cancellationToken = default)
         {
             return await _dbSet
-                .Where(s => s.IsActive)
+                .Where(s => s.FacilityId == facilityId)
                 .ToListAsync(cancellationToken);
+
         }
 
-        public async Task<List<ServiceCategory>> GetAllActiveWithCurrentAsync(Guid currentId, CancellationToken cancellationToken = default)
+        public async Task<List<ServiceCategory>> GetAllActiveOnlyAsync(int? facilityId, CancellationToken cancellationToken = default)
         {
-            var activeItems = await _dbSet
-                     .Where(s => s.IsActive)
-                     .ToListAsync(cancellationToken);
+            List<ServiceCategory> activeItems;
+
+            if (facilityId.HasValue)
+            {
+                activeItems = await _dbSet
+                    .Where(s => s.FacilityId == facilityId.Value && s.IsActive)
+                    .ToListAsync(cancellationToken);
+            }
+            else
+            {
+                activeItems = await _dbSet
+                    .Where(s => s.IsActive)
+                    .ToListAsync(cancellationToken);
+            }
+            return activeItems;
+        }
+
+        public async Task<List<ServiceCategory>> GetAllActiveWithCurrentAsync(int? facilityId, Guid currentId, CancellationToken cancellationToken = default)
+        {
+            List<ServiceCategory> activeItems;
+
+            if (facilityId.HasValue)
+            {
+                activeItems = await _dbSet
+                    .Where(s => s.FacilityId == facilityId.Value && s.IsActive)
+                    .ToListAsync(cancellationToken);
+            }
+            else
+            {
+                activeItems = await _dbSet
+                    .Where(s => s.IsActive)
+                    .ToListAsync(cancellationToken);
+            }
+
 
             // Check if the currentId is not among the active items
             bool currentExists = activeItems.Any(s => s.ServiceCategoryId == currentId);

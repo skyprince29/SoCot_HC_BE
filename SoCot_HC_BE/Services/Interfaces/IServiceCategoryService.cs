@@ -11,7 +11,8 @@ namespace SoCot_HC_BE.Services.Interfaces
 
         Task SaveServiceCategoryAsync(ServiceCategory serviceCategory, CancellationToken cancellationToken = default);
 
-        Task<List<ServiceCategory>> GetAllActiveOnlyAsync(CancellationToken cancellationToken = default);
-        Task<List<ServiceCategory>> GetAllActiveWithCurrentAsync(Guid currentId, CancellationToken cancellationToken = default);
+        Task<List<ServiceCategory>> GetAllActiveOnlyAsync(int? facilityId, CancellationToken cancellationToken = default);
+        Task<List<ServiceCategory>> GetAllActiveWithCurrentAsync(int? facilityId, Guid currentId, CancellationToken cancellationToken = default);
+        Task<List<ServiceCategory>> GetAllByFacilityAsync(int facilityId, CancellationToken cancellationToken = default);
     }
 }
