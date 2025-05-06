@@ -173,7 +173,9 @@ public class HouseholdService : IHouseholdService
                     BloodType = string.IsNullOrWhiteSpace(personReq.BloodType) ? null : personReq.BloodType,
                     IsDeceased = false,
                     PatientIdTemp = 0,
-                    CreatedDate = DateTime.UtcNow
+                    AddressIdResidential = address.AddressId,
+                    AddressIdPermanent = address.AddressId,
+                  CreatedDate = DateTime.UtcNow
               };
 
                 await _context.Person.AddAsync(person, cancellationToken);

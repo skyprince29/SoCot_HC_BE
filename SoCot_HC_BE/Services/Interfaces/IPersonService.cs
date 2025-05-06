@@ -15,5 +15,8 @@ namespace SoCot_HC_BE.Persons.Interfaces
         // Save Person
         Task SavePersonAsync(Person person, CancellationToken cancellationToken = default);
 
+        // Get Person based on Id
+        Task<Person?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
     }
 }

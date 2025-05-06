@@ -20,6 +20,19 @@ namespace SoCot_HC_BE.Controllers
             _personService = personService;
         }
 
+        [HttpGet("GetPerson/{id}")]
+        public async Task<IActionResult> GetPerson(Guid id, CancellationToken cancellationToken)
+        {
+            var person = await _personService.GetByIdAsync(id, cancellationToken);
+            if (person == null)
+            {
+                return NotFound(new { success = false, message = "Person not found." });
+            }
+
+            return Ok(person);
+        }
+
+
 
         [HttpGet("GetPagedPersons")]
         public async Task<IActionResult> GetPagedPersons(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
@@ -40,6 +53,40 @@ namespace SoCot_HC_BE.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Internal error", error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
+
+
+        [HttpPost("SavePerson")]
+        public async Task<IActionResult> SavePerson(Person person, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _personService.SavePersonAsync(person, cancellationToken);
+                return Ok(new
+                {
+                    success = true,
+                    message = person.PersonId == Guid.Empty
+                       ? "Person created successfully."
+                       : "Person updated successfully."
+                });
+            }
+            catch (ModelValidationException ex)
+            {
+                foreach (var kvp in ex.Errors)
+                {
+                    foreach (var error in kvp.Value)
+                    {
+                        ModelState.AddModelError(kvp.Key, error);
+                    }
+                }
+
+                var modelErrors = ModelState.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToList()
+                );
+
+                return BadRequest(new { success = false, errors = modelErrors });
             }
         }
     }

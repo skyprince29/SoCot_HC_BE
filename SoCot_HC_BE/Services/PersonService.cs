@@ -23,6 +23,20 @@ namespace SoCot_HC_BE.Services
         {
         }
 
+        public async Task<Person?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            //return await _dbSet.FirstOrDefaultAsync(p => p.PersonId == id, cancellationToken);
+            return await _dbSet
+         .Include(p => p.AddressAsResidential!)
+             .ThenInclude(a => a.Barangay)
+         .Include(p => p.AddressAsResidential!)
+             .ThenInclude(a => a.Municipality)
+         .Include(p => p.AddressAsResidential!)
+             .ThenInclude(a => a.Province)
+         .FirstOrDefaultAsync(p => p.PersonId == id, cancellationToken);
+        }
+
+
         public async Task<List<Person>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await _dbSet.ToListAsync(cancellationToken); 
