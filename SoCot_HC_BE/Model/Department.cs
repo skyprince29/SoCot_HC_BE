@@ -9,13 +9,17 @@ namespace SoCot_HC_BE.Model
         [Key]
         public Guid DepartmentId { get; set; }
         [MaxLength(50)]
-        public required string DepartmentCode { get; set; }
-        public required int FacilityId { get; set; }
+        [Required]
+        public  string DepartmentCode { get; set; }
+        [Required]
+        public int FacilityId { get; set; }
         [ForeignKey("FacilityId")]
-        public virtual Facility? Facility { get; set; }
+        public  Facility? Facility { get; set; }
         [MaxLength(100)]
-        public required string DepartmentName { get; set; }
+        [Required]
+        public  string DepartmentName { get; set; }
         [MaxLength(200)]
+        [Required]
         public string? Description { get; set; }
         public Guid? ParentDepartmentId { get; set; }
         [ForeignKey("ParentDepartmentId")]
@@ -25,6 +29,6 @@ namespace SoCot_HC_BE.Model
         public bool IsActive { get; set; }
 
         // Navigation property
-        public required virtual ICollection<DepartmentDepartmentType> DepartmentTypes { get; set; }
+        public  virtual ICollection<DepartmentDepartmentType> DepartmentTypes { get; set; }
     }
 }

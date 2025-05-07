@@ -1,5 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using SCHC_API.Handler;
 using SoCot_HC_BE.Data;
+using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
@@ -11,6 +14,7 @@ namespace SoCot_HC_BE.Services
     {
         public DepartmentService(AppDbContext context) : base(context)
         {
+      
         }
 
         public override async Task<Department?> GetAsync(Guid id, CancellationToken cancellationToken = default)
@@ -25,22 +29,31 @@ namespace SoCot_HC_BE.Services
             return department;
         }
 
-        public async Task<List<Department>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
+        public async Task<PaginationHandler<Department>> GetAllWithPagingAsync(int pageNo,int statusId, List<Guid>? departmentTypes,int limit, string keyword = "", CancellationToken cancellationToken = default)
         {
-            var query = _dbSet
-                 .Include(f => f.DepartmentTypes)
-                    .ThenInclude(dt => dt.DepartmentType) // ✅ include the inner object
-                .AsQueryable();
+            int totalRecords = await _dbSet
+                                    .CountAsync(d =>
+                                             (statusId == 0 || (statusId == 1 && d.IsActive) || (statusId == 2 && !d.IsActive)) &&
+                                            (departmentTypes == null || !departmentTypes.Any() ||
+                                             d.DepartmentTypes.Any(dt => departmentTypes.Contains(dt.DepartmentTypeId))) &&
+                                            (string.IsNullOrEmpty(keyword) || d.DepartmentName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                                    );
 
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                query = query.Where(v => v.DepartmentName.Contains(keyword)); // You can adjust this to your need
-            }
+            var departments = await _dbSet
+                            .Include(f => f.DepartmentTypes)
+                                .ThenInclude(dt => dt.DepartmentType)
+                            .Include(d => d.ParentDepartment)
+                            .Where(d =>
+                                (statusId == 0 || (statusId == 1 && d.IsActive) || (statusId == 2 && !d.IsActive)) &&
+                                (departmentTypes == null || !departmentTypes.Any() ||
+                                 d.DepartmentTypes.Any(dt => departmentTypes.Contains(dt.DepartmentTypeId))) &&
+                                (string.IsNullOrEmpty(keyword) || d.DepartmentName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                            )
+                            .AsNoTracking()
+                            .ToListAsync();
 
-            return await query
-                .Skip((pageNo - 1) * limit)
-                .Take(limit)
-                .ToListAsync(cancellationToken); // Pass the CancellationToken here
+            var paginatedResult = new PaginationHandler<Department>(departments, totalRecords, pageNo, limit);
+            return paginatedResult;
         }
 
         public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
@@ -83,65 +96,75 @@ namespace SoCot_HC_BE.Services
             return activeItems;
         }
 
-        public async Task SaveDepartmentAsync(Department department, CancellationToken cancellationToken = default)
+        public async Task SaveDepartmentAsync(DepartmentDTO departmentDTO, CancellationToken cancellationToken = default)
         {
-            bool isNew = department.DepartmentId == Guid.Empty;
 
-            if (isNew)
-            {
-                department.DepartmentId = Guid.NewGuid();
-                department.CreatedDate = DateTime.Now;
-                department.DepartmentCode = await GenerateDepartmentCodeAsync(department.FacilityId, cancellationToken);
-            }
+            bool isNew = departmentDTO.DepartmentId == Guid.Empty;
 
             // 🔍 Validate fields after DepartmentCode is generated
-            ValidateFields(department);
+            ValidateFields(departmentDTO);
+
+            var department = new Department
+            {
+                DepartmentCode = await GenerateDepartmentCodeAsync(departmentDTO.FacilityId, cancellationToken),
+                DepartmentId = departmentDTO.DepartmentId,
+                FacilityId = departmentDTO.FacilityId,
+                DepartmentName = departmentDTO.DepartmentName,
+                Description = departmentDTO.Description,
+                ParentDepartmentId = departmentDTO.ParentDepartmentId,
+                IsReferable = departmentDTO.IsReferable,
+                IsActive = departmentDTO.IsActive,
+                DepartmentTypes = new List<DepartmentDepartmentType>()
+            };
 
             if (isNew)
             {
+                // Set DepartmentTypes directly to the new entity
+                foreach (var typeId in departmentDTO.DepartmentTypeIds)
+                {
+                    department.DepartmentTypes.Add(new DepartmentDepartmentType
+                    {
+                        DepartmentId = department.DepartmentId,
+                        DepartmentTypeId = typeId
+                    });
+                }
+
                 await AddAsync(department, cancellationToken);
             }
             else
             {
-                var existingDepartment = await _dbSet.FindAsync(new object[] { department.DepartmentId }, cancellationToken);
+                var existingDepartment = await _dbSet
+                    .Include(d => d.DepartmentTypes)
+                    .FirstOrDefaultAsync(d => d.DepartmentId == department.DepartmentId, cancellationToken);
 
                 if (existingDepartment == null)
                     throw new Exception("Department not found.");
 
                 _context.Entry(existingDepartment).CurrentValues.SetValues(department);
 
-                SaveUpdateDepartmentDepartmentTypes(existingDepartment, department);
-
+                SaveUpdateDepartmentDepartmentTypes(existingDepartment, departmentDTO.DepartmentTypeIds);
                 await UpdateAsync(existingDepartment, cancellationToken);
             }
         }
 
-        private void SaveUpdateDepartmentDepartmentTypes(Department existingDepartment, Department updatedDepartment)
+        private void SaveUpdateDepartmentDepartmentTypes(Department existingDepartment, List<Guid> departmentTypeIds)
         {
-            // Directly access the join table from context
             var departmentTypeSet = _context.Set<DepartmentDepartmentType>();
 
-            // Get existing and updated type IDs
-            var existingTypeIds = existingDepartment.DepartmentTypes.Select(s => s.DepartmentTypeId).ToList();
-            var updatedTypeIds = updatedDepartment.DepartmentTypes.Select(s => s.DepartmentTypeId).ToList();
-
-            // Remove ones not in the updated list
+            // Remove all existing department-type relationships
             foreach (var existing in existingDepartment.DepartmentTypes.ToList())
             {
-                if (!updatedTypeIds.Contains(existing.DepartmentTypeId))
-                {
-                    departmentTypeSet.Remove(existing);
-                }
+                departmentTypeSet.Remove(existing);
             }
 
-            // Add new ones from updated list
-            foreach (var updated in updatedDepartment.DepartmentTypes)
+            // Add new department-type relationships
+            foreach (var typeId in departmentTypeIds)
             {
-                if (!existingTypeIds.Contains(updated.DepartmentTypeId))
+                departmentTypeSet.Add(new DepartmentDepartmentType
                 {
-                    updated.DepartmentId = existingDepartment.DepartmentId;
-                    departmentTypeSet.Add(updated);
-                }
+                    DepartmentId = existingDepartment.DepartmentId,
+                    DepartmentTypeId = typeId
+                });
             }
         }
 
@@ -163,7 +186,7 @@ namespace SoCot_HC_BE.Services
         }
 
 
-        private void ValidateFields(Department department)
+        private void ValidateFields(DepartmentDTO department)
         {
             var errors = new Dictionary<string, List<string>>();
 
@@ -180,16 +203,16 @@ namespace SoCot_HC_BE.Services
                 ValidationHelper.AddError(errors, nameof(department.DepartmentName), "Department name already exists in this facility.");
 
             // Required: Department Code
-            ValidationHelper.IsRequired(errors, nameof(department.DepartmentCode), department.DepartmentCode, "Department Code");
-            bool duplicateCode = _dbSet.Any(d =>
-                d.FacilityId == department.FacilityId &&
-                d.DepartmentCode == department.DepartmentCode &&
-                d.DepartmentId != department.DepartmentId);
+            //ValidationHelper.IsRequired(errors, nameof(department.DepartmentCode), department.DepartmentCode, "Department Code");
+            //bool duplicateCode = _dbSet.Any(d =>
+            //    d.FacilityId == department.FacilityId &&
+            //    d.DepartmentCode == department.DepartmentCode &&
+            //    d.DepartmentId != department.DepartmentId);
 
-            if (duplicateCode)
-            {
-                ValidationHelper.AddError(errors, nameof(department.DepartmentCode), "Department code already exists in this facility.");
-            }
+            //if (duplicateCode)
+            //{
+            //    ValidationHelper.AddError(errors, nameof(department.DepartmentCode), "Department code already exists in this facility.");
+            //}
 
             ValidationHelper.IsRequired(errors, nameof(department.FacilityId), department.FacilityId, "Facility");
 
@@ -210,27 +233,10 @@ namespace SoCot_HC_BE.Services
             }
 
             // Department Types validation (required list)
-            if (department.DepartmentTypes == null || !department.DepartmentTypes.Any())
+            if (department.DepartmentTypeIds == null || !department.DepartmentTypeIds.Any())
             {
-                ValidationHelper.AddError(errors, nameof(department.DepartmentTypes), "At least one department type is required.");
+                ValidationHelper.AddError(errors, nameof(department.DepartmentTypeIds), "At least one department type is required.");
             }
-            else
-            {
-                var departmentTypeIds = new HashSet<Guid>();
-                // Optionally, validate the individual department types (if necessary)
-                foreach (var departmentType in department.DepartmentTypes)
-                {
-                    if (departmentType.DepartmentTypeId == Guid.Empty)
-                    {
-                        ValidationHelper.AddError(errors, nameof(department.DepartmentTypes), "Department type is invalid.");
-                    }
-                    else if (!departmentTypeIds.Add(departmentType.DepartmentTypeId))
-                    {
-                        ValidationHelper.AddError(errors, nameof(department.DepartmentTypes), "Duplicate department type found.");
-                    }
-                }
-            }
-
 
             // Throw if there are any errors
             if (errors.Any())

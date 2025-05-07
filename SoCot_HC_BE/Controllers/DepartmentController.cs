@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
+using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
@@ -55,22 +56,19 @@ namespace SoCot_HC_BE.Controllers
         }
 
         [HttpGet("GetPagedDepartments")]
-        public async Task<IActionResult> GetPagedDepartments(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetPagedDepartments(int pageNo, int statusId, [FromQuery] List<Guid>? departmentTypes,  int limit, CancellationToken cancellationToken, string keyword = "")
         {
             if (pageNo <= 0 || limit <= 0)
             {
                 return BadRequest(new { message = "Page number and limit must be greater than zero." });
             }
 
-            var departments = await _departmentService.GetAllWithPagingAsync(pageNo, limit, keyword, cancellationToken);
-            var totalRecords = await _departmentService.CountAsync(keyword, cancellationToken);
-
-            var paginatedResult = new PaginationHandler<Department>(departments, totalRecords, pageNo, limit);
+            var paginatedResult = await _departmentService.GetAllWithPagingAsync(pageNo, statusId, departmentTypes, limit, keyword, cancellationToken);
             return Ok(paginatedResult);
         }
 
         [HttpPost("SaveDepartment")]
-        public async Task<IActionResult> SaveDepartment(Department department, CancellationToken cancellationToken)
+        public async Task<IActionResult> SaveDepartment(DepartmentDTO department, CancellationToken cancellationToken)
         {
             try
             {
@@ -99,7 +97,11 @@ namespace SoCot_HC_BE.Controllers
                     kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToList()
                 );
 
-                return BadRequest(new { success = false, errors = modelErrors });
+                return BadRequest(new { 
+                    success = false,
+                    messge = "The request could not be processed due to invalid input. Please verify the submitted data and try again.",
+                    errors = modelErrors }
+                );
             }
         }
     }
