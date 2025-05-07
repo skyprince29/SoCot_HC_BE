@@ -18,7 +18,7 @@ namespace SoCot_HC_BE.Controllers
             _departmentService = departmentService;
         }
 
-        [HttpGet("GetDepartment/{id}")]
+        [HttpGet("Department/{id}")]
         public async Task<IActionResult> GetDepartment(Guid id, CancellationToken cancellationToken)
         {
             var department = await _departmentService.GetAsync(id, cancellationToken);
