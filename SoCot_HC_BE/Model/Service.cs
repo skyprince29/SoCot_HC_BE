@@ -1,5 +1,4 @@
 ﻿using SoCot_HC_BE.Model.BaseModels;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -21,11 +20,19 @@ namespace SoCot_HC_BE.Model
         [ForeignKey("FacilityId")]
         public Facility? Facility { get; set; }
 
+        public required Guid DepartmentId { get; set; }
+
+        [ForeignKey("DepartmentId")]
+        public Department? Department { get; set; }
+
         public required int ServiceClassificationId { get; set; }
 
         [ForeignKey("ServiceClassificationId")]
         public virtual ServiceClassification? ServiceClassification { get; set; }
+        public required Guid ServiceCategoryId { get; set; }
 
+        [ForeignKey("ServiceCategoryId")]
+        public virtual ServiceCategory? ServiceCategory { get; set; }
         public bool IsActive { get; set; }
     }
 }
