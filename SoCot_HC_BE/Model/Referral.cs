@@ -8,8 +8,7 @@ namespace SoCot_HC_BE.Model
     {
         [Key]
         public Guid ReferralId { get; set; }
-
-        public int TempRefId { get; set; }
+        public long? TempRefId { get; set; }
         [MaxLength(150)]
         public string? Complains { get; set; }
         [MaxLength(150)]
@@ -24,25 +23,23 @@ namespace SoCot_HC_BE.Model
         public Facility? FacilityReferredFrom { get; set; }
         [MaxLength(50)]
         public required string ReferralNo { get; set; }
-
         public required DateTime ReferralDateTime { get; set; }
         public DateTime? ArrivalDateTime { get; set; }
         public DateTime? AdmissionDateTime { get; set; }
         public DateTime? DischargeDateTime { get; set; }
         [MaxLength(150)]
         public string? DischargeInstructions { get; set; }
-
-
         public Guid? PersonnelId { get; set; }
         [ForeignKey("PersonnelId")]
         public Personnel? Personnel { get; set; }
         public Guid? AttendingPhysicianId { get; set; }
         [ForeignKey("AttendingPhysicianId")]
         public Personnel? AttendingPhysician { get; set; }
-        
         public bool IsAccepted { get; set; }
         public bool isAlreadyUse { get; set; }
         public long ReferrenceId { get; set; }
 
+        // Navigation property
+        public virtual ICollection<ReferralService>? ReferralServices { get; set; }
     }
 }
