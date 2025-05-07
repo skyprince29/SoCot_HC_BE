@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
 using SoCot_HC_BE.Model;
-using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
 

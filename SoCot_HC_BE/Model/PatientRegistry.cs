@@ -15,7 +15,7 @@ namespace SoCot_HC_BE.Model
         [MaxLength(25)]
         public string? ReferralNo { get; set; }
 
-        public Guid? PatientId { get; set; } // Foreign Key for Patient
+        public Guid? PatientId { get; set; } // Foreign Key for Person
 
         [MaxLength(50)]
         public required string Name { get; set; }
@@ -31,6 +31,8 @@ namespace SoCot_HC_BE.Model
         public int? Age { get; set; }
 
         public bool IsTemporaryPatient { get; set; }
+
+        public bool IsUrgent { get; set; }
 
         public required PatientRegistryType PatientRegistryType { get; set; } // Enum stored as int
 
