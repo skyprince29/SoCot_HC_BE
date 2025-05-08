@@ -18,5 +18,7 @@ namespace SoCot_HC_BE.Model
         public int CardiacRate { get; set; }
         public int Systolic {  get; set; }
         public int Diastolic {  get; set; }
+        [MaxLength(100)]
+        public string? BloodPressure { get; set; }
     }
 }
