@@ -39,6 +39,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<UserGroup> UserGroup { get; set; }
         public DbSet<Designation> Designation { get; set; }
         public DbSet<Status> Status { get; set; }
+        public DbSet<PatientDepartmentTransaction> PatientDepartmentTransaction { get; set; }
         // Add more DbSets here...
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
