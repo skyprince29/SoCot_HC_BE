@@ -15,15 +15,21 @@ namespace SoCot_HC_BE.Model
         public string? Reason { get; set; }
         [MaxLength(150)]
         public string? Remarks { get; set; }
+        [MaxLength(150)]
+        public string? Diagnosis { get; set; }
         [MaxLength(100)]
         public string? Status { get; set; }
-        public required int ReferredTo { get; set; }
+        [Required]
+        public int ReferredTo { get; set; }
         public Facility? FacilityReferredTo { get; set; }
-        public required int ReferredFrom { get; set; }
+        [Required]
+        public int ReferredFrom { get; set; }
         public Facility? FacilityReferredFrom { get; set; }
+        [Required]
         [MaxLength(50)]
-        public required string ReferralNo { get; set; }
-        public required DateTime ReferralDateTime { get; set; }
+        public string? ReferralNo { get; set; }
+        [Required]
+        public DateTime ReferralDateTime { get; set; }
         public DateTime? ArrivalDateTime { get; set; }
         public DateTime? AdmissionDateTime { get; set; }
         public DateTime? DischargeDateTime { get; set; }
@@ -38,6 +44,7 @@ namespace SoCot_HC_BE.Model
         public bool IsAccepted { get; set; }
         public bool isAlreadyUse { get; set; }
         public long ReferrenceId { get; set; }
+        public bool IsUrgent { get; set; }
 
         // Navigation property
         public virtual ICollection<ReferralService>? ReferralServices { get; set; }
