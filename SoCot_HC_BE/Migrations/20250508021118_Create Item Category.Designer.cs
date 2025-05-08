@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250508021118_Create Item Category")]
+    partial class CreateItemCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -363,42 +366,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("FamilyMembers");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.Form", b =>
-                {
-                    b.Property<Guid>("FormId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("FormId");
-
-                    b.ToTable("Form");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.Household", b =>
                 {
                     b.Property<Guid>("HouseholdId")
@@ -445,85 +412,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("Households");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.Item", b =>
-                {
-                    b.Property<Guid>("ItemId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("BrandName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid?>("FormId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("ItemCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("RouteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StrengthId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("StrengthNo")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("SubCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UoMId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ItemId");
-
-                    b.HasIndex("FormId");
-
-                    b.HasIndex("ItemCategoryId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("RouteId");
-
-                    b.HasIndex("StrengthId");
-
-                    b.HasIndex("SubCategoryId");
-
-                    b.HasIndex("UoMId");
-
-                    b.ToTable("Item");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.ItemCategory", b =>
                 {
                     b.Property<Guid>("ItemCategoryId")
@@ -564,51 +452,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasIndex("ProvinceId");
 
                     b.ToTable("Municipality");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.PatientDepartmentTransaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("AcceptedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ForwardedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("FromDepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("PatientRegistryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte>("StatusId")
-                        .HasColumnType("tinyint");
-
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientRegistryId");
-
-                    b.HasIndex("StatusId");
-
-                    b.ToTable("PatientDepartmentTransaction");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.PatientRegistry", b =>
@@ -843,37 +686,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("Personnel");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.Product", b =>
-                {
-                    b.Property<Guid>("ProductId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ProductId");
-
-                    b.ToTable("Product");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.Province", b =>
                 {
                     b.Property<int>("ProvinceId")
@@ -1011,42 +823,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("ReferralService");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.Route", b =>
-                {
-                    b.Property<Guid>("RouteId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("RouteId");
-
-                    b.ToTable("Route");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.Service", b =>
                 {
                     b.Property<Guid>("ServiceId")
@@ -1161,127 +937,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("ServiceClassificationId");
 
                     b.ToTable("ServiceClassification");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Status", b =>
-                {
-                    b.Property<byte>("Id")
-                        .HasColumnType("tinyint");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Status");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Strength", b =>
-                {
-                    b.Property<Guid>("StrengthId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("StrengthId");
-
-                    b.ToTable("Strength");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.SubCategory", b =>
-                {
-                    b.Property<Guid>("SubCategoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("SubCategoryId");
-
-                    b.ToTable("SubCategory");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.UoM", b =>
-                {
-                    b.Property<Guid>("UoMId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Abbreviation")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("UoMId");
-
-                    b.ToTable("UoM");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.UserAccount", b =>
@@ -1583,57 +1238,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("PersonAsHeadOfHousehold");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.Item", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Form", "Form")
-                        .WithMany()
-                        .HasForeignKey("FormId");
-
-                    b.HasOne("SoCot_HC_BE.Model.ItemCategory", "ItemCategory")
-                        .WithMany()
-                        .HasForeignKey("ItemCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Route", "Route")
-                        .WithMany()
-                        .HasForeignKey("RouteId");
-
-                    b.HasOne("SoCot_HC_BE.Model.Strength", "Strength")
-                        .WithMany()
-                        .HasForeignKey("StrengthId");
-
-                    b.HasOne("SoCot_HC_BE.Model.SubCategory", "SubCategory")
-                        .WithMany()
-                        .HasForeignKey("SubCategoryId");
-
-                    b.HasOne("SoCot_HC_BE.Model.UoM", "UoM")
-                        .WithMany()
-                        .HasForeignKey("UoMId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Form");
-
-                    b.Navigation("ItemCategory");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Route");
-
-                    b.Navigation("Strength");
-
-                    b.Navigation("SubCategory");
-
-                    b.Navigation("UoM");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.Municipality", b =>
                 {
                     b.HasOne("SoCot_HC_BE.Model.Province", "Province")
@@ -1643,25 +1247,6 @@ namespace SoCot_HC_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Province");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.PatientDepartmentTransaction", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.PatientRegistry", "PatientRegistry")
-                        .WithMany()
-                        .HasForeignKey("PatientRegistryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Status", "Status")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PatientRegistry");
-
-                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.PatientRegistry", b =>

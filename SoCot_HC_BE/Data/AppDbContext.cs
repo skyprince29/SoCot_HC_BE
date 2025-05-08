@@ -40,6 +40,14 @@ namespace SoCot_HC_BE.Data
         public DbSet<Designation> Designation { get; set; }
         public DbSet<Status> Status { get; set; }
         public DbSet<PatientDepartmentTransaction> PatientDepartmentTransaction { get; set; }
+        public DbSet<ItemCategory> ItemCategory { get; set; }
+        public DbSet<Form> Form { get; set; }
+        public DbSet<Model.Route> Route { get; set; } // special case because of ambiguity  due to naming collisions with .NET/ASP.NET classes.
+        public DbSet<Strength> Strength { get; set; }
+        public DbSet<SubCategory> SubCategory { get; set; }
+        public DbSet<UoM> UoM { get; set; }
+        public DbSet<Product> Product { get; set; }
+        public DbSet<Item> Item { get; set; }
         // Add more DbSets here...
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
