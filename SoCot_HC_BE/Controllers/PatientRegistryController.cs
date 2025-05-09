@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
 
@@ -49,6 +50,45 @@ namespace SoCot_HC_BE.Controllers
                 );
 
                 return BadRequest(new { success = false, errors = modelErrors });
+            }
+        }
+
+        // Create a new Patient Registry
+        [HttpPost("CreatePatientRegistry")]
+        public async Task<IActionResult> CreatePatientRegistry(
+            string? referralNo, 
+            Guid patientId, 
+            PatientRegistryType patientRegistryType, 
+            int facilityId, 
+            bool isUrgent = false, 
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // Call the service method to create a new PatientRegistry
+                var newPatientRegistry = await _patientRegistryService.CreatePatientRegistryAsync(
+                    referralNo, 
+                    patientId, 
+                    patientRegistryType, 
+                    facilityId, 
+                    isUrgent, 
+                    cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Patient Registry created successfully.",
+                    data = newPatientRegistry
+                });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and return a bad request response
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
             }
         }
 
