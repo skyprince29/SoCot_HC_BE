@@ -115,7 +115,7 @@ namespace SoCot_HC_BE.Services
         {
             var houseHold = new Household()
             {
-                TempHouseholdId = houseHoldDto.Id,
+                //TempHouseholdId = houseHoldDto.Id,
                 HouseholdNo = houseHoldDto.PHouseholdNo,
                 ResidenceName = houseHoldDto.ResidenceName,
                 //HeadofFamily = houseHoldDto.HeadofFamily,
