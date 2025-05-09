@@ -7,10 +7,13 @@ namespace SoCot_HC_BE.Model
     {
         [Key]
         public Guid FamilyId { get; set; }
+        //public int? TempFamilyId { get; set; }
+        [Required]
         [MaxLength(30)]
-        public required string FamilyNo { get; set; }
+        public string? FamilyNo { get; set; }
 
         public Guid HouseholdId { get; set; }
+        //public int? TempHouseholdId { get; set; }
         public Guid PersonId { get; set; }
         public bool IsActive { get; set; }
 

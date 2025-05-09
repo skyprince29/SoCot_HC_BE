@@ -9,10 +9,13 @@ namespace SoCot_HC_BE.Model
 
         [Key]
         public Guid HouseholdId { get; set; }
+        //public int? TempHouseholdId { get; set; }
+        [Required]
         [MaxLength(30)]
-        public required string HouseholdNo { get; set; }
+        public string? HouseholdNo { get; set; }
+        [Required]
         [MaxLength(50)]
-        public required string ResidenceName { get; set; }
+        public string? ResidenceName { get; set; }
         public Guid PersonIdHeadOfHousehold { get; set; }
         public Guid AddressId { get; set; }
         public bool IsActive { get; set; }
