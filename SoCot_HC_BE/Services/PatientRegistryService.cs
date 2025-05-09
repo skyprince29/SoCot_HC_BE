@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Model.Enums;
+using SoCot_HC_BE.Persons.Interfaces;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
@@ -9,8 +11,10 @@ namespace SoCot_HC_BE.Services
 {
     public class PatientRegistryService : Repository<PatientRegistry, Guid>, IPatientRegistryService
     {
-         public PatientRegistryService(AppDbContext context) : base(context)
+        private readonly IPersonService _personService;
+         public PatientRegistryService(AppDbContext context, IPersonService personService) : base(context)
         {
+             _personService = personService;
         }
 
         //Overloads method from Repository, Added facility to eager loading
@@ -20,7 +24,6 @@ namespace SoCot_HC_BE.Services
                 .Include(pr => pr.Facility)
                 .FirstOrDefaultAsync(pr => pr.PatientRegistryId == id, cancellationToken);
         }
-
 
         public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
         {
@@ -54,9 +57,15 @@ namespace SoCot_HC_BE.Services
 
         public async Task SavePatientRegistryAsync(PatientRegistry patientRegistry, CancellationToken cancellationToken = default)
         {
+           await SavePatientRegistryAsync(patientRegistry, cancellationToken);
+        }
+
+        public async Task SavePatientRegistryAsync(PatientRegistry patientRegistry, bool isWithValidation = true, CancellationToken cancellationToken = default)
+        {
             // Determine if new or existing
             bool isNew = patientRegistry.PatientRegistryId == Guid.Empty;
-            ValidateFields(patientRegistry);
+            if(isWithValidation)
+                ValidateFields(patientRegistry);
 
             if (isNew)
             {
@@ -103,6 +112,46 @@ namespace SoCot_HC_BE.Services
 
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
+        }
+
+        public async Task<PatientRegistry> CreatePatientRegistryAsync(string? referralNo, Guid patientId, PatientRegistryType patientRegistryType, int facilityId, bool isUrgent = false, CancellationToken cancellationToken  = default)
+        {
+            // Fetch person details using the method from PersonService
+            var personDetails = await _personService.GetPersonDetailsAsync(patientId, cancellationToken);
+
+            if (personDetails == null)
+            {
+                throw new Exception("Person not found."); // Handle the case where the person does not exist
+            }
+
+            // Create a new PatientRegistry object
+            var newPatientRegistry = new PatientRegistry
+            {
+                PatientRegistryId = Guid.NewGuid(),
+                PatientRegistryCode = GeneratePatientRegistryCode(),
+                ReferralNo = referralNo,
+                PatientId = patientId,
+                Name = personDetails.FullName, // Use the fetched full name
+                Gender = personDetails.Gender ?? "Unknown", // Use the fetched gender or default to "Unknown"
+                Age = personDetails.Age, // Use the fetched age
+                Address = personDetails.FullAddress, // Use the fetched full address
+                ContactNumber = personDetails.ContactNumber, // Use the fetched contact number
+                PatientRegistryType = patientRegistryType,
+                FacilityId = facilityId,
+                IsTemporaryPatient = false,
+                IsUrgent = isUrgent
+            };
+
+            // Save the new patient registry asynchronously
+            await SavePatientRegistryAsync(newPatientRegistry, false, cancellationToken);
+
+            return newPatientRegistry;
+        }
+
+         private string GeneratePatientRegistryCode()
+        {
+            // Logic to generate a unique PatientRegistryCode
+            return $"PR-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
         }
     }
 }

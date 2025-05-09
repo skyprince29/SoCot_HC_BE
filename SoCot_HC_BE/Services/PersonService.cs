@@ -37,7 +37,7 @@ namespace SoCot_HC_BE.Services
         }
 
 
-        public async Task<List<Person>> GetAllAsync(CancellationToken cancellationToken = default)
+        public override async Task<List<Person>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await _dbSet.ToListAsync(cancellationToken); 
         }
@@ -135,6 +135,66 @@ namespace SoCot_HC_BE.Services
 
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
+        }
+
+        public async Task<PersonDetailsDto?> GetPersonDetailsAsync(Guid personId, CancellationToken cancellationToken = default)
+        {
+            var person = await _dbSet
+                .Include(p => p.AddressAsResidential)
+                .FirstOrDefaultAsync(p => p.PersonId == personId, cancellationToken);
+
+            if (person == null)
+            {
+                return null; // Person not found
+            }
+            else 
+            {
+                if (person.AddressAsResidential != null)
+                {
+                    // Ensure Barangay is assigned
+                    if (person.AddressAsResidential.Barangay == null)
+                    {
+                        person.AddressAsResidential.Barangay = await _context.Barangay
+                            .FirstOrDefaultAsync(b => b.BarangayId == person.AddressAsResidential.BarangayId, cancellationToken);
+                    }
+
+                    // Ensure Municipality is assigned
+                    if (person.AddressAsResidential.Municipality == null)
+                    {
+                        person.AddressAsResidential.Municipality = await _context.Municipality
+                            .FirstOrDefaultAsync(m => m.MunicipalityId == person.AddressAsResidential.MunicipalityId, cancellationToken);
+                    }
+
+                    // Ensure Province is assigned
+                    if (person.AddressAsResidential.Province == null)
+                    {
+                        person.AddressAsResidential.Province = await _context.Province
+                            .FirstOrDefaultAsync(p => p.ProvinceId == person.AddressAsResidential.ProvinceId, cancellationToken);
+                    }
+                }
+
+                 var fullAddress = person.AddressAsResidential?.FullAddress;
+
+                // Return the required details
+                return new PersonDetailsDto
+                {
+                    FullName = person.Fullname,
+                    Gender = person.Gender,
+                    Age = CalculateAge(person.BirthDate),
+                    ContactNumber = person.ContactNo,
+                    FullAddress = fullAddress
+                };
+            }
+        }
+
+        private int CalculateAge(DateTime birthDate)
+        {
+            var today = DateTime.Today;
+            var age = today.Year - birthDate.Year;
+
+            if (birthDate.Date > today.AddYears(-age)) age--;
+
+            return age;
         }
     }
 }
