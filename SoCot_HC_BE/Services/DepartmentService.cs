@@ -249,5 +249,25 @@ namespace SoCot_HC_BE.Services
                 .Where(s => s.IsActive && s.FacilityId == facilityId)
                 .ToListAsync(cancellationToken);
         }
+        public async Task<List<Department>> GetDepartmentsByDepartmentTypesAsync(
+            int facilityId,
+            Guid? currentId,
+            List<Guid> departmentTypeIds,
+            bool isActiveOnly = true,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _dbSet
+                .Include(d => d.DepartmentTypes)
+                    .ThenInclude(dt => dt.DepartmentType)
+                .Include(d => d.ParentDepartment)
+                .Where(d =>
+                    d.FacilityId == facilityId &&
+                    d.IsActive == isActiveOnly &&
+                    (currentId == null || d.DepartmentId == currentId.Value || d.DepartmentId != currentId.Value) &&
+                    (!departmentTypeIds.Any() || d.DepartmentTypes.Any(dt => departmentTypeIds.Contains(dt.DepartmentTypeId)))
+                );
+
+            return await query.AsNoTracking().ToListAsync(cancellationToken);
+        }
     }
 }
