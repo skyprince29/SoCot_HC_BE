@@ -15,5 +15,6 @@ namespace SoCot_HC_BE.Services.Interfaces
 
         Task<List<Department>> GetAllActiveOnlyAsync(CancellationToken cancellationToken = default);
         Task<List<Department>> GetAllActiveWithCurrentAsync(Guid currentId, CancellationToken cancellationToken = default);
+        Task<List<Department>> GetAllActiveDepartmentByFacility(int facilityId, CancellationToken cancellationToken = default);
     }
 }

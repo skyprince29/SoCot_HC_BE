@@ -19,7 +19,6 @@ namespace SoCot_HC_BE.Model
         [Required]
         public  string DepartmentName { get; set; }
         [MaxLength(200)]
-        [Required]
         public string? Description { get; set; }
         public Guid? ParentDepartmentId { get; set; }
         [ForeignKey("ParentDepartmentId")]

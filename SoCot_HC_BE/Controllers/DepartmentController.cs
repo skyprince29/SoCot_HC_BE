@@ -31,7 +31,7 @@ namespace SoCot_HC_BE.Controllers
         }
 
         [HttpGet("GetDepartments")]
-        public async Task<IActionResult> GetFacilities(
+        public async Task<IActionResult> GetDepartments(
         [FromQuery] bool isActiveOnly = true,
         [FromQuery] Guid? currentId = null,
         CancellationToken cancellationToken = default
@@ -103,6 +103,19 @@ namespace SoCot_HC_BE.Controllers
                     errors = modelErrors }
                 );
             }
+        }
+
+
+        [HttpGet("DepartmentByFacility")]
+        public async Task<ActionResult> DepartmentByFacility(int facilityId, CancellationToken cancellationToken)
+        {
+            if (facilityId == 0)
+            {
+                return BadRequest();
+            }
+            List<Department> department = await _departmentService.GetAllActiveDepartmentByFacility(facilityId, cancellationToken);
+            return Ok(department);
+
         }
     }
 }

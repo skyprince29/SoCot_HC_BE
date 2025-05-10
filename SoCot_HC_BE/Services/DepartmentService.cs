@@ -243,6 +243,11 @@ namespace SoCot_HC_BE.Services
                 throw new ModelValidationException("Validation failed", errors);
         }
 
-
+        public async Task<List<Department>> GetAllActiveDepartmentByFacility(int facilityId, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .Where(s => s.IsActive && s.FacilityId == facilityId)
+                .ToListAsync(cancellationToken);
+        }
     }
 }
