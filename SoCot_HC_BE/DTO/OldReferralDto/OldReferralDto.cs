@@ -2,6 +2,24 @@ using System;
 
 namespace SoCot_HC_BE.DTO.OldReferralDto
 {
+    public class ExternalApiSettings
+    {
+        public string? BaseUrl { get; set; }
+        public string? AuthEndpoint { get; set; }
+        public string? ReferralEndpoint { get; set; }
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+    }
+
+    public class UHCReferralDTO
+    {
+        public ReferralDto? Referral { get; set; }
+        public HouseHoldDto? HouseHold { get; set; }
+        public FamilyDto? Family { get; set; }
+        public FamilyMemberDto? FamilyMember { get; set; }
+        public PatientDto? Patient { get; set; }
+    }
+
     public class ReferralDto
     {
         public int Id { get; set; }
@@ -32,6 +50,8 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public HouseHoldDto? HouseHold { get; set; }
         public FamilyDto? Family { get; set; }
         public FamilyMemberDto? FamilyMember { get; set; }
+        public PersonDto? Person { get; set; }
+        public UserDto? User { get; set; }
     }
 
     public class PatientDto
@@ -93,5 +113,40 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public int? PatientId { get; set; }
         public PatientDto? Patient { get; set; }
         public bool? IsActive { get; set; }
+    }
+
+    public class PersonnelDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Designation {  get; set; }
+        public int FacilityId {  get; set; }
+        public string LicenseNo { get; set; }
+    }
+
+    public class UserDto
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? FirstName { get; set; }
+        public string? MiddleName { get; set; }
+        public string? LastName { get; set; }
+        public string? Suffix { get; set; }
+        public string? Designation { get; set; }
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+        public string? Email { get; set; }
+        public string? ContactNumber { get; set; }
+        public string? Status { get; set; }
+        public DateTime? LastLogin { get; set; }
+        public int? FacilityId { get; set; }
+        public int? RegionID { get; set; }
+        public int? ProvinceID { get; set; }
+        public int? CityMunicipalityID { get; set; }
+        public int? barangay_id { get; set; }
+        public int DepartmentId { get; set; }
+        public bool isActive { get; set; } = true;
+        public string? UserIDNo { get; set; }
+        public string? AccessibleModules { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Designations.Interfaces;
+using SoCot_HC_BE.DTO.OldReferralDto;
 using SoCot_HC_BE.Personnels;
 using SoCot_HC_BE.Personnels.Interfaces;
 using SoCot_HC_BE.Persons.Interfaces;
@@ -43,6 +44,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Register Generic Repository
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
+builder.Services.Configure<ExternalApiSettings>(
+    builder.Configuration.GetSection("ExternalApiSettings"));
 // Register Specific Service
 builder.Services.AddScoped<IVitalSignService, VitalSignService>();
 builder.Services.AddScoped<IPatientRegistryService, PatientRegistryService>();
@@ -63,6 +66,7 @@ builder.Services.AddScoped<IWoundTypeService, WoundTypeService>();
 builder.Services.AddScoped<IDesignationService, DesignationService>();
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddHttpClient<IReferralService, ReferralService>();
 
 var app = builder.Build();
 

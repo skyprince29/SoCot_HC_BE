@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SoCot_HC_BE.Model.BaseModels;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoCot_HC_BE.Model
 {
-    public class UserAccount
+    public class UserAccount : AuditInfo
     {
         [Key]
         public Guid UserAccountId { get; set; }
