@@ -64,9 +64,13 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IServiceCategoryService, ServiceCategoryService>();
 builder.Services.AddScoped<IWoundTypeService, WoundTypeService>();
 builder.Services.AddScoped<IDesignationService, DesignationService>();
+builder.Services.AddScoped<ISupplyStorageService, SupplyStorageService>();
+
+// HTTP CLinet Injection
+builder.Services.AddHttpClient<IReferralService, ReferralService>();
+
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddHttpClient<IReferralService, ReferralService>();
 
 var app = builder.Build();
 
