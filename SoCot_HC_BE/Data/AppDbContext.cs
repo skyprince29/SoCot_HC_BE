@@ -48,6 +48,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<UoM> UoM { get; set; }
         public DbSet<Product> Product { get; set; }
         public DbSet<Item> Item { get; set; }
+        public DbSet<SupplyStorage> SupplyStorage { get; set; }
         // Add more DbSets here...
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
