@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
 
 namespace SoCot_HC_BE.Controllers
@@ -30,6 +31,19 @@ namespace SoCot_HC_BE.Controllers
 
             var paginatedResult = new PaginationHandler<SupplyStorage>(supplyStorages, totalRecords, pageNo, limit);
             return Ok(paginatedResult);
+        }
+
+        // Get a specific supply storage by ID
+        [HttpGet("GetSupplyStorage/{id}")]
+        public async Task<IActionResult> GetSupplyStorage(Guid id, CancellationToken cancellationToken)
+        {
+            var service = await _supplyStorageService.GetAsync(id, cancellationToken);
+            if (service == null)
+            {
+                return NotFound(new { success = false, message = "Supply Storage not found." });
+            }
+
+            return Ok(service);
         }
     }
 }
