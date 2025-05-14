@@ -151,5 +151,40 @@ namespace SoCot_HC_BE.Controllers
                 });
             }
         }
+
+        [HttpGet("GetDeparmentWithInventory")]
+        public async Task<IActionResult> GetDeparmentWithInventory(
+            [FromQuery] int facilityId,
+            [FromQuery] bool isActiveOnly = true,
+            [FromQuery] Guid? currentId = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (facilityId <= 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid facility ID." });
+            }
+
+            try
+            {
+                var departments = await _departmentService.GetDepartmentsByDepartmentTypesAsync(
+                    facilityId,
+                    currentId,
+                    new List<Guid> { new Guid("50149ced-e86d-416d-bbb6-1e321cc69517") }, // Default to an empty list if null
+                    isActiveOnly,
+                    cancellationToken
+                );
+
+                return Ok(departments);
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and return a bad request response
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

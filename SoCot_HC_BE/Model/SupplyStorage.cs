@@ -4,7 +4,7 @@ using SoCot_HC_BE.Model.BaseModels;
 
 namespace SoCot_HC_BE.Model
 {
-    public class SupplyStorage :AuditInfo
+    public class SupplyStorage : AuditInfo
     {
         [Key]
         public Guid SupplyStorageId { get; set; }

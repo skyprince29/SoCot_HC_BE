@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
+using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
-using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
+using SoCot_HC_BE.Utils;
 
 namespace SoCot_HC_BE.Controllers
 {
@@ -44,6 +45,41 @@ namespace SoCot_HC_BE.Controllers
             }
 
             return Ok(service);
+        }
+
+        // Save or update a SupplyStorage
+        [HttpPost("SaveSupplyStorage")]
+        public async Task<IActionResult> SaveSupplyStorage(SupplyStorageDto supplyStorage, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _supplyStorageService.SaveSupplyStorageAsync(supplyStorage, cancellationToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = supplyStorage.SupplyStorageId == Guid.Empty
+                        ? "Supply Storage created successfully."
+                        : "Supply Storage updated successfully."
+                });
+            }
+            catch (ModelValidationException ex)
+            {
+                foreach (var kvp in ex.Errors)
+                {
+                    foreach (var error in kvp.Value)
+                    {
+                        ModelState.AddModelError(kvp.Key, error);
+                    }
+                }
+
+                var modelErrors = ModelState.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToList()
+                );
+
+                return BadRequest(new { success = false, errors = modelErrors });
+            }
         }
     }
 }

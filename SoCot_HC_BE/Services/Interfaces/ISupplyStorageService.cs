@@ -1,4 +1,5 @@
-﻿using SoCot_HC_BE.Model;
+﻿using SoCot_HC_BE.DTO;
+using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories.Interfaces;
 
 namespace SoCot_HC_BE.Services.Interfaces
@@ -10,5 +11,7 @@ namespace SoCot_HC_BE.Services.Interfaces
 
         // Get the total count of Supply Storages, again supporting async cancellation.
         Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default);
+
+        Task SaveSupplyStorageAsync(SupplyStorageDto supplyStorageDto, CancellationToken cancellationToken = default);
     }
 }
