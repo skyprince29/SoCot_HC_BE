@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250510135512_Create Dental Treatment")]
+    partial class CreateDentalTreatment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,457 +105,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("Barangay");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecord", b =>
-                {
-                    b.Property<Guid>("DentalRecordId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ConsentedByName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateRecord")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DentalRecordDetailsMedicalHistoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DentalRecordDetailsOralHealthConditionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DentalRecordDetailsPersenceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DentalRecordDetailsPresenceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DentalRecordDetailsSocialHistoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DentalRecordDetailsToothCountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("FacilityId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("PhysicianId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ReferralId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ReferralNo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("DentalRecordId");
-
-                    b.HasIndex("DentalRecordDetailsMedicalHistoryId");
-
-                    b.HasIndex("DentalRecordDetailsOralHealthConditionId");
-
-                    b.HasIndex("DentalRecordDetailsPresenceId");
-
-                    b.HasIndex("DentalRecordDetailsSocialHistoryId");
-
-                    b.HasIndex("DentalRecordDetailsToothCountId");
-
-                    b.HasIndex("FacilityId");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("PhysicianId");
-
-                    b.ToTable("DentalRecord");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecordDetailsFindings", b =>
-                {
-                    b.Property<Guid>("DentalRecordDetailsFindingsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Condition")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<DateTime>("DateDiagnose")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("DentalRecordId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Diagnosis")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("Remarks")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("ToothNo")
-                        .HasColumnType("int");
-
-                    b.HasKey("DentalRecordDetailsFindingsId");
-
-                    b.HasIndex("DentalRecordId");
-
-                    b.ToTable("DentalRecordDetailsFindings");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecordDetailsMedicalHistory", b =>
-                {
-                    b.Property<Guid>("DentalRecordDetailsMedicalHistoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Alergies")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int?>("BloodTransfusionMonth")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("BloodTransfusionYear")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("HasAlergies")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasBloodDisorders")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasBloodTransfusion")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasCardiovascularOrHeartDiseases")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasDiabetesMelitus")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasHepatitis")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasHistoryOfPrevHospitalization")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasHypertentionOrCVA")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasMalignancy")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasOthers")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasTattoo")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasThyroidDisorders")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("HepatitisType")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("MalignancyType")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Medical")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Others")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Surgical")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("DentalRecordDetailsMedicalHistoryId");
-
-                    b.ToTable("DentalRecordDetailsMedicalHistory");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecordDetailsOralHealthCondition", b =>
-                {
-                    b.Property<Guid>("DentalRecordDetailsOralHealthConditionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("AbnormalGrowth")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Calculus")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("CleftLipOrPalate")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("DateOfOralExamination")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Debris")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("DentalCarries")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Gingivitis")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("NoOfDecayedTeethBigD")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NoOfDecayedTeethSmallD")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NoOfFilledTeethBigF")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NoOfFilledTeethSmallF")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NoOfMissingTeethM")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NoPermSoundTeeth")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NoPermTeethPresent")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NoTempSoundTeeth")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NoTempTeethPresent")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("OrallyFitChild")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Others")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<bool>("PeriodontalDisease")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("TotalDFTeeth")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalDMFTeeth")
-                        .HasColumnType("int");
-
-                    b.HasKey("DentalRecordDetailsOralHealthConditionId");
-
-                    b.ToTable("DentalRecordDetailsOralHealthCondition");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecordDetailsPresence", b =>
-                {
-                    b.Property<Guid>("DentalRecordDetailsPresenceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("AgeLastBirthday")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DateOfExamination")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("PresenceOfCalculus")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("PresenceOfDentalCarries")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("PresenceOfDentoFacialAnomaly")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("PresenceOfGingivitis")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("PresenceOfNeoplasm")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("PresenceOfOralDebris")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("PresenceOfPeriodicPocket")
-                        .HasColumnType("bit");
-
-                    b.HasKey("DentalRecordDetailsPresenceId");
-
-                    b.ToTable("DentalRecordDetailsPresence");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecordDetailsServices", b =>
-                {
-                    b.Property<Guid>("DentalRecordDetailsServicesId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateDiagnose")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("DentalRecordId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Diagnosis")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Remarks")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("ServiceRendered")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("ToothNo")
-                        .HasColumnType("int");
-
-                    b.HasKey("DentalRecordDetailsServicesId");
-
-                    b.HasIndex("DentalRecordId");
-
-                    b.ToTable("DentalRecordDetailsServices");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecordDetailsSocialHistory", b =>
-                {
-                    b.Property<Guid>("DentalRecordDetailsSocialHistoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("BetelNutChewing")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<bool>("HasBetelNutChewing")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasSweetenedSugarBeverageOrFood")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasUseOfAlcohol")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HasUseOfTobacco")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SweetenedSugarBeverageOrFood")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("UseOfAlcohol")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("UseOfTobacco")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("DentalRecordDetailsSocialHistoryId");
-
-                    b.ToTable("DentalRecordDetailsSocialHistory");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecordDetailsToothCount", b =>
-                {
-                    b.Property<Guid>("DentalRecordDetailsToothCountId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CarriesIndicatedForExtractionPerm")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CarriesIndicatedForExtractionTemp")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CarriesIndicatedForFillingPerm")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CarriesIndicatedForFillingTemp")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Examiner")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("FilledOrRestoredPerm")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FilledOrRestoredTemp")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FluorideApplication")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("MissingDueToCarries")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NoOfTeethPresentPerm")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NoOfTeethPresentTemp")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RootFragmentPerm")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RootFragmentTemp")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalDfAndDmfTeeth")
-                        .HasColumnType("int");
-
-                    b.HasKey("DentalRecordDetailsToothCountId");
-
-                    b.ToTable("DentalRecordDetailsToothCount");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.DentalTreatment", b =>
                 {
                     b.Property<Guid>("DentalTreatmentId")
@@ -629,6 +181,7 @@ namespace SoCot_HC_BE.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -1758,51 +1311,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("SubCategory");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.SupplyStorage", b =>
-                {
-                    b.Property<Guid>("SupplyStorageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("FacilityId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SupplyStorageName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("SupplyStorageId");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("FacilityId");
-
-                    b.ToTable("SupplyStorage");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.UoM", b =>
                 {
                     b.Property<Guid>("UoMId")
@@ -1845,12 +1353,6 @@ namespace SoCot_HC_BE.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("FacilityId")
                         .HasColumnType("int");
 
@@ -1874,12 +1376,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<string>("RememberMeToken")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserGroupId")
                         .HasColumnType("int");
@@ -2048,75 +1544,6 @@ namespace SoCot_HC_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Municipality");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecord", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.DentalRecordDetailsMedicalHistory", "DentalRecordDetailsMedicalHistory")
-                        .WithMany()
-                        .HasForeignKey("DentalRecordDetailsMedicalHistoryId");
-
-                    b.HasOne("SoCot_HC_BE.Model.DentalRecordDetailsOralHealthCondition", "DentalRecordDetailsOralHealthCondition")
-                        .WithMany()
-                        .HasForeignKey("DentalRecordDetailsOralHealthConditionId");
-
-                    b.HasOne("SoCot_HC_BE.Model.DentalRecordDetailsPresence", "DentalRecordDetailsPresence")
-                        .WithMany()
-                        .HasForeignKey("DentalRecordDetailsPresenceId");
-
-                    b.HasOne("SoCot_HC_BE.Model.DentalRecordDetailsSocialHistory", "DentalRecordDetailsSocialHistory")
-                        .WithMany()
-                        .HasForeignKey("DentalRecordDetailsSocialHistoryId");
-
-                    b.HasOne("SoCot_HC_BE.Model.DentalRecordDetailsToothCount", "DentalRecordDetailsToothCount")
-                        .WithMany()
-                        .HasForeignKey("DentalRecordDetailsToothCountId");
-
-                    b.HasOne("SoCot_HC_BE.Model.Facility", "Facility")
-                        .WithMany()
-                        .HasForeignKey("FacilityId");
-
-                    b.HasOne("SoCot_HC_BE.Model.Person", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId");
-
-                    b.HasOne("SoCot_HC_BE.Model.Person", "Physician")
-                        .WithMany()
-                        .HasForeignKey("PhysicianId");
-
-                    b.Navigation("DentalRecordDetailsMedicalHistory");
-
-                    b.Navigation("DentalRecordDetailsOralHealthCondition");
-
-                    b.Navigation("DentalRecordDetailsPresence");
-
-                    b.Navigation("DentalRecordDetailsSocialHistory");
-
-                    b.Navigation("DentalRecordDetailsToothCount");
-
-                    b.Navigation("Facility");
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("Physician");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecordDetailsFindings", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.DentalRecord", null)
-                        .WithMany("DentalRecordDetailsFindings")
-                        .HasForeignKey("DentalRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecordDetailsServices", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.DentalRecord", null)
-                        .WithMany("DentalRecordDetailsServices")
-                        .HasForeignKey("DentalRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.DentalTreatment", b =>
@@ -2493,25 +1920,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("Facility");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.SupplyStorage", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Facility", "Facility")
-                        .WithMany()
-                        .HasForeignKey("FacilityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
-
-                    b.Navigation("Facility");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.UserAccount", b =>
                 {
                     b.HasOne("SoCot_HC_BE.Model.Facility", "FacilityAsUserAccount")
@@ -2551,13 +1959,6 @@ namespace SoCot_HC_BE.Migrations
             modelBuilder.Entity("SoCot_HC_BE.Model.Barangay", b =>
                 {
                     b.Navigation("Addresses");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.DentalRecord", b =>
-                {
-                    b.Navigation("DentalRecordDetailsFindings");
-
-                    b.Navigation("DentalRecordDetailsServices");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Department", b =>

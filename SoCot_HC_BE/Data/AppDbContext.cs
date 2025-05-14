@@ -48,6 +48,15 @@ namespace SoCot_HC_BE.Data
         public DbSet<UoM> UoM { get; set; }
         public DbSet<Product> Product { get; set; }
         public DbSet<Item> Item { get; set; }
+        public DbSet<DentalTreatment> DentalTreatment { get; set; }
+        public DbSet<DentalRecord> DentalRecord { get; set; }
+        public DbSet<DentalRecordDetailsFindings> DentalRecordDetailsFindings { get; set; }
+        public DbSet<DentalRecordDetailsMedicalHistory> DentalRecordDetailsMedicalHistory { get; set; }
+        public DbSet<DentalRecordDetailsOralHealthCondition> DentalRecordDetailsOralHealthCondition { get; set; }
+        public DbSet<DentalRecordDetailsPresence> DentalRecordDetailsPresence { get; set; }
+        public DbSet<DentalRecordDetailsServices> DentalRecordDetailsServices { get; set; }
+        public DbSet<DentalRecordDetailsSocialHistory> DentalRecordDetailsSocialHistory { get; set; }
+        public DbSet<DentalRecordDetailsToothCount> DentalRecordDetailsToothCount { get; set; }
         public DbSet<SupplyStorage> SupplyStorage { get; set; }
         // Add more DbSets here...
 

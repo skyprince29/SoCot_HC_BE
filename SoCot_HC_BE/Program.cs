@@ -69,6 +69,8 @@ builder.Services.AddScoped<ISupplyStorageService, SupplyStorageService>();
 // HTTP CLinet Injection
 builder.Services.AddHttpClient<IReferralService, ReferralService>();
 
+builder.Services.AddScoped<IDentalTreatmentService, DentalTreatmentService>();
+builder.Services.AddScoped<IDentalRecordService, DentalRecordService>();
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250513072402_Create Dental Records")]
+    partial class CreateDentalRecords
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -629,6 +632,7 @@ namespace SoCot_HC_BE.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -1758,51 +1762,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("SubCategory");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.SupplyStorage", b =>
-                {
-                    b.Property<Guid>("SupplyStorageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("FacilityId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SupplyStorageName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("SupplyStorageId");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("FacilityId");
-
-                    b.ToTable("SupplyStorage");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.UoM", b =>
                 {
                     b.Property<Guid>("UoMId")
@@ -1845,12 +1804,6 @@ namespace SoCot_HC_BE.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("FacilityId")
                         .HasColumnType("int");
 
@@ -1874,12 +1827,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<string>("RememberMeToken")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserGroupId")
                         .HasColumnType("int");
@@ -2489,25 +2436,6 @@ namespace SoCot_HC_BE.Migrations
                         .HasForeignKey("FacilityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Facility");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.SupplyStorage", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Facility", "Facility")
-                        .WithMany()
-                        .HasForeignKey("FacilityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
 
                     b.Navigation("Facility");
                 });
