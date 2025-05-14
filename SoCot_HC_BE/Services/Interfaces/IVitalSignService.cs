@@ -1,4 +1,5 @@
-﻿using SoCot_HC_BE.Model;
+﻿using SoCot_HC_BE.DTO;
+using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories.Interfaces;
 
 public interface IVitalSignService : IRepository<VitalSign, Guid>
@@ -9,7 +10,5 @@ public interface IVitalSignService : IRepository<VitalSign, Guid>
     // Get the total count of VitalSigns, again supporting async cancellation.
     Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default);
 
-    // This method could still be useful, but ideally, you want everything to use CancellationToken.
-    // If you're doing a method without CancellationToken, it's best to reconsider whether it's needed.
-    Task<List<VitalSign>> GetAllWithoutTokenAsync();
+    Task SaveVitalSignAsync(VitalSignDto vitalSignDto, CancellationToken cancellationToken = default);
 }
