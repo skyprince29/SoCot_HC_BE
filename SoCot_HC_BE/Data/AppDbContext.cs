@@ -58,6 +58,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<DentalRecordDetailsSocialHistory> DentalRecordDetailsSocialHistory { get; set; }
         public DbSet<DentalRecordDetailsToothCount> DentalRecordDetailsToothCount { get; set; }
         public DbSet<SupplyStorage> SupplyStorage { get; set; }
+        public DbSet<PatientRegistryLog> PatientRegistryLog { get; set; }
         // Add more DbSets here...
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
