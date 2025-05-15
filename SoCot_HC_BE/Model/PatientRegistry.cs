@@ -42,5 +42,7 @@ namespace SoCot_HC_BE.Model
 
         [ForeignKey("FacilityId")]
         public Facility? Facility { get; set; }
+
+        public bool IsActive { get; set; } = true;
     }
 }
