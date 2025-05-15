@@ -8,7 +8,7 @@ namespace SoCot_HC_BE.Model
         [Key]
         public int UserGroupId { get; set; }
   
-        public int UserType { get; set; }
+        public int? UserType { get; set; }
 
         [MaxLength(50)]
         public required string UserGroupName { get; set; }
