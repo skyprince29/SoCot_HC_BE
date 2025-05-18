@@ -72,19 +72,51 @@ namespace SoCot_HC_BE.Personnels
             }
         }
 
+        public override async Task<Personnel?> GetAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .Include(p => p.Person)
+                .Include(p => p.Facility)
+                .Include(p => p.Designation)
+                .FirstOrDefaultAsync(p => p.PersonnelId == id, cancellationToken);
+        }
+
+
         private void ValidateFields(Personnel personnel)
         {
             var errors = new Dictionary<string, List<string>>();
 
 
             int facilityId = personnel.FacilityId;
+            Guid designationId = personnel.DesignationId;
+            Guid personId = personnel.PersonId;
+
             ValidationHelper.IsRequired(errors, nameof(personnel.FacilityId), facilityId, "Facility");
-            // Verify that the FacilityId exists
+            ValidationHelper.IsRequired(errors, nameof(personnel.DesignationId), designationId, "Designation");
+            ValidationHelper.IsRequired(errors, nameof(personnel.PersonId), personId, "Person");
+
             var facilityExists = _context.Facility.Any(f => f.FacilityId == facilityId);
+            var designationExists = _context.Designation.Any(d => d.DesignationId == designationId);
+
             if (!facilityExists && facilityId > 0)
             {
                 ValidationHelper.AddError(errors, nameof(personnel.FacilityId), "Facility is invalid.");
             }
+
+            if (!designationExists && designationId != Guid.Empty)
+            {
+                ValidationHelper.AddError(errors, nameof(personnel.DesignationId), "Designation is invalid.");
+            }
+
+            // ❗ CHECK DUPLICATE PERSONNEL ON FACILITY
+            bool isDuplicate = _dbSet.Any(p =>
+                p.PersonId == personId &&
+                p.FacilityId == facilityId &&
+                p.PersonnelId != personnel.PersonnelId); // exclude current for update
+
+            if (isDuplicate)
+                ValidationHelper.AddError(errors, "Duplicate", "Personnel already exists in this facility.");
+
 
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
