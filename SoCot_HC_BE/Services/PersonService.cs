@@ -128,10 +128,9 @@ namespace SoCot_HC_BE.Services
             ValidationHelper.IsRequired(errors, nameof(person.Firstname), person.Firstname, "Firstname");
             ValidationHelper.IsRequired(errors, nameof(person.Lastname), person.Lastname, "Lastname");
             ValidationHelper.IsRequired(errors, nameof(person.BirthDate), person.BirthDate, "Birthdate");
-            ValidationHelper.IsRequired(errors, nameof(person.BirthPlace), person.BirthPlace, "Birth Place");
-            ValidationHelper.IsRequired(errors, nameof(person.ContactNo), person.ContactNo, "Contact No");
-            ValidationHelper.IsRequired(errors, nameof(person.Email), person.Email, "Email");
-            ValidationHelper.IsRequired(errors, nameof(person.Citizenship), person.Citizenship, "Citizenship");
+            ValidationHelper.IsRequired(errors, nameof(person.Gender), person.Gender, "Gender");
+            ValidationHelper.IsRequired(errors, nameof(person.CivilStatus), person.CivilStatus, "CivilStatus");
+            ValidationHelper.IsRequired(errors, nameof(person.ContactNo), person.ContactNo, "ContactNo");
 
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
@@ -195,6 +194,15 @@ namespace SoCot_HC_BE.Services
             if (birthDate.Date > today.AddYears(-age)) age--;
 
             return age;
+        }
+
+        public async Task<bool> CheckIfPersonExistsAsync(string firstname, string lastname, DateTime birthDate, CancellationToken cancellationToken)
+        {
+            return await _dbSet.AnyAsync(p =>
+                p.Firstname.ToLower() == firstname.ToLower().Trim() &&
+                p.Lastname.ToLower() == lastname.ToLower().Trim() &&
+                p.BirthDate.Date == birthDate.Date,
+                cancellationToken);
         }
     }
 }

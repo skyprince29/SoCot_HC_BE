@@ -15,6 +15,20 @@ namespace SoCot_HC_BE.Data
             _httpContextAccessor = httpContextAccessor;
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Declare the trigger for Person table to avoid OUTPUT without INTO
+            modelBuilder.Entity<Person>().ToTable(tb =>
+            {
+                tb.HasTrigger("trg_UpdateFullNames");
+            });
+
+            // Declare other triggers here
+        }
+
+
         public DbSet<VitalSign> VitalSigns { get; set; }
         public DbSet<Province> Province {  get; set; }
         public DbSet<Municipality> Municipality { get; set; }

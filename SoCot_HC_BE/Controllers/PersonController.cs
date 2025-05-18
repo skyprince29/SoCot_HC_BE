@@ -89,6 +89,14 @@ namespace SoCot_HC_BE.Controllers
                 return BadRequest(new { success = false, errors = modelErrors });
             }
         }
+
+        [HttpPost("CheckDuplicate")]
+        public async Task<IActionResult> CheckDuplicate([FromBody] Person person, CancellationToken cancellationToken)
+        {
+            bool exists = await _personService.CheckIfPersonExistsAsync(person.Firstname, person.Lastname, person.BirthDate, cancellationToken);
+            return Ok(new { exists });
+        }
+
     }
 
 }

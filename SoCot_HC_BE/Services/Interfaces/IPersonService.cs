@@ -20,5 +20,9 @@ namespace SoCot_HC_BE.Persons.Interfaces
 
         // Get Person details by Id
         Task<PersonDetailsDto?> GetPersonDetailsAsync(Guid personId, CancellationToken cancellationToken = default);
+
+        // Check Existing Person
+        Task<bool> CheckIfPersonExistsAsync(string firstname, string lastname, DateTime birthDate, CancellationToken cancellationToken = default);
+
     }
 }

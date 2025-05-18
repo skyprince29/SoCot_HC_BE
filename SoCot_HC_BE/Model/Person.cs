@@ -56,8 +56,8 @@ namespace SoCot_HC_BE.Model
 
         public int PatientIdTemp { get; set; }
 
-        public string Fullname { get; set; } = "";
-        public string Completename { get; set; } = "";
+        public string? Fullname { get; set; } = "";
+        public string? Completename { get; set; } = "";
 
         // --- Navigation Properties ---
         [ForeignKey(nameof(AddressIdResidential))]
@@ -98,15 +98,6 @@ namespace SoCot_HC_BE.Model
         [InverseProperty(nameof(UserAccount.PersonAsUserAccount))]
         public ICollection<UserAccount> UserAccountsAsPerson { get; set; } = new List<UserAccount>();
 
-        //[NotMapped]
-        //public string Fullname
-        //{
-        //    get
-        //    {
-        //        var middleInitial = !string.IsNullOrWhiteSpace(Middlename) ? $"{Middlename.Trim()[0]}." : string.Empty;
-        //        return $"{Lastname}, {Firstname} {middleInitial}".Trim();
-        //    }
-        //}
 
     }
 }
