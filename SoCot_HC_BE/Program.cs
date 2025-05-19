@@ -73,6 +73,9 @@ builder.Services.AddScoped<IDentalTreatmentService, DentalTreatmentService>();
 builder.Services.AddScoped<IDentalRecordService, DentalRecordService>();
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddHttpClient<IReferralService, ReferralService>();
+builder.Services.AddScoped<IUserGroupService, UserGroupService>();
+builder.Services.AddScoped<IUserAccountService, UserAccountService>();
 
 var app = builder.Build();
 

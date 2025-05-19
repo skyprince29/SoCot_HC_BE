@@ -12,7 +12,7 @@ namespace SoCot_HC_BE.Model
         [MaxLength(50)]
         public required string Username { get; set; }
 
-        [MaxLength(50)]
+        [MaxLength(100)]
         public required string Password { get; set; }
 
         public Guid PersonId { get; set; }
