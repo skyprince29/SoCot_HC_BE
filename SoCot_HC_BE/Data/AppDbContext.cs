@@ -74,6 +74,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<SupplyStorage> SupplyStorage { get; set; }
         public DbSet<PatientRegistryLog> PatientRegistryLog { get; set; }
         public DbSet<Module> Module { get; set; }
+        public DbSet<TransactionFlowHistory> TransactionFlowHistory { get; set; }
         // Add more DbSets here...
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
