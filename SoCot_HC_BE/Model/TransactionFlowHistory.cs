@@ -29,7 +29,7 @@ namespace SoCot_HC_BE.Model
         [Required]
         public byte CurrentStatusId { get; set; }
 
-        [ForeignKey("NewStatusId")]
+        [ForeignKey("CurrentStatusId")]
         public virtual Status? CurrentStatus { get; set; }
 
         [Required]

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250520004247_Update foreign key for current status id in transaction flow gistory")]
+    partial class Updateforeignkeyforcurrentstatusidintransactionflowgistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1065,34 +1068,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Module");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.ModuleStatusFlow", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ModuleId")
-                        .HasColumnType("int");
-
-                    b.Property<byte>("NextStatusId")
-                        .HasColumnType("tinyint");
-
-                    b.Property<byte>("RequiredStatusId")
-                        .HasColumnType("tinyint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ModuleId");
-
-                    b.HasIndex("NextStatusId");
-
-                    b.HasIndex("RequiredStatusId");
-
-                    b.ToTable("ModuleStatusFlow");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Municipality", b =>
@@ -2434,33 +2409,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("SubCategory");
 
                     b.Navigation("UoM");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.ModuleStatusFlow", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Module", "Module")
-                        .WithMany()
-                        .HasForeignKey("ModuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Status", "NextStatus")
-                        .WithMany()
-                        .HasForeignKey("NextStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Status", "RequiredStatus")
-                        .WithMany()
-                        .HasForeignKey("RequiredStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Module");
-
-                    b.Navigation("NextStatus");
-
-                    b.Navigation("RequiredStatus");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Municipality", b =>
