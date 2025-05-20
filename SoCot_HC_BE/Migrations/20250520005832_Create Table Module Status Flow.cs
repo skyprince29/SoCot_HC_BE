@@ -40,7 +40,7 @@ namespace SoCot_HC_BE.Migrations
                         column: x => x.RequiredStatusId,
                         principalTable: "Status",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateIndex(
