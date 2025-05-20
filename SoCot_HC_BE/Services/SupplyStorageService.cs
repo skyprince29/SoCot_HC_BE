@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SoCot_HC_BE.Services
 {
@@ -14,7 +16,7 @@ namespace SoCot_HC_BE.Services
         {
         }
 
-        public async Task<List<SupplyStorage>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
+        public async Task<List<SupplyStorage>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, Guid? departmentId = null, int? facilityId = null, CancellationToken cancellationToken = default)
         {
             var query = _dbSet
                 .Include(s => s.Facility)
@@ -24,6 +26,17 @@ namespace SoCot_HC_BE.Services
             if (!string.IsNullOrEmpty(keyword))
             {
                 query = query.Where(s => s.SupplyStorageName.Contains(keyword));
+            }
+
+            if (departmentId != Guid.Empty && departmentId != null)
+            {
+                query = query.Where(s => s.DepartmentId == departmentId);
+            }
+
+
+            if (facilityId != 0 && facilityId != null)
+            {
+                query = query.Where(s => s.FacilityId == facilityId);
             }
 
             return await query
@@ -42,6 +55,37 @@ namespace SoCot_HC_BE.Services
             }
 
             return await query.CountAsync(cancellationToken);
+        }
+
+
+        public async Task<SupplyStorageDto> GetSupplyStorageDtoAsync(Guid? SupplyStorageId) {
+
+            SupplyStorageDto supplyStorageDto = new SupplyStorageDto();
+            SupplyStorage supplyStorage = null;
+
+            if (SupplyStorageId != Guid.Empty && SupplyStorageId != null) {
+                supplyStorage = await _dbSet
+                    .Include(s => s.Facility)
+                    .Include(s => s.Department)
+                    .FirstOrDefaultAsync(s => s.SupplyStorageId == SupplyStorageId);
+            }
+
+
+
+            supplyStorageDto.SupplyStorageId = supplyStorage?.SupplyStorageId ?? Guid.Empty;
+            supplyStorageDto.SupplyStorageName = supplyStorage?.SupplyStorageName ?? string.Empty;
+            supplyStorageDto.Description = supplyStorage?.Description; // No need for ?? if null is OK
+            supplyStorageDto.FacilityId = supplyStorage?.FacilityId ?? 0;
+            supplyStorageDto.DepartmentId = supplyStorage?.DepartmentId ?? Guid.Empty;
+            supplyStorageDto.IsActive = supplyStorage?.IsActive ?? true;
+            supplyStorageDto.CreatedBy = supplyStorage?.CreatedBy ?? Guid.Empty;
+            supplyStorageDto.CreatedDate = supplyStorage?.CreatedDate ?? DateTime.MinValue;
+            supplyStorageDto.UpdatedBy = supplyStorage?.UpdatedBy;
+            supplyStorageDto.UpdatedDate = supplyStorage?.UpdatedDate;
+
+
+
+            return supplyStorageDto;
         }
 
         private SupplyStorage DTOToModel(SupplyStorageDto dto)

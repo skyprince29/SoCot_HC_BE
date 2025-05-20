@@ -20,14 +20,14 @@ namespace SoCot_HC_BE.Controllers
 
         // Get all Supply Storages with paging
         [HttpGet("GetPagedSupplyStorages")]
-        public async Task<IActionResult> GetPagedSupplyStorages(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetPagedSupplyStorages(int pageNo, int limit, string? keyword, CancellationToken cancellationToken, Guid? departmentId = null, int? facilityId = null)
         {
             if (pageNo <= 0 || limit <= 0)
             {
                 return BadRequest(new { message = "Page number and limit must be greater than zero." });
             }
 
-            var supplyStorages = await _supplyStorageService.GetAllWithPagingAsync(pageNo, limit, keyword, cancellationToken);
+            var supplyStorages = await _supplyStorageService.GetAllWithPagingAsync(pageNo, limit, keyword, departmentId, facilityId, cancellationToken);
             var totalRecords = await _supplyStorageService.CountAsync(keyword, cancellationToken);
 
             var paginatedResult = new PaginationHandler<SupplyStorage>(supplyStorages, totalRecords, pageNo, limit);
@@ -35,16 +35,18 @@ namespace SoCot_HC_BE.Controllers
         }
 
         // Get a specific supply storage by ID
-        [HttpGet("GetSupplyStorage/{id}")]
-        public async Task<IActionResult> GetSupplyStorage(Guid id, CancellationToken cancellationToken)
+        //[HttpGet("GetSupplyStorage/{id}")]
+        [HttpGet("GetSupplyStorage")]
+        public async Task<IActionResult> GetSupplyStorage(Guid? id, CancellationToken cancellationToken)
         {
-            var service = await _supplyStorageService.GetAsync(id, cancellationToken);
-            if (service == null)
+            SupplyStorageDto supplyStorageDto = await _supplyStorageService.GetSupplyStorageDtoAsync(id);
+
+            if (supplyStorageDto == null)
             {
                 return NotFound(new { success = false, message = "Supply Storage not found." });
             }
 
-            return Ok(service);
+            return Ok(supplyStorageDto);
         }
 
         // Save or update a SupplyStorage
