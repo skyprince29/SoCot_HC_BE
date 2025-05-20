@@ -15,6 +15,16 @@ namespace SoCot_HC_BE.Model
         public int? FacilityId { get; set; }
         public Facility? Facility { get; set; }
 
+        public String? ConsentedByName { get; set; } = string.Empty;
+
+        [ForeignKey("Person")]
+        public Guid? PhysicianId { get; set; }
+        public Person? Physician { get; set; }
+
+        public Guid? PatientRegistryId { get; set; }
+        public String ReferralNo { get; set; } = string.Empty;
+        public DateTime DateRecord { get; set; }
+
         [ForeignKey("DentalRecordDetailsMedicalHistory")]
         public Guid? DentalRecordDetailsMedicalHistoryId { get; set; }
         public DentalRecordDetailsMedicalHistory? DentalRecordDetailsMedicalHistory { get; set; }
@@ -30,8 +40,8 @@ namespace SoCot_HC_BE.Model
         public DentalRecordDetailsOralHealthCondition? DentalRecordDetailsOralHealthCondition { get; set; }
 
 
-        [ForeignKey("DentalRecordDetailsPersence")]
-        public Guid? DentalRecordDetailsPersenceId { get; set; }
+        [ForeignKey("DentalRecordDetailsPresence")]
+        public Guid? DentalRecordDetailsPresenceId { get; set; }
         public DentalRecordDetailsPresence? DentalRecordDetailsPresence { get; set; }
 
 
@@ -41,19 +51,6 @@ namespace SoCot_HC_BE.Model
 
         public virtual ICollection<DentalRecordDetailsServices>? DentalRecordDetailsServices { get; set; }
         public virtual ICollection<DentalRecordDetailsFindings>? DentalRecordDetailsFindings { get; set; }
-
-        //[ForeignKey("Person")]
-        public String ConsentedByName { get; set; } = string.Empty;
-
-
-        [ForeignKey("Person")]
-        public Guid? PhysicianId { get; set; }
-        public Person? Physician { get; set; }
-
-        public Guid ReferralId { get; set; }
-        public String ReferralNo { get; set; } = string.Empty;
-        public DateTime DateRecord { get; set; }
-
 
     }
 }

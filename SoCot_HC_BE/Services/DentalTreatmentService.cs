@@ -18,6 +18,35 @@ namespace SoCot_HC_BE.Services
       
         }
 
+        public async Task AcceptDentalTreatment(Guid dentalTreatmentId, CancellationToken cancellationToken = default)
+        {
+
+
+
+            //if (dentalTreatment == null)
+            //{
+
+            //    throw new Exception("Dental Treatment not found.");
+            //}
+
+            //DentalTreatment dentalTreatment = await _dbSet
+            //    .Where(p => p.DentalTreatmentId == dentalTreatmentId).FirstOrDefaultAsync();
+
+            //if (dentalTreatment == null) {
+
+            //    throw new Exception("Dental Treatment not found.");
+            //}
+
+            ////dentalTreatment.acceptedById = login user
+            //dentalTreatment.DateAccepted = DateTime.Now;
+            //dentalTreatment.Status = Model.Enums.DentalTreatmentStatus.Accepted;
+            //await UpdateAsync(dentalTreatment);
+
+        }
+
+
+    
+
         //public override async Task<Department?> GetAsync(Guid id, CancellationToken cancellationToken = default)
         //{
 
@@ -51,6 +80,28 @@ namespace SoCot_HC_BE.Services
             var paginatedResult = new PaginationHandler<DentalTreatment>(dentalTreatment, totalRecords, pageNo, limit);
             return paginatedResult;
         }
+
+
+        public async void manageDentalTreatmentCompletion(Guid PatientRegistryId)
+        {
+
+            DentalTreatment dentalTreatment = await _context.DentalTreatment
+                .Where(dt => dt.PatientRegistry.PatientRegistryId == PatientRegistryId
+                && dt.Status != Model.Enums.DentalTreatmentStatus.Completed)
+                .FirstOrDefaultAsync();
+
+
+            if (dentalTreatment != null)
+            {
+                dentalTreatment.Status = Model.Enums.DentalTreatmentStatus.Completed;
+                await UpdateAsync(dentalTreatment);
+
+            }
+
+
+
+        }
+
 
         //public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
         //{

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
@@ -26,6 +27,12 @@ namespace SoCot_HC_BE.Controllers
             return await _dentalRecordService.CreateDentalRecord(ReferralNo);
         }
 
+        [HttpGet("UpdateDentalRecord")]
+        public async Task<DentalRecord> UpdateDentalRecord(Guid DentalRecordId)
+        {
+            return await _dentalRecordService.UpdateDentalRecord(DentalRecordId);
+        }
+
         [HttpGet("GetPagedDentalRecords")]
         public async Task<IActionResult> GetPagedDentalRecords(int pageNo, int limit, CancellationToken cancellationToken, string keyword = "")
         {
@@ -39,19 +46,19 @@ namespace SoCot_HC_BE.Controllers
         }
 
         [HttpPost("SaveOrUpdateDentalRecord")]
-        public async Task<IActionResult> SaveOrUpdateDentalRecord(DentalRecord dentalRecord, CancellationToken cancellationToken)
+        public async Task<IActionResult> SaveOrUpdateDentalRecord(DentalDTO.DentalRecordDTO DentalRecord, CancellationToken cancellationToken)
         {
             try
             {
 
-                await _dentalRecordService.SaveOrUpdateDentalRecord(dentalRecord, cancellationToken);
+                await _dentalRecordService.SaveOrUpdateDentalRecordAsync(DentalRecord, cancellationToken);
 
                 return Ok(new
                 {
                     success = true,
-                    message = dentalRecord.DentalRecordId == Guid.Empty
-                        ? "Department created successfully."
-                        : "Department updated successfully."
+                    message = DentalRecord.DentalRecordId == Guid.Empty
+                        ? "Dental Record created successfully."
+                        : "Dental Record updated successfully."
                 });
             }
             catch (ModelValidationException ex)
@@ -83,17 +90,11 @@ namespace SoCot_HC_BE.Controllers
 
         }
 
-        //[HttpGet("Create")]
-        //public async Task<DentalRecord> Create(String ReferralNo)
-        //{
-        //    if (ReferralNo == "")
-        //    {
-        //        throw new Exception("Dental Treatment not found.");
-        //        // BadRequest(new { message = "Page number and limit must be greater than zero." });
-        //    }
-
-        //    return await _dentalRecordService.CreateDentalRecord(ReferralNo);
-        //}
+        [HttpGet("GetDentalRecord")]
+        public async Task<DentalRecord> GetDentalRecord(Guid dentalRecordId, CancellationToken cancellationToken)
+        {
+            return await _dentalRecordService.GetDentalRecord(dentalRecordId, cancellationToken);
+        }
 
 
     }

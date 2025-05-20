@@ -27,5 +27,12 @@ namespace SoCot_HC_BE.Controllers
             return Ok(paginatedResult);
         }
 
+        [HttpPost("AcceptDentalTreatment")]
+        public async Task AcceptDentalTreatment(Guid dentalTreatmentId, CancellationToken cancellationToken)
+        {
+             await _dentalTreatmentService.AcceptDentalTreatment(dentalTreatmentId); ;
+        }
+
+
     }
 }
