@@ -14,16 +14,19 @@ namespace SoCot_HC_BE.Model
         [ForeignKey("ModuleId")]
         public virtual Module Module { get; set; } = null!;
 
-        [Required]
-        public byte RequiredStatusId { get; set; }  // i.e., FROM this status
+        public byte? RequiredStatusId { get; set; }  // nullable for starting status
 
         [ForeignKey("RequiredStatusId")]
-        public virtual Status RequiredStatus { get; set; } = null!;
+        public virtual Status? RequiredStatus { get; set; }
 
         [Required]
-        public byte NextStatusId { get; set; }  // i.e., TO this status
+        public byte NextStatusId { get; set; }
 
         [ForeignKey("NextStatusId")]
         public virtual Status NextStatus { get; set; } = null!;
+
+        public bool IsStart { get; set; } = false;      // Mark if this flow starts here
+
+        public bool IsComplete { get; set; } = false;   // Mark if this flow ends here
     }
 }

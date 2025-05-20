@@ -65,6 +65,7 @@ builder.Services.AddScoped<IServiceCategoryService, ServiceCategoryService>();
 builder.Services.AddScoped<IWoundTypeService, WoundTypeService>();
 builder.Services.AddScoped<IDesignationService, DesignationService>();
 builder.Services.AddScoped<ISupplyStorageService, SupplyStorageService>();
+builder.Services.AddScoped<IModuleStatusFlowService, ModuleStatusFlowService>();
 
 // HTTP CLinet Injection
 builder.Services.AddHttpClient<IReferralService, ReferralService>();

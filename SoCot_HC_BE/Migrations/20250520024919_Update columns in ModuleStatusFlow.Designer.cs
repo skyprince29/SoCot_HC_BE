@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250520024919_Update columns in ModuleStatusFlow")]
+    partial class UpdatecolumnsinModuleStatusFlow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,6 +112,7 @@ namespace SoCot_HC_BE.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConsentedByName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreatedBy")
@@ -126,6 +130,9 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<Guid?>("DentalRecordDetailsOralHealthConditionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("DentalRecordDetailsPersenceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("DentalRecordDetailsPresenceId")
                         .HasColumnType("uniqueidentifier");
 
@@ -141,10 +148,10 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<Guid?>("PatientId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("PatientRegistryId")
+                    b.Property<Guid?>("PhysicianId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("PhysicianId")
+                    b.Property<Guid>("ReferralId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ReferralNo")
