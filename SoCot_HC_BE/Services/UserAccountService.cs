@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SCHC_API.Handler;
 using SoCot_HC_BE.Data;
@@ -8,15 +10,19 @@ using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq.Expressions;
 using System.Threading;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SoCot_HC_BE.Services
 {
     public class UserAccountService : Repository<UserAccount, Guid>, IUserAccountService
     {
-        public UserAccountService(AppDbContext context) : base(context)
+        private readonly IJwtService _jwtService;
+        public UserAccountService(AppDbContext context, IJwtService jwtService) : base(context)
         {
+            _jwtService = jwtService;
         }
 
 
@@ -139,6 +145,64 @@ namespace SoCot_HC_BE.Services
                 .Include(p => p.PersonAsUserAccount)
                 .FirstOrDefaultAsync(f => f.UserAccountId == id, cancellationToken);
             return userAccount;
+        }
+
+        public async Task<UserAccountTokenDTO> VerifyAccount(LoginDTO loginDTO, CancellationToken cancellationToken = default)
+        {
+
+            var errors = new Dictionary<string, List<string>>();
+            if (loginDTO == null)
+            {
+                ValidationHelper.AddError(errors, nameof(loginDTO.Password), "Password is required field");
+            } else
+            {
+
+                if (loginDTO.Username == null)
+                {
+                    ValidationHelper.AddError(errors, nameof(loginDTO.Username), "Username is required field");
+                }
+
+                if (loginDTO.Password == null)
+                {
+                    ValidationHelper.AddError(errors, nameof(loginDTO.Password), "Password is required field");
+                }
+
+                if (loginDTO.Username != null && loginDTO.Password != null)
+                {
+                    var account = await _dbSet
+                                 .Include (p => p.PersonAsUserAccount)
+                                 .ThenInclude(a => a.AddressAsPermanent)
+                                 .Include(u => u.FacilityAsUserAccount)
+                                 .Include(u => u.UserGroupAsUserAccount)
+                                 .FirstOrDefaultAsync(a => a.Username == loginDTO.Username, cancellationToken);
+                    if(account != null)
+                    {
+
+                        bool isPasswordValid = PasswordHelper.VerifyPassword(loginDTO.Password, account.Password);
+
+                        if (!isPasswordValid)
+                        {
+                            ValidationHelper.AddError(errors, nameof(loginDTO.Password), "Username or Password is incorrect");
+                        } else
+                        {
+                            UserAccountTokenDTO userAccount = new UserAccountTokenDTO();
+
+                            var token = _jwtService.GenerateToken(account.UserAccountId); // assuming Id is Guid
+
+                            return new UserAccountTokenDTO
+                            {
+                                userAccount = account,
+                                Token = token
+                            };
+                        }
+                    }
+                    else
+                    {
+                        ValidationHelper.AddError(errors, nameof(loginDTO.Password), "Account not found");
+                    }
+                }
+            }
+            throw new InvalidOperationException("Userbane or Password is incorrect");
         }
     }
 }

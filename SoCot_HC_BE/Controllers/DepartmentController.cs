@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
+using System.Security.Claims;
 
 namespace SoCot_HC_BE.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class DepartmentController : Controller
@@ -38,6 +41,7 @@ namespace SoCot_HC_BE.Controllers
         )
         {
             IEnumerable<Department> items;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (isActiveOnly && currentId.HasValue && currentId.Value != Guid.Empty)
             {

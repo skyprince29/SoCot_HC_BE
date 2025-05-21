@@ -1,6 +1,10 @@
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Designations.Interfaces;
+using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.DTO.OldReferralDto;
 using SoCot_HC_BE.Personnels;
 using SoCot_HC_BE.Personnels.Interfaces;
@@ -9,6 +13,9 @@ using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Repositories.Interfaces;
 using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
+using System.Text;
+using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +53,52 @@ builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
 builder.Services.Configure<ExternalApiSettings>(
     builder.Configuration.GetSection("ExternalApiSettings"));
+
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.AddSingleton(sp =>
+    sp.GetRequiredService<IOptions<JwtSettings>>().Value);
+
+// Load the settings directly (optional, for building key)
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+if (jwtSettings == null)
+{
+    throw new InvalidOperationException("JWT Key is missing or too short (must be at least 16 characters).");
+} else
+{
+    if (string.IsNullOrWhiteSpace(jwtSettings.Key) || jwtSettings.Key.Length < 16)
+    {
+        throw new InvalidOperationException("JWT Key is missing or too short (must be at least 16 characters).");
+    }
+}
+
+var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
+
+// Register authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false; // for development only
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidAudience = jwtSettings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ClockSkew = TimeSpan.Zero // optional, remove time drift
+    };
+});
+
+builder.Services.AddAuthorization();
+builder.Services.AddScoped<IJwtService, JwtService>();
 // Register Specific Service
 builder.Services.AddScoped<IVitalSignService, VitalSignService>();
 builder.Services.AddScoped<IPatientRegistryService, PatientRegistryService>();
@@ -78,14 +131,53 @@ builder.Services.AddHttpClient<IReferralService, ReferralService>();
 builder.Services.AddScoped<IUserGroupService, UserGroupService>();
 builder.Services.AddScoped<IUserAccountService, UserAccountService>();
 
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new AuthorizeFilter()); // makes all routes require authorization by default
+});
+
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+
+    // Add JWT Bearer definition
+    var jwtSecurityScheme = new OpenApiSecurityScheme
+    {
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Description = "Enter 'Bearer' [space] and then your valid token in the text input below.\r\n\r\nExample: Bearer eyJhbGciOiJIUzI1NiIs...",
+        Reference = new OpenApiReference
+        {
+            Id = JwtBearerDefaults.AuthenticationScheme,
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+
+    c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            jwtSecurityScheme,
+            Array.Empty<string>()
+        }
+    });
+});
+
+
 var app = builder.Build();
 
 // Enable for Development Only
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Enable for Publishing
 app.UseSwagger();
@@ -97,6 +189,7 @@ app.UseHttpsRedirection();
 app.UseCors();
 
 // Apply Authorization middleware (only needed if you have authorization in place)
+app.UseAuthentication(); // must come before Authorization
 app.UseAuthorization();
 
 // Map controllers to endpoints

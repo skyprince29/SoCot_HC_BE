@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
@@ -79,6 +80,14 @@ namespace SoCot_HC_BE.Controllers
             {
                 return NotFound(new { success = false, message = "User account not found." });
             }
+            return Ok(userAccount);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("VerifyAccount")]
+        public async Task<IActionResult> VerifyAccount([FromBody] LoginDTO dto, CancellationToken cancellationToken)
+        {
+            var userAccount = await _userAccountService.VerifyAccount(dto, cancellationToken);
             return Ok(userAccount);
         }
     }
