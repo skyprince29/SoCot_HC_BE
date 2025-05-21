@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
+using SoCot_HC_BE.Dtos;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Persons.Interfaces;
@@ -12,9 +13,15 @@ namespace SoCot_HC_BE.Services
     public class PatientRegistryService : Repository<PatientRegistry, Guid>, IPatientRegistryService
     {
         private readonly IPersonService _personService;
-         public PatientRegistryService(AppDbContext context, IPersonService personService) : base(context)
+        private readonly ITransactionFlowHistoryService _transactionFlowHistoryService;
+        public PatientRegistryService
+            (AppDbContext context,
+            IPersonService personService,
+            ITransactionFlowHistoryService transactionFlowHistoryService
+            ) : base(context)
         {
-             _personService = personService;
+            _personService = personService;
+            _transactionFlowHistoryService = transactionFlowHistoryService;
         }
 
         //Overloads method from Repository, Added facility to eager loading
@@ -55,40 +62,86 @@ namespace SoCot_HC_BE.Services
                 .ToListAsync(cancellationToken); // Pass the CancellationToken here
         }
 
-        public async Task SavePatientRegistryAsync(PatientRegistry patientRegistry, CancellationToken cancellationToken = default)
+        private PatientRegistry DTOToModel(PatientRegistryDto dto)
         {
-           await SavePatientRegistryAsync(patientRegistry, cancellationToken);
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto));
+
+            return new PatientRegistry
+            {
+                PatientRegistryId = dto.PatientRegistryId == Guid.Empty ? Guid.Empty : dto.PatientRegistryId,
+                PatientRegistryCode = dto.PatientRegistryCode ?? string.Empty, // fallback if null
+                ReferralNo = dto.ReferralNo,
+                PatientId = dto.PatientId,
+                Name = dto.Name ?? string.Empty,
+                Address = dto.Address,
+                Gender = dto.Gender ?? string.Empty,
+                ContactNumber = dto.ContactNumber,
+                Age = dto.Age,
+                IsTemporaryPatient = dto.IsTemporaryPatient,
+                IsUrgent = dto.IsUrgent,
+                PatientRegistryType = dto.PatientRegistryType,
+                FacilityId = dto.FacilityId,
+                IsActive = dto.IsActive,
+                StatusId = dto.StatusId.HasValue ? dto.StatusId.Value : (byte)0
+            };
         }
 
-        public async Task SavePatientRegistryAsync(PatientRegistry patientRegistry, bool isWithValidation = true, CancellationToken cancellationToken = default)
+
+        public async Task SavePatientRegistryAsync(PatientRegistryDto patientRegistry, CancellationToken cancellationToken = default)
         {
-            // Determine if new or existing
-            bool isNew = patientRegistry.PatientRegistryId == Guid.Empty;
-            if(isWithValidation)
-                ValidateFields(patientRegistry);
+           await SavePatientRegistryAsync(patientRegistry, true, cancellationToken);
+        }
 
-            if (isNew)
+        public async Task SavePatientRegistryAsync(PatientRegistryDto patientRegistryDto, bool isWithValidation, CancellationToken cancellationToken = default)
+        {
+            // Use a transaction to ensure consistency
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                patientRegistry.PatientRegistryId = Guid.NewGuid();
-                string timestamp = DateTime.Now.ToString("yyMMdd-HHmmss");
-                //TODO: Update code
-                patientRegistry.PatientRegistryCode = $"001-{timestamp}";
-                await AddAsync(patientRegistry, cancellationToken);
-            }
-            else
-            {
-                var existing = await _dbSet.FindAsync(new object[] { patientRegistry.PatientRegistryId }, cancellationToken);
-                if (existing == null)
-                    throw new Exception("Patient Registry not found.");
+                if (isWithValidation)
+                    ValidateFields(patientRegistryDto);
+                try
+                {
+                    PatientRegistry patientRegistry = DTOToModel(patientRegistryDto);
+                    // Determine if new or existing
+                    bool isNew = patientRegistry.PatientRegistryId == Guid.Empty;
+                    if (isNew)
+                    {
+                        // Create a new PatientRegistry
+                        patientRegistry.PatientRegistryId = Guid.NewGuid();
+                        string timestamp = DateTime.Now.ToString("yyMMdd-HHmmss");
+                        patientRegistry.PatientRegistryCode = $"001-{timestamp}";
 
-                // Replace all fields
-                _context.Entry(existing).CurrentValues.SetValues(patientRegistry);
+                        await _transactionFlowHistoryService.StarterLogAsync(patientRegistry, cancellationToken);
+                        await AddAsync(patientRegistry, cancellationToken);
+                    }
+                    else
+                    {
+                        var existing = await _dbSet.FindAsync(new object[] { patientRegistry.PatientRegistryId }, cancellationToken);
+                        if (existing == null)
+                            throw new Exception("Patient Registry not found.");
 
-                await UpdateAsync(existing, cancellationToken);
+                        // Replace all fields
+                        _context.Entry(existing).CurrentValues.SetValues(patientRegistry);
+
+                        // Save once
+                        await _context.SaveChangesAsync(cancellationToken);
+                    }
+
+
+                    // Commit the transaction
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    // Rollback if any error occurs
+                    transaction.Rollback();
+                    throw new Exception("Failed to save Patient Registry and log: " + ex.Message, ex);
+                }
             }
         }
 
-        private void ValidateFields(PatientRegistry patientRegistry)
+        private void ValidateFields(PatientRegistryDto patientRegistry)
         {
             var errors = new Dictionary<string, List<string>>();
 
@@ -108,7 +161,7 @@ namespace SoCot_HC_BE.Services
                 p.PatientRegistryId != patientRegistry.PatientRegistryId);
 
             if (duplicate)
-                ValidationHelper.AddError(errors, "", "A patient with the same name and birth date already exists.");
+                ValidationHelper.AddError(errors, nameof(patientRegistry.Name), "A patient with the same name and birth date already exists.");
 
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
@@ -125,7 +178,7 @@ namespace SoCot_HC_BE.Services
             }
 
             // Create a new PatientRegistry object
-            var newPatientRegistry = new PatientRegistry
+            var newPatientRegistry = new PatientRegistryDto
             {
                 PatientRegistryId = Guid.NewGuid(),
                 PatientRegistryCode = GeneratePatientRegistryCode(),
@@ -145,7 +198,7 @@ namespace SoCot_HC_BE.Services
             // Save the new patient registry asynchronously
             await SavePatientRegistryAsync(newPatientRegistry, false, cancellationToken);
 
-            return newPatientRegistry;
+            return DTOToModel(newPatientRegistry);
         }
 
          private string GeneratePatientRegistryCode()

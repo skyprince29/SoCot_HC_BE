@@ -72,7 +72,6 @@ namespace SoCot_HC_BE.Data
         public DbSet<DentalRecordDetailsSocialHistory> DentalRecordDetailsSocialHistory { get; set; }
         public DbSet<DentalRecordDetailsToothCount> DentalRecordDetailsToothCount { get; set; }
         public DbSet<SupplyStorage> SupplyStorage { get; set; }
-        public DbSet<PatientRegistryLog> PatientRegistryLog { get; set; }
         public DbSet<Module> Module { get; set; }
         public DbSet<TransactionFlowHistory> TransactionFlowHistory { get; set; }
         public DbSet<ModuleStatusFlow> ModuleStatusFlow { get; set; }
@@ -106,7 +105,7 @@ namespace SoCot_HC_BE.Data
         }
 
         // Retrieve user data (id, name, designation, etc.) from claims
-        private UserData GetCurrentUser()
+        public UserData GetCurrentUser()
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
             var fullName = _httpContextAccessor.HttpContext?.User?.FindFirst("FullName")?.Value;

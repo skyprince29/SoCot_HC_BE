@@ -20,8 +20,7 @@ namespace SoCot_HC_BE.Model
         [ForeignKey("ModuleId")]
         public virtual Module? Module { get; set; }
 
-        [Required]
-        public byte PreviousStatusId { get; set; }
+        public byte? PreviousStatusId { get; set; }
 
         [ForeignKey("PreviousStatusId")]
         public virtual Status? PreviousStatus { get; set; }

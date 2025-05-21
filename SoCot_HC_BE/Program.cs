@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Designations.Interfaces;
 using SoCot_HC_BE.DTO;
@@ -14,8 +16,6 @@ using SoCot_HC_BE.Repositories.Interfaces;
 using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
 using System.Text;
-using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -119,18 +119,19 @@ builder.Services.AddScoped<IWoundTypeService, WoundTypeService>();
 builder.Services.AddScoped<IDesignationService, DesignationService>();
 builder.Services.AddScoped<ISupplyStorageService, SupplyStorageService>();
 builder.Services.AddScoped<IModuleStatusFlowService, ModuleStatusFlowService>();
+builder.Services.AddScoped<ITransactionFlowHistoryService, TransactionFlowHistoryService>();
+builder.Services.AddScoped<IDentalTreatmentService, DentalTreatmentService>();
+builder.Services.AddScoped<IDentalRecordService, DentalRecordService>();
+builder.Services.AddScoped<IUserGroupService, UserGroupService>();
+builder.Services.AddScoped<IUserAccountService, UserAccountService>();
+
+builder.Services.AddScoped<ModuleServiceMapper>();
 
 // HTTP CLinet Injection
 builder.Services.AddHttpClient<IReferralService, ReferralService>();
 
-builder.Services.AddScoped<IDentalTreatmentService, DentalTreatmentService>();
-builder.Services.AddScoped<IDentalRecordService, DentalRecordService>();
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddHttpClient<IReferralService, ReferralService>();
-builder.Services.AddScoped<IUserGroupService, UserGroupService>();
-builder.Services.AddScoped<IUserAccountService, UserAccountService>();
-
 
 builder.Services.AddControllers(options =>
 {
@@ -168,7 +169,6 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-
 
 var app = builder.Build();
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
+using SoCot_HC_BE.Dtos;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Services.Interfaces;
@@ -20,7 +21,7 @@ namespace SoCot_HC_BE.Controllers
 
         // Save or update a Patient Registry
         [HttpPost("SavePatientRegistry")]
-        public async Task<IActionResult> SavePatientRegistry(PatientRegistry patientRegistry, CancellationToken cancellationToken)
+        public async Task<IActionResult> SavePatientRegistry(PatientRegistryDto patientRegistry, CancellationToken cancellationToken)
         {
             try
             {

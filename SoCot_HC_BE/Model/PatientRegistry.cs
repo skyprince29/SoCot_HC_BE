@@ -5,8 +5,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoCot_HC_BE.Model
 {
-    public class PatientRegistry : AuditInfo
+    public class PatientRegistry : BaseTransaction
     {
+        public PatientRegistry()
+        {
+            base.ModuleId = (int)ModuleEnum.PatientRegistry;
+        }
+
+        [NotMapped]
+        public override Guid TransactionId => PatientRegistryId;
+
         [Key]
         public Guid PatientRegistryId { get; set; }
 
@@ -44,5 +52,8 @@ namespace SoCot_HC_BE.Model
         public Facility? Facility { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        [ForeignKey("StatusId")]
+        public Status? Status { get; set; }
     }
 }
