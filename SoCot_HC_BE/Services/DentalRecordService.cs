@@ -390,9 +390,12 @@ namespace SoCot_HC_BE.Services
             // remove not existing findings on list
             List<DentalRecordDetailsFindings> existingFindings = await _context.DentalRecordDetailsFindings.Where(i => i.DentalRecordId == record.DentalRecordId).ToListAsync();
 
-            if (!existingFindings.IsNullOrEmpty()) {
-                foreach (DentalRecordDetailsFindings findings in existingFindings) {
-                    if (!tempFindingsIds.Contains(findings.DentalRecordDetailsFindingsId)) {
+            if (existingFindings.Count > 0) 
+            {
+                foreach (DentalRecordDetailsFindings findings in existingFindings) 
+                {
+                    if (!tempFindingsIds.Contains(findings.DentalRecordDetailsFindingsId)) 
+                    {
                         _context.Remove(findings);
                     }
                 }
@@ -401,7 +404,7 @@ namespace SoCot_HC_BE.Services
             // remove not existing services on list
             List<DentalRecordDetailsServices> existingServices = await _context.DentalRecordDetailsServices.Where(i => i.DentalRecordId == record.DentalRecordId).ToListAsync();
 
-            if (!existingServices.IsNullOrEmpty())
+            if (existingServices.Count > 0)
             {
                 foreach (DentalRecordDetailsServices services in existingServices)
                 {
