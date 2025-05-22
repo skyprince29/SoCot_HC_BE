@@ -133,6 +133,12 @@ builder.Services.AddHttpClient<IReferralService, ReferralService>();
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IItemCategoryService, ItemCategoryService>();
+builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IFormService, FormService>();
+builder.Services.AddScoped<IStrengthService, StrengthService>();
+builder.Services.AddScoped<IRouteService, RouteService>();
+builder.Services.AddScoped<IUoMService, UoMService>();
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new AuthorizeFilter()); // makes all routes require authorization by default
