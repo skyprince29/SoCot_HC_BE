@@ -202,7 +202,7 @@ namespace SoCot_HC_BE.Services
                     }
                 }
             }
-            throw new InvalidOperationException("Userbane or Password is incorrect");
+            throw new InvalidOperationException("Usernane or Password is incorrect");
         }
     }
 }
