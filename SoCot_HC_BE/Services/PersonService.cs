@@ -70,18 +70,86 @@ namespace SoCot_HC_BE.Services
                        Lastname = p.Lastname,
                        BirthDate = p.BirthDate,
                        Gender = p.Gender,
+                       ContactNo =p.ContactNo,
                        HouseholdNo = p.FamilyMemberships
                         .Where(m => m.Family != null && m.Family.Household != null)
                         .Select(m => m.Family!.Household!.HouseholdNo)
                         .FirstOrDefault(),
-                                           FamilyNo = p.FamilyMemberships
+                       FamilyNo = p.FamilyMemberships
                         .Where(m => m.Family != null)
                         .Select(m => m.Family!.FamilyNo)
                         .FirstOrDefault(),
 
+                       ResidentialAddress = p.AddressAsResidential == null ? null : new AddressDto
+                       {
+                           AddressId = p.AddressAsResidential.AddressId,
+                           BarangayId = p.AddressAsResidential.BarangayId,
+                           MunicipalityId = p.AddressAsResidential.MunicipalityId,
+                           ProvinceId = p.AddressAsResidential.ProvinceId,
+                           Sitio = p.AddressAsResidential.Sitio,
+                           Purok = p.AddressAsResidential.Purok,
+                           ZipCode = p.AddressAsResidential.ZipCode,
+                           HouseNo = p.AddressAsResidential.HouseNo,
+                           LotNo = p.AddressAsResidential.LotNo,
+                           BlockNo = p.AddressAsResidential.BlockNo,
+                           Street = p.AddressAsResidential.Street,
+                           Subdivision = p.AddressAsResidential.Subdivision,
+
+                           FullAddress =
+                            (p.AddressAsResidential.HouseNo ?? "") + " " +
+                            (p.AddressAsResidential.Street ?? "") + " " +
+                            (p.AddressAsResidential.Sitio ?? "") + " " +
+                            (p.AddressAsResidential.Purok ?? "") + " " +
+                            (p.AddressAsResidential.Barangay != null ? p.AddressAsResidential.Barangay.BarangayName : "") + " " +
+                            (p.AddressAsResidential.Municipality != null ? p.AddressAsResidential.Municipality.MunicipalityName : "") + " " +
+                            (p.AddressAsResidential.Province != null ? p.AddressAsResidential.Province.ProvinceName : "")
+
+                       }
+
                    })
                    .ToListAsync(cancellationToken);
         }
+
+        //public async Task<List<PersonDto>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
+        //{
+        //    var query = _dbSet
+        //   .Include(p => p.FamilyMemberships)
+        //       .ThenInclude(m => m.Family)
+        //           .ThenInclude(f => f!.Household)
+        //   .AsQueryable();
+
+        //    if (!string.IsNullOrEmpty(keyword))
+        //    {
+        //        query = query.Where(p =>
+        //            p.Firstname.Contains(keyword) ||
+        //            p.Lastname.Contains(keyword) ||
+        //            (p.Middlename != null && p.Middlename.Contains(keyword)));
+        //    }
+
+        //    return await query
+        //           .OrderBy(p => p.Lastname)
+        //           .Skip((pageNo - 1) * limit)
+        //           .Take(limit)
+        //           .Select(p => new PersonDto
+        //           {
+        //               PersonId = p.PersonId,
+        //               Firstname = p.Firstname,
+        //               Middlename = p.Middlename,
+        //               Lastname = p.Lastname,
+        //               BirthDate = p.BirthDate,
+        //               Gender = p.Gender,
+        //               HouseholdNo = p.FamilyMemberships
+        //                .Where(m => m.Family != null && m.Family.Household != null)
+        //                .Select(m => m.Family!.Household!.HouseholdNo)
+        //                .FirstOrDefault(),
+        //                                   FamilyNo = p.FamilyMemberships
+        //                .Where(m => m.Family != null)
+        //                .Select(m => m.Family!.FamilyNo)
+        //                .FirstOrDefault(),
+
+        //           })
+        //           .ToListAsync(cancellationToken);
+        //}
 
         public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
         {

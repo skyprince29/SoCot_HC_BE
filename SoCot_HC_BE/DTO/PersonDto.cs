@@ -10,7 +10,7 @@
         public string? Gender { get; set; }
         public string? HouseholdNo { get; set; }
         public string? FamilyNo { get; set; }
-
+        public string? ContactNo { get; set; }
 
         public string Fullname
         {
@@ -20,6 +20,9 @@
                 return $"{Lastname}, {Firstname} {middle}".Trim();
             }
         }
+
+        public AddressDto? ResidentialAddress { get; set; }
+        public AddressDto? PermanentAddress { get; set; }
     }
 
 }
