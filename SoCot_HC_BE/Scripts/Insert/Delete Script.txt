@@ -1,0 +1,6 @@
+
+DELETE FROM FamilyMembers;
+DELETE FROM Families;
+DELETE FROM Households;
+DELETE FROM Person;
+DELETE FROM Address;

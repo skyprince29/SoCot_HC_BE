@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SoCot_HC_BE.Services.Interfaces;
 
 namespace SoCot_HC_BE.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class AddressController : Controller
@@ -18,7 +20,7 @@ namespace SoCot_HC_BE.Controllers
             _barangayService = barangayService;
         }
         [HttpGet("GetProvinces")]
-        public async Task<IActionResult> GetProvinces()
+        public async Task<IActionResult> GetProvinces(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -31,7 +33,7 @@ namespace SoCot_HC_BE.Controllers
         }
 
         [HttpGet("GetMunicipalities")]
-        public async Task<IActionResult> GetMunicipalities(int? ProvinceId)
+        public async Task<IActionResult> GetMunicipalities(int? ProvinceId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -44,7 +46,7 @@ namespace SoCot_HC_BE.Controllers
         } 
 
         [HttpGet("GetBarangays")]
-        public async Task<IActionResult> GetBarangays(int? CityMunicipalId)
+        public async Task<IActionResult> GetBarangays(int? CityMunicipalId, CancellationToken cancellationToken = default)
         {
             try
             {

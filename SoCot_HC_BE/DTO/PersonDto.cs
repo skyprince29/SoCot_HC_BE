@@ -9,6 +9,7 @@
         public DateTime BirthDate { get; set; }
         public string? Gender { get; set; }
         public string? HouseholdNo { get; set; }
+        public Guid? HouseholdId { get; set; }
         public string? FamilyNo { get; set; }
         public string? ContactNo { get; set; }
 

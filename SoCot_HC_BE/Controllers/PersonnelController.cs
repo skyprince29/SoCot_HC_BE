@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Personnels.Interfaces;
@@ -6,6 +7,7 @@ using SoCot_HC_BE.Utils;
 
 namespace SoCot_HC_BE.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class PersonnelController : Controller

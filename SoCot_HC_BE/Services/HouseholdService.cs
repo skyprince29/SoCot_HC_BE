@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Model.Requests;
 using SoCot_HC_BE.Utils;
+using SoCot_HC_BE.DTO;
 
 public class HouseholdService : IHouseholdService
 {
@@ -27,7 +28,11 @@ public class HouseholdService : IHouseholdService
             .ThenInclude(a => a.Municipality)
         .Include(h => h.Address)
             .ThenInclude(a => a.Province)
-        .Include(h => h.Families)
+       .Include(h => h.Families)
+            .ThenInclude(f => f.Person)
+       .Include(h => h.Families)
+            .ThenInclude(f => f.FamilyMembers)
+            .ThenInclude(fm => fm.Person)
         .FirstOrDefaultAsync(h => h.HouseholdId == id, cancellationToken);
     }
 
@@ -230,6 +235,121 @@ public class HouseholdService : IHouseholdService
             }
         }
 
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task AppendFamilyToExistingHousehold(AppendFamilyRequest request, CancellationToken cancellationToken)
+    {
+        var household = await _context.Households
+            .Include(h => h.Families)
+            .FirstOrDefaultAsync(h => h.HouseholdId == request.HouseholdId, cancellationToken);
+
+        if (household == null)
+            throw new Exception("Household not found");
+
+        var addressId = household.AddressId;
+
+        var persons = request.Family.Persons.Select(p => new Person
+        {
+            PersonId = p.PersonId,
+            Firstname = p.Firstname,
+            Middlename = p.Middlename,
+            Lastname = p.Lastname,
+            Suffix = p.Suffix,
+            BirthDate = DateTime.Parse(p.Birthdate),
+            BirthPlace = p.Birthplace,
+            Gender = p.Gender,
+            CivilStatus = p.CivilStatus,
+            Religion = p.Religion,
+            ContactNo = p.ContactNo,
+            Email = p.Email,
+            Citizenship = string.IsNullOrWhiteSpace(p.Citizenship) ? "FILIPINO" : p.Citizenship,
+            BloodType = p.BloodType,
+            AddressIdResidential = addressId,
+            AddressIdPermanent = addressId,
+            CreatedDate = DateTime.UtcNow
+        }).ToList();
+
+        foreach (var person in persons)
+        {
+            await _context.Person.AddAsync(person, cancellationToken);
+        }
+
+        await _context.SaveChangesAsync(cancellationToken); // must save first to get FK references
+
+        var headPersonId = persons.First().PersonId;
+
+        var family = new Family
+        {
+            FamilyId = request.Family.FamilyId,
+            FamilyNo = request.Family.FamilyNo,
+            HouseholdId = household.HouseholdId,
+            PersonId = headPersonId,
+            IsActive = true
+        };
+
+        await _context.Families.AddAsync(family, cancellationToken);
+
+        foreach (var person in persons)
+        {
+            await _context.FamilyMembers.AddAsync(new FamilyMember
+            {
+                FamilyMemberId = Guid.NewGuid(),
+                FamilyId = family.FamilyId,
+                PersonId = person.PersonId
+            }, cancellationToken);
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task AppendMemberToExistingFamily(AppendMemberRequest request, CancellationToken cancellationToken)
+    {
+        var household = await _context.Households
+            .Include(h => h.Families)
+            .FirstOrDefaultAsync(h => h.HouseholdId == request.HouseholdId, cancellationToken);
+
+        if (household == null) throw new Exception("Household not found");
+
+        var family = await _context.Families
+            .FirstOrDefaultAsync(f => f.FamilyId == request.FamilyId && f.HouseholdId == request.HouseholdId, cancellationToken);
+
+        if (family == null) throw new Exception("Family not found in household");
+
+        var addressId = household.AddressId;
+
+        var person = new Person
+        {
+            PersonId = request.Person.PersonId,
+            Firstname = request.Person.Firstname,
+            Middlename = request.Person.Middlename,
+            Lastname = request.Person.Lastname,
+            Suffix = request.Person.Suffix,
+            BirthDate = DateTime.Parse(request.Person.Birthdate),
+            BirthPlace = request.Person.Birthplace,
+            Gender = request.Person.Gender,
+            CivilStatus = request.Person.CivilStatus,
+            Religion = request.Person.Religion,
+            ContactNo = request.Person.ContactNo,
+            Email = request.Person.Email,
+            Citizenship = string.IsNullOrWhiteSpace(request.Person.Citizenship) ? "FILIPINO" : request.Person.Citizenship,
+            BloodType = request.Person.BloodType,
+            AddressIdResidential = addressId,
+            AddressIdPermanent = addressId,
+            CreatedDate = DateTime.UtcNow
+        };
+
+        await _context.Person.AddAsync(person, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        var familyMember = new FamilyMember
+        {
+            FamilyMemberId = Guid.NewGuid(),
+            FamilyId = request.FamilyId,
+            PersonId = person.PersonId
+        };
+
+        await _context.FamilyMembers.AddAsync(familyMember, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
 

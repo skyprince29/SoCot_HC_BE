@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SoCot_HC_BE.Model.Requests;
 using SoCot_HC_BE.Repositories.Interfaces;
+using SoCot_HC_BE.DTO;
 
 public interface IHouseholdService : IRepository<Household, Guid>
 {
@@ -14,4 +15,9 @@ public interface IHouseholdService : IRepository<Household, Guid>
 
     // Save Household
     Task SaveHouseholdAsync(SaveHouseholdRequest request, CancellationToken cancellationToken = default);
+
+    Task AppendFamilyToExistingHousehold(AppendFamilyRequest request, CancellationToken cancellationToken = default);
+
+    Task AppendMemberToExistingFamily(AppendMemberRequest request, CancellationToken cancellationToken = default);
+
 }

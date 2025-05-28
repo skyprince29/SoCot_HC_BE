@@ -5,9 +5,12 @@ using SoCot_HC_BE.Model.Requests;
 using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
+using SoCot_HC_BE.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SoCot_HC_BE.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class HouseholdController : ControllerBase
@@ -82,6 +85,46 @@ namespace SoCot_HC_BE.Controllers
                 });
             }
         }
+
+        [HttpPost("AppendFamilyToHousehold")]
+        public async Task<IActionResult> AppendFamilyToHousehold([FromBody] AppendFamilyRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _householdService.AppendFamilyToExistingHousehold(request, cancellationToken);
+                return Ok(new { success = true, message = "Family added successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error while appending family.",
+                    details = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("AddMemberToFamily")]
+        public async Task<IActionResult> AddMemberToFamily([FromBody] AppendMemberRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _householdService.AppendMemberToExistingFamily(request, cancellationToken);
+                return Ok(new { success = true, message = "Member added successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error adding member.",
+                    details = ex.Message
+                });
+            }
+        }
+
+
 
     }
 }

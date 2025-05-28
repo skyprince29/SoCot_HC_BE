@@ -4,9 +4,11 @@ using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Designations;
 using SoCot_HC_BE.Designations.Interfaces;
 using SoCot_HC_BE.Utils;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SoCot_HC_BE.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class DesignationController : Controller

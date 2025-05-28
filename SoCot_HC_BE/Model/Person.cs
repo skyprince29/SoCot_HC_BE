@@ -14,10 +14,10 @@ namespace SoCot_HC_BE.Model
         [MaxLength(50)]
         public required string Firstname { get; set; }
 
-        [MaxLength(30)]
+        [MaxLength(50)]
         public string? Middlename { get; set; }
 
-        [MaxLength(30)]
+        [MaxLength(50)]
         public required string Lastname { get; set; }
 
         [MaxLength(5)]
@@ -34,7 +34,7 @@ namespace SoCot_HC_BE.Model
         [MaxLength(20)]
         public string? CivilStatus { get; set; }
 
-        [MaxLength(30)]
+        [MaxLength(50)]
         public string? Religion { get; set; }
 
         [MaxLength(15)]
@@ -68,17 +68,6 @@ namespace SoCot_HC_BE.Model
         [InverseProperty(nameof(Address.PersonsWithPermanentAddress))]
         public virtual Address? AddressAsPermanent { get; set; }
 
-        //[InverseProperty(nameof(Patient.PersonAsSelf))]
-        //public ICollection<Patient> PatientsAsSelf { get; set; } = new List<Patient>();
-
-        //[InverseProperty(nameof(Patient.PersonAsSpouse))]
-        //public ICollection<Patient> PatientsAsSpouse { get; set; } = new List<Patient>();
-
-        //[InverseProperty(nameof(Patient.PersonAsMother))]
-        //public ICollection<Patient> PatientsAsMother { get; set; } = new List<Patient>();
-
-        //[InverseProperty(nameof(Patient.PersonAsFather))]
-        //public ICollection<Patient> PatientsAsFather { get; set; } = new List<Patient>();
 
         [InverseProperty(nameof(Household.PersonAsHeadOfHousehold))]
         public ICollection<Household> Households { get; set; } = new List<Household>();

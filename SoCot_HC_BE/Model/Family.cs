@@ -24,6 +24,9 @@ namespace SoCot_HC_BE.Model
         [ForeignKey(nameof(PersonId))]
         [InverseProperty(nameof(Person.Families))] // pointing to ICollection<Family> in Person
         public virtual Person? Person { get; set; }
+
+        [InverseProperty(nameof(FamilyMember.Family))]
+        public ICollection<FamilyMember> FamilyMembers { get; set; } = new List<FamilyMember>();
     }
 
 }

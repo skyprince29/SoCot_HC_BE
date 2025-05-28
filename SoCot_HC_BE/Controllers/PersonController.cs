@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SCHC_API.Handler;
 using SoCot_HC_BE.DTO;
@@ -8,7 +9,7 @@ using SoCot_HC_BE.Utils;
 
 namespace SoCot_HC_BE.Controllers
 {
-
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class PersonController : ControllerBase

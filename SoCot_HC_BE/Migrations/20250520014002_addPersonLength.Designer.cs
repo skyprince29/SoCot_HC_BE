@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250520014002_addPersonLength")]
+    partial class addPersonLength
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,6 +112,7 @@ namespace SoCot_HC_BE.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConsentedByName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreatedBy")
@@ -126,6 +130,9 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<Guid?>("DentalRecordDetailsOralHealthConditionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("DentalRecordDetailsPersenceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("DentalRecordDetailsPresenceId")
                         .HasColumnType("uniqueidentifier");
 
@@ -141,10 +148,10 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<Guid?>("PatientId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("PatientRegistryId")
+                    b.Property<Guid?>("PhysicianId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("PhysicianId")
+                    b.Property<Guid>("ReferralId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ReferralNo")
@@ -1042,61 +1049,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("ItemCategory");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.Module", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Module");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.ModuleStatusFlow", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsComplete")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsStart")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ModuleId")
-                        .HasColumnType("int");
-
-                    b.Property<byte>("NextStatusId")
-                        .HasColumnType("tinyint");
-
-                    b.Property<byte?>("RequiredStatusId")
-                        .HasColumnType("tinyint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ModuleId");
-
-                    b.HasIndex("NextStatusId");
-
-                    b.HasIndex("RequiredStatusId");
-
-                    b.ToTable("ModuleStatusFlow");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.Municipality", b =>
                 {
                     b.Property<int>("MunicipalityId")
@@ -1225,9 +1177,6 @@ namespace SoCot_HC_BE.Migrations
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
 
-                    b.Property<byte>("StatusId")
-                        .HasColumnType("tinyint");
-
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -1238,9 +1187,37 @@ namespace SoCot_HC_BE.Migrations
 
                     b.HasIndex("FacilityId");
 
+                    b.ToTable("PatientRegistry");
+                });
+
+            modelBuilder.Entity("SoCot_HC_BE.Model.PatientRegistryLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientRegistryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("StatusId")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientRegistryId");
+
                     b.HasIndex("StatusId");
 
-                    b.ToTable("PatientRegistry");
+                    b.ToTable("PatientRegistryLog");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Person", b =>
@@ -1873,47 +1850,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("SupplyStorage");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.TransactionFlowHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<byte>("CurrentStatusId")
-                        .HasColumnType("tinyint");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsComplete")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ModuleId")
-                        .HasColumnType("int");
-
-                    b.Property<byte?>("PreviousStatusId")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("TransactionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CurrentStatusId");
-
-                    b.HasIndex("ModuleId");
-
-                    b.HasIndex("PreviousStatusId");
-
-                    b.ToTable("TransactionFlowHistory");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.UoM", b =>
                 {
                     b.Property<Guid>("UoMId")
@@ -1976,8 +1912,8 @@ namespace SoCot_HC_BE.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<Guid>("PersonId")
                         .HasColumnType("uniqueidentifier");
@@ -2327,7 +2263,7 @@ namespace SoCot_HC_BE.Migrations
             modelBuilder.Entity("SoCot_HC_BE.Model.FamilyMember", b =>
                 {
                     b.HasOne("SoCot_HC_BE.Model.Family", "Family")
-                        .WithMany("FamilyMembers")
+                        .WithMany()
                         .HasForeignKey("FamilyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2413,31 +2349,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("UoM");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.ModuleStatusFlow", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Module", "Module")
-                        .WithMany()
-                        .HasForeignKey("ModuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Status", "NextStatus")
-                        .WithMany()
-                        .HasForeignKey("NextStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Status", "RequiredStatus")
-                        .WithMany()
-                        .HasForeignKey("RequiredStatusId");
-
-                    b.Navigation("Module");
-
-                    b.Navigation("NextStatus");
-
-                    b.Navigation("RequiredStatus");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.Municipality", b =>
                 {
                     b.HasOne("SoCot_HC_BE.Model.Province", "Province")
@@ -2476,13 +2387,24 @@ namespace SoCot_HC_BE.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Facility");
+                });
+
+            modelBuilder.Entity("SoCot_HC_BE.Model.PatientRegistryLog", b =>
+                {
+                    b.HasOne("SoCot_HC_BE.Model.PatientRegistry", "PatientRegistry")
+                        .WithMany()
+                        .HasForeignKey("PatientRegistryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SoCot_HC_BE.Model.Status", "Status")
                         .WithMany()
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Facility");
+                    b.Navigation("PatientRegistry");
 
                     b.Navigation("Status");
                 });
@@ -2659,31 +2581,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("Facility");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.TransactionFlowHistory", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Status", "CurrentStatus")
-                        .WithMany()
-                        .HasForeignKey("CurrentStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Module", "Module")
-                        .WithMany()
-                        .HasForeignKey("ModuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Status", "PreviousStatus")
-                        .WithMany()
-                        .HasForeignKey("PreviousStatusId");
-
-                    b.Navigation("CurrentStatus");
-
-                    b.Navigation("Module");
-
-                    b.Navigation("PreviousStatus");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.UserAccount", b =>
                 {
                     b.HasOne("SoCot_HC_BE.Model.Facility", "FacilityAsUserAccount")
@@ -2740,11 +2637,6 @@ namespace SoCot_HC_BE.Migrations
             modelBuilder.Entity("SoCot_HC_BE.Model.Facility", b =>
                 {
                     b.Navigation("UserAccountsAsFacility");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Family", b =>
-                {
-                    b.Navigation("FamilyMembers");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Household", b =>
