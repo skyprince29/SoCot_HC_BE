@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SoCot_HC_BE.DTO;
+using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -22,12 +23,19 @@ namespace SoCot_HC_BE.Services
         public string GenerateToken(Guid userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                //Update this if needed
+                //new Claim(ClaimTypes.Name, "username"),
+                //new Claim("FullName", "Kyle"),
+                //new Claim("Facility", "Facility 1"),
+                //new Claim("Department", "Department 1")
+            };
+
             var descriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-            }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(_settings.ExpiresInMinutes),
                 Issuer = _settings.Issuer,
                 Audience = _settings.Audience,

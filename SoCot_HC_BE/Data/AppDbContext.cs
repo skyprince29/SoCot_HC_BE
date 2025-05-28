@@ -2,6 +2,7 @@
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Model.BaseModels;
+using System.Security.Claims;
 
 namespace SoCot_HC_BE.Data
 {
@@ -107,7 +108,8 @@ namespace SoCot_HC_BE.Data
         // Retrieve user data (id, name, designation, etc.) from claims
         public UserData GetCurrentUser()
         {
-            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.Claims
+                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             var fullName = _httpContextAccessor.HttpContext?.User?.FindFirst("FullName")?.Value;
             var designation = _httpContextAccessor.HttpContext?.User?.FindFirst("Designation")?.Value; // Using Designation
 
@@ -121,5 +123,6 @@ namespace SoCot_HC_BE.Data
                 Designation = designation ?? "No Designation" // Default value for Designation
             };
         }
+
     }
 }

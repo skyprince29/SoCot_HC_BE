@@ -98,6 +98,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<IJwtService, JwtService>();
 // Register Specific Service
 builder.Services.AddScoped<IVitalSignService, VitalSignService>();
@@ -197,6 +199,7 @@ app.UseCors();
 // Apply Authorization middleware (only needed if you have authorization in place)
 app.UseAuthentication(); // must come before Authorization
 app.UseAuthorization();
+
 
 // Map controllers to endpoints
 app.MapControllers();
