@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250523082827_create table non communicable disease")]
+    partial class createtablenoncommunicabledisease
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1507,19 +1510,19 @@ namespace SoCot_HC_BE.Migrations
 
                     b.Property<string>("Lastname")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Middlename")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<int>("PatientIdTemp")
                         .HasColumnType("int");
 
                     b.Property<string>("Religion")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Suffix")
                         .HasMaxLength(5)
@@ -2526,7 +2529,7 @@ namespace SoCot_HC_BE.Migrations
             modelBuilder.Entity("SoCot_HC_BE.Model.FamilyMember", b =>
                 {
                     b.HasOne("SoCot_HC_BE.Model.Family", "Family")
-                        .WithMany("FamilyMembers")
+                        .WithMany()
                         .HasForeignKey("FamilyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2966,11 +2969,6 @@ namespace SoCot_HC_BE.Migrations
             modelBuilder.Entity("SoCot_HC_BE.Model.Facility", b =>
                 {
                     b.Navigation("UserAccountsAsFacility");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Family", b =>
-                {
-                    b.Navigation("FamilyMembers");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Household", b =>

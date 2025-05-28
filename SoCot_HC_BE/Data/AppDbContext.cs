@@ -76,6 +76,8 @@ namespace SoCot_HC_BE.Data
         public DbSet<Module> Module { get; set; }
         public DbSet<TransactionFlowHistory> TransactionFlowHistory { get; set; }
         public DbSet<ModuleStatusFlow> ModuleStatusFlow { get; set; }
+        public DbSet<NonCommunicableDisease> NonCommunicableDisease { get; set; }
+
         // Add more DbSets here...
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
