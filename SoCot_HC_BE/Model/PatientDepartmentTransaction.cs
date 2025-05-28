@@ -10,6 +10,8 @@ namespace SoCot_HC_BE.Model
 
         [Required]
         public Guid PatientRegistryId { get; set; }
+        [ForeignKey("PatientRegistryId")]
+        public virtual PatientRegistry? PatientRegistry { get; set; }
 
         public Guid? FromDepartmentId { get; set; }
 
@@ -28,11 +30,8 @@ namespace SoCot_HC_BE.Model
         public virtual Status? Status { get; set; }
         public bool IsCompleted { get; set; }
 
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public string? Remarks { get; set; }
-
-        [ForeignKey("PatientRegistryId")]
-        public virtual PatientRegistry? PatientRegistry { get; set; }
     }
 }

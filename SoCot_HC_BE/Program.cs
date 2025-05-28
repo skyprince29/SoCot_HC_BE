@@ -127,6 +127,7 @@ builder.Services.AddScoped<IDentalRecordService, DentalRecordService>();
 builder.Services.AddScoped<IUserGroupService, UserGroupService>();
 builder.Services.AddScoped<IUserAccountService, UserAccountService>();
 builder.Services.AddScoped<INonCommunicableDiseaseService, NonCommunicableDiseaseService>();
+builder.Services.AddScoped<IPatientDepartmentTransactionService, PatientDepartmentTransactionService>();
 
 builder.Services.AddScoped<ModuleServiceMapper>();
 
