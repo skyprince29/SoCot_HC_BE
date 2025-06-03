@@ -13,5 +13,8 @@ namespace SoCot_HC_BE.Services.Interfaces
 
         // Save Service
         Task SaveServiceAsync(Service service, CancellationToken cancellationToken = default);
+
+        Task<Department?> GetDepartmentByServiceIdAsync(Guid serviceId, CancellationToken cancellationToken = default);
+
     }
 } 

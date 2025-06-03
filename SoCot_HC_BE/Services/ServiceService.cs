@@ -103,5 +103,14 @@ namespace SoCot_HC_BE.Services
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
         }
+
+        public async Task<Department?> GetDepartmentByServiceIdAsync(Guid serviceId, CancellationToken cancellationToken = default)
+        {
+            var service = await _dbSet
+                .Include(s => s.Department)
+                .FirstOrDefaultAsync(s => s.ServiceId == serviceId, cancellationToken);
+
+            return service?.Department;
+        }
     }
 } 

@@ -80,5 +80,16 @@ namespace SoCot_HC_BE.Controllers
                 return BadRequest(new { success = false, errors = modelErrors });
             }
         }
+
+        [HttpGet("GetDepartmentByServiceId/{serviceId}")]
+        public async Task<IActionResult> GetDepartmentByServiceId(Guid serviceId, CancellationToken cancellationToken)
+        {
+            var department = await _serviceService.GetDepartmentByServiceIdAsync(serviceId, cancellationToken);
+
+            if (department == null)
+                return NotFound(new { success = false, message = "Department not found." });
+
+            return Ok(department);
+        }
     }
 } 
