@@ -11,4 +11,5 @@ VALUES
     (7, 'Discharged', 1),
     (8, 'Pending', 1),
     (9, 'On-going', 1),
-    (10, 'Cleared', 1);
+    (10, 'Cleared', 1),
+    (11, 'Deferred', 1);

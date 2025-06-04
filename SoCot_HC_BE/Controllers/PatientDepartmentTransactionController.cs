@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using SCHC_API.Handler;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Hub;
 using SoCot_HC_BE.Model;
-using SoCot_HC_BE.Services;
+using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
 
@@ -12,15 +12,16 @@ namespace SoCot_HC_BE.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class PatientDepartmentTransactionController : Controller
+    public class PatientDepartmentTransactionController : BaseTransactionController
     {
         private readonly IHubContext<AppHub> _appHubContext; // <-- Changed type
 
         private readonly IPatientDepartmentTransactionService _patientDepartmentTransactionService;
+        protected override int ModuleId => (int)ModuleEnum.PatientDepartmentTransaction;
 
-        public PatientDepartmentTransactionController(
+        public PatientDepartmentTransactionController(ITransactionFlowHistoryService _transactionFlowHistoryService,
             IPatientDepartmentTransactionService patientDepartmentTransactionService,
-            IHubContext<AppHub> appHubContext)
+            IHubContext<AppHub> appHubContext) : base(_transactionFlowHistoryService)
         {
             _patientDepartmentTransactionService = patientDepartmentTransactionService;
             _appHubContext = appHubContext;

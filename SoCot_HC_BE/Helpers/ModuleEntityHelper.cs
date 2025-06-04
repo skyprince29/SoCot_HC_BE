@@ -10,6 +10,7 @@ namespace SoCot_HC_BE.Helpers
         private static readonly Dictionary<int, Type> _moduleEntityMap = new()
         {
             { (int)ModuleEnum.PatientRegistry, typeof(PatientRegistry) },
+            { (int)ModuleEnum.PatientDepartmentTransaction, typeof(PatientDepartmentTransaction) },
             // Add other mappings here
             // { (int)ModuleEnum.RequestSlip, typeof(RequestSlip) },
         };

@@ -1,10 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using SoCot_HC_BE.Model.BaseModels;
+using SoCot_HC_BE.Model.Enums;
 
 namespace SoCot_HC_BE.Model
 {
-    public class PatientDepartmentTransaction
+    public class PatientDepartmentTransaction : BaseTransaction
     {
+        public PatientDepartmentTransaction()
+        {
+            base.ModuleId = (int)ModuleEnum.PatientDepartmentTransaction;
+        }
+
+        [NotMapped]
+        public override Guid TransactionId => PatientRegistryId;
+
         [Key]
         public Guid Id { get; set; }
 
@@ -23,8 +33,6 @@ namespace SoCot_HC_BE.Model
         public Guid? ForwardedBy { get; set; } // id of user
 
         public Guid? AcceptedBy { get; set; } // id of user
-
-        public byte StatusId { get; set; }
 
         [ForeignKey("StatusId")]
         public virtual Status? Status { get; set; }

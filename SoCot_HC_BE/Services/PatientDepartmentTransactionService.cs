@@ -10,8 +10,11 @@ namespace SoCot_HC_BE.Services
 {
     public class PatientDepartmentTransactionService : Repository<PatientDepartmentTransaction, Guid>, IPatientDepartmentTransactionService
     {
-        public PatientDepartmentTransactionService(AppDbContext context) : base(context)
+
+        private readonly ITransactionFlowHistoryService _transactionFlowHistoryService;
+        public PatientDepartmentTransactionService(AppDbContext context, ITransactionFlowHistoryService transactionFlowHistoryService) : base(context)
         {
+            _transactionFlowHistoryService = transactionFlowHistoryService;
         }
 
         public override async Task<PatientDepartmentTransaction?> GetAsync(Guid id, CancellationToken cancellationToken = default)
@@ -96,6 +99,17 @@ namespace SoCot_HC_BE.Services
             transaction.AcceptedBy = user.UserId !=  Guid.Empty ? user.UserId  : acceptedByUserId;
             await _context.SaveChangesAsync(cancellationToken);
 
+            // Now call UpdateStatusAsync to set status to "On-going" (ID = 9)
+            var dto = new UpdateStatusDto
+            {
+                TransactionId = Id,
+                ModuleId = transaction.ModuleId, // Make sure ModuleId exists on the transaction
+                StatusId = 9,
+                Remarks = "Marked as accepted and set to On-going."
+            };
+
+            await _transactionFlowHistoryService.UpdateStatusAsync(dto, cancellationToken); // calling the method
+
             return true;
         }
 
@@ -119,6 +133,8 @@ namespace SoCot_HC_BE.Services
                 IsCompleted = false,
                 IsActive = true
             };
+
+            await _transactionFlowHistoryService.StarterLogAsync(transaction, cancellationToken);
 
             await _context.PatientDepartmentTransaction.AddAsync(transaction, cancellationToken);
             return transaction;

@@ -2,6 +2,7 @@
 {
     public enum ModuleEnum
     {
-        PatientRegistry = 1
+        PatientRegistry = 1,
+        PatientDepartmentTransaction = 2
     }
 }
