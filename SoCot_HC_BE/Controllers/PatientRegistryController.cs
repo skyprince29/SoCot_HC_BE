@@ -10,11 +10,12 @@ namespace SoCot_HC_BE.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class PatientRegistryController : Controller
+    public class PatientRegistryController : BaseTransactionController
     {
         private readonly IPatientRegistryService _patientRegistryService;
+        protected override int ModuleId => (int)ModuleEnum.PatientRegistry;
 
-        public PatientRegistryController(IPatientRegistryService patientRegistryService)
+        public PatientRegistryController(ITransactionFlowHistoryService _transactionFlowHistoryService, IPatientRegistryService patientRegistryService) : base(_transactionFlowHistoryService)
         {
             _patientRegistryService = patientRegistryService;
         }
