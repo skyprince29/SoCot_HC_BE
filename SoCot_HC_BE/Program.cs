@@ -8,6 +8,7 @@ using SoCot_HC_BE.Data;
 using SoCot_HC_BE.Designations.Interfaces;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.DTO.OldReferralDto;
+using SoCot_HC_BE.Hub; // Corrected Hub namespace: Assuming this is where PatientDepartmentTransactionHub is
 using SoCot_HC_BE.Personnels;
 using SoCot_HC_BE.Personnels.Interfaces;
 using SoCot_HC_BE.Persons.Interfaces;
@@ -22,11 +23,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers()
     .AddJsonOptions(x =>
-     {
-         x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-         x.JsonSerializerOptions.WriteIndented = true; // Optional: for prettier output
-         x.JsonSerializerOptions.PropertyNamingPolicy = null;
-     });
+    {
+        x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        x.JsonSerializerOptions.WriteIndented = true; // Optional: for prettier output
+        x.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
 
 // Swagger Setup (API documentation)
 builder.Services.AddEndpointsApiExplorer();
@@ -35,13 +36,19 @@ builder.Services.AddSwaggerGen();
 // CORS Configuration (consider tightening this in production)
 builder.Services.AddCors(options =>
 {
-
-    options.AddDefaultPolicy(builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
+    // Make sure your "AllowSpecificOrigins" policy is correctly defined.
+    // The commented-out "old code" is fine, but you're not using it.
+    options.AddPolicy("AllowSpecificOrigins",
+        policy =>
+        {
+            policy.WithOrigins(
+                "https://localhost:44319" // Your frontend's origin
+                                          // If you have other origins, add them here: e.g., "http://localhost:8080", "https://your-prod-frontend.com"
+            )
+            .AllowAnyMethod()    // Crucial for OPTIONS preflight, POST, GET, etc.
+            .AllowAnyHeader()    // Allows any headers (e.g., Content-Type, Authorization)
+            .AllowCredentials(); // REQUIRED for SignalR (and if you send cookies/auth tokens)
+        });
 });
 
 // Add Database Context with SQL Server connection
@@ -64,7 +71,8 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSetting
 if (jwtSettings == null)
 {
     throw new InvalidOperationException("JWT Key is missing or too short (must be at least 16 characters).");
-} else
+}
+else
 {
     if (string.IsNullOrWhiteSpace(jwtSettings.Key) || jwtSettings.Key.Length < 16)
     {
@@ -143,6 +151,8 @@ builder.Services.AddScoped<IFormService, FormService>();
 builder.Services.AddScoped<IStrengthService, StrengthService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IUoMService, UoMService>();
+
+// This Adds AuthorizationFilter to ALL controllers. Keep this in mind if some should be anonymous.
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new AuthorizeFilter()); // makes all routes require authorization by default
@@ -180,31 +190,38 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddSignalR(); // Make sure this is called once.
+
 var app = builder.Build();
 
-// Enable for Development Only
+// Enable for Development Only (It's fine to have both if you want Swagger in production, just be aware)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Enable for Publishing
+// Enable for Publishing (Duplicate of above, can be removed if not needed in prod)
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-// Apply CORS policy
-app.UseCors();
+// **CRITICAL FIXES START HERE**
 
-// Apply Authorization middleware (only needed if you have authorization in place)
-app.UseAuthentication(); // must come before Authorization
+// 1. APPLY CORS POLICY (MUST be before UseRouting, UseAuthentication, UseAuthorization, MapHub, MapControllers)
+app.UseCors("AllowSpecificOrigins"); // <-- Changed from app.UseCors() to apply the named policy!
+
+// 2. Authentication and Authorization middleware
+app.UseAuthentication(); // Must come before Authorization
 app.UseAuthorization();
 
+// 3. Routing middleware
+app.UseRouting();
 
-// Map controllers to endpoints
-app.MapControllers();
+// 4. Map Endpoints (Hubs and Controllers)
+app.MapHub<AppHub>("/appHub"); // <-- Hub mapping
+app.MapControllers(); // <-- Controller mapping
 
 // Run the application
 app.Run();
