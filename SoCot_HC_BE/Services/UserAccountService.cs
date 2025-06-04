@@ -169,37 +169,47 @@ namespace SoCot_HC_BE.Services
 
                 if (loginDTO.Username != null && loginDTO.Password != null)
                 {
-                    var account = await _dbSet
-                                 .Include (p => p.PersonAsUserAccount)
-                                 .ThenInclude(a => a.AddressAsPermanent)
-                                 .Include(u => u.FacilityAsUserAccount)
-                                 .Include(u => u.UserGroupAsUserAccount)
-                                 .FirstOrDefaultAsync(a => a.Username == loginDTO.Username, cancellationToken);
-                    if(account != null)
+                    try
                     {
+                        var account = await _dbSet
+                                .Include(p => p.PersonAsUserAccount)
+                                .ThenInclude(a => a.AddressAsPermanent)
+                                .Include(u => u.FacilityAsUserAccount)
+                                .Include(u => u.UserGroupAsUserAccount)
+                                .FirstOrDefaultAsync(a => a.Username == loginDTO.Username, cancellationToken);
 
-                        bool isPasswordValid = PasswordHelper.VerifyPassword(loginDTO.Password, account.Password);
-
-                        if (!isPasswordValid)
+                        if (account != null)
                         {
-                            ValidationHelper.AddError(errors, nameof(loginDTO.Password), "Username or Password is incorrect");
-                        } else
-                        {
-                            UserAccountTokenDTO userAccount = new UserAccountTokenDTO();
 
-                            var token = _jwtService.GenerateToken(account.UserAccountId); // assuming Id is Guid
+                            bool isPasswordValid = PasswordHelper.VerifyPassword(loginDTO.Password, account.Password);
 
-                            return new UserAccountTokenDTO
+                            if (!isPasswordValid)
                             {
-                                userAccount = account,
-                                Token = token
-                            };
+                                ValidationHelper.AddError(errors, nameof(loginDTO.Password), "Username or Password is incorrect");
+                            }
+                            else
+                            {
+                                UserAccountTokenDTO userAccount = new UserAccountTokenDTO();
+
+                                var token = _jwtService.GenerateToken(account.UserAccountId); // assuming Id is Guid
+
+                                return new UserAccountTokenDTO
+                                {
+                                    userAccount = account,
+                                    Token = token
+                                };
+                            }
                         }
-                    }
-                    else
+                        else
+                        {
+                            ValidationHelper.AddError(errors, nameof(loginDTO.Password), "Account not found");
+                        }
+                    } catch (Exception ex)
                     {
-                        ValidationHelper.AddError(errors, nameof(loginDTO.Password), "Account not found");
+                        Console.WriteLine(ex.InnerException);
                     }
+                   
+ 
                 }
             }
             throw new InvalidOperationException("Usernane or Password is incorrect");
