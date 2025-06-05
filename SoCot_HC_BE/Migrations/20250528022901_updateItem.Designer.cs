@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250528022901_updateItem")]
+    partial class updateItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -841,38 +844,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("Families");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.FamilyHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Asthma")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Cancer")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Diabetes")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HeartAttack")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Hypertension")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("KidneyDisease")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Stroke")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FamilyHistory");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.FamilyMember", b =>
                 {
                     b.Property<Guid>("FamilyMemberId")
@@ -1145,173 +1116,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasIndex("ProvinceId");
 
                     b.ToTable("Municipality");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.NonCommunicableDisease", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AlcoholIntake")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("AnginaHeart")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("AverageBP")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateAssed")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("ExcessiveAlcoholIntake")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("FBS_RBS")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("FamilyHistoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("FirstVitalSignId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Fruits")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Glucose")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("GlucoseDateTaken")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("HighFatSalt")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Ketones")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("KetonesDateTaken")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Lipids")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LipidsDateTaken")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NCDQ1")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NCDQ2")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NCDQ3")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NCDQ4")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NCDQ5")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NCDQ6")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NCDQ7")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NCDQ8")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("PhysicalActivity")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Polydipsia")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Polyphagia")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Polyuria")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("SecondVitalSignId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Smoking")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TotalCholesterol")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UrineProtein")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UrineProteinDateTaken")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Vegetable")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Waist")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("hasStrokeTIA")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("riskLevel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("withDiabetes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("withKetones")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("withProtein")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FamilyHistoryId");
-
-                    b.HasIndex("FirstVitalSignId");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("SecondVitalSignId");
-
-                    b.ToTable("NonCommunicableDisease");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.PatientDepartmentTransaction", b =>
@@ -2633,33 +2437,6 @@ namespace SoCot_HC_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Province");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.NonCommunicableDisease", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.FamilyHistory", "FamilyHistory")
-                        .WithMany()
-                        .HasForeignKey("FamilyHistoryId");
-
-                    b.HasOne("SoCot_HC_BE.Model.VitalSign", "FirstVitalSign")
-                        .WithMany()
-                        .HasForeignKey("FirstVitalSignId");
-
-                    b.HasOne("SoCot_HC_BE.Model.Person", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId");
-
-                    b.HasOne("SoCot_HC_BE.Model.VitalSign", "SecondVitalSign")
-                        .WithMany()
-                        .HasForeignKey("SecondVitalSignId");
-
-                    b.Navigation("FamilyHistory");
-
-                    b.Navigation("FirstVitalSign");
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("SecondVitalSign");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.PatientDepartmentTransaction", b =>

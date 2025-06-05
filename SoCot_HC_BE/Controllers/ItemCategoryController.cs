@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Services.Interfaces;
 
 namespace SoCot_HC_BE.Controllers
 {
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class ItemCategoryController : Controller
