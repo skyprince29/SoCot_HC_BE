@@ -3,7 +3,7 @@
     public class PatientForwardingDto
     {
         public Guid PatientRegistryId { get; set; }
-        public Guid FromDepartmentId { get; set; }
+        public Guid? FromDepartmentId { get; set; }
         public Guid CurrentDepartmentId { get; set; }
         public Guid ForwardedByUserId { get; set; }
         public string? Remarks { get; set; }

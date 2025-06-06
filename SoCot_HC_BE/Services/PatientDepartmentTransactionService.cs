@@ -131,7 +131,7 @@ namespace SoCot_HC_BE.Services
             {
                 Id = Guid.NewGuid(),
                 PatientRegistryId = dto.PatientRegistryId,
-                FromDepartmentId = dto.FromDepartmentId,
+                FromDepartmentId = dto.FromDepartmentId.HasValue ? dto.FromDepartmentId : null,
                 DepartmentId = dto.CurrentDepartmentId,
                 ForwardedBy = user.UserId,
                 Remarks = dto.Remarks,
@@ -143,7 +143,7 @@ namespace SoCot_HC_BE.Services
 
             await _transactionFlowHistoryService.StarterLogAsync(transaction, cancellationToken);
 
-            await _context.PatientDepartmentTransaction.AddAsync(transaction, cancellationToken);
+            await AddAsync(transaction, cancellationToken);
             return transaction;
         }
 
@@ -164,8 +164,7 @@ namespace SoCot_HC_BE.Services
             if (dto.IsTransfer)
             {
                 string fromDeptCN = nameof(dto.FromDepartmentId);
-                Guid fromDeptId = dto.FromDepartmentId;
-
+                Guid fromDeptId = dto.FromDepartmentId.HasValue ? dto.FromDepartmentId.Value : Guid.Empty;
                 ValidationHelper.IsRequired(errors, fromDeptCN, fromDeptId, "Previous Department");
                 bool fromDeptExists = _context.Department.Any(d => d.DepartmentId == fromDeptId);
                 if (!fromDeptExists && fromDeptId != Guid.Empty)

@@ -82,12 +82,13 @@ namespace SoCot_HC_BE.Controllers
         {
             try
             {
-                await _patientDepartmentTransactionService.CreateTransactionAsync(dto, cancellationToken);
+                PatientDepartmentTransaction savedPDT = await _patientDepartmentTransactionService.CreateTransactionAsync(dto, cancellationToken);
 
                 return Ok(new
                 {
                     success = true,
-                    message = "Patient forwarded successfully."
+                    message = "Patient forwarded successfully.",
+                    Id = savedPDT.PatientRegistryId // <-- The returned ID
                 });
             }
             catch (ModelValidationException ex)
