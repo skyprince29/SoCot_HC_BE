@@ -8,7 +8,7 @@ namespace SoCot_HC_BE.Services.Interfaces
     public interface ITransactionFlowHistoryService : IRepository<TransactionFlowHistory, Guid>
     {
         Task StarterLogAsync<T>(T entity, CancellationToken cancellationToken = default)
-            where T : BaseTransaction;
+            where T : IBaseTransaction;
 
         Task UpdateStatusAsync(UpdateStatusDto dto, CancellationToken cancellationToken = default);
     }

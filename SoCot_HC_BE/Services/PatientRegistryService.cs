@@ -88,12 +88,12 @@ namespace SoCot_HC_BE.Services
         }
 
 
-        public async Task SavePatientRegistryAsync(PatientRegistryDto patientRegistry, CancellationToken cancellationToken = default)
+        public async Task<PatientRegistry> SavePatientRegistryAsync(PatientRegistryDto patientRegistry, CancellationToken cancellationToken = default)
         {
-           await SavePatientRegistryAsync(patientRegistry, true, cancellationToken);
+           return await SavePatientRegistryAsync(patientRegistry, true, cancellationToken);
         }
 
-        public async Task SavePatientRegistryAsync(PatientRegistryDto patientRegistryDto, bool isWithValidation, CancellationToken cancellationToken = default)
+        public async Task<PatientRegistry> SavePatientRegistryAsync(PatientRegistryDto patientRegistryDto, bool isWithValidation, CancellationToken cancellationToken = default)
         {
             // Use a transaction to ensure consistency
             using (var transaction = _context.Database.BeginTransaction())
@@ -128,9 +128,11 @@ namespace SoCot_HC_BE.Services
                         await _context.SaveChangesAsync(cancellationToken);
                     }
 
-
                     // Commit the transaction
                     transaction.Commit();
+
+                    // Return the saved entity with its ID
+                    return patientRegistry;
                 }
                 catch (Exception ex)
                 {
@@ -195,10 +197,11 @@ namespace SoCot_HC_BE.Services
                 IsUrgent = isUrgent
             };
 
-            // Save the new patient registry asynchronously
-            await SavePatientRegistryAsync(newPatientRegistry, false, cancellationToken);
+            // 1. Call the Save method and CAPTURE the returned entity
+            var savedRegistry = await SavePatientRegistryAsync(newPatientRegistry, false, cancellationToken);
 
-            return DTOToModel(newPatientRegistry);
+            // 2. RETURN the saved entity
+            return savedRegistry;
         }
 
          private string GeneratePatientRegistryCode()

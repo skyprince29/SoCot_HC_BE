@@ -21,7 +21,7 @@ namespace SoCot_HC_BE.Services
         }
 
         public async Task StarterLogAsync<T>(T entity, CancellationToken cancellationToken = default)
-        where T : BaseTransaction
+        where T : IBaseTransaction
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));

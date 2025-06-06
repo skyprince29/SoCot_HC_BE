@@ -26,14 +26,18 @@ namespace SoCot_HC_BE.Controllers
         {
             try
             {
-                await _patientRegistryService.SavePatientRegistryAsync(patientRegistry, cancellationToken);
+                // 1. Call the updated service method which now returns the saved entity.
+                //    Assuming 'isWithValidation' should be true when called from the controller.
+                var savedRegistry = await _patientRegistryService.SavePatientRegistryAsync(patientRegistry, cancellationToken);
 
+                // 2. Return a success response including the ID from the object we got back.
                 return Ok(new
                 {
                     success = true,
                     message = patientRegistry.PatientRegistryId == Guid.Empty
                         ? "Patient Registry created successfully."
-                        : "Patient Registry updated successfully."
+                        : "Patient Registry updated successfully.",
+                    Id = savedRegistry.PatientRegistryId // <-- The returned ID
                 });
             }
             catch (ModelValidationException ex)

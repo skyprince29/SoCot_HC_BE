@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoCot_HC_BE.Model
 {
-    public class PatientRegistry : BaseTransaction
+    public class PatientRegistry : BaseTransactionWithAudit
     {
         public PatientRegistry()
         {
