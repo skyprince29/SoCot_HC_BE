@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250604052051_create_table_user_department")]
+    partial class create_table_user_department
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1027,6 +1030,9 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<Guid?>("SubCategoryId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("UoMId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -1046,6 +1052,8 @@ namespace SoCot_HC_BE.Migrations
                     b.HasIndex("StrengthId");
 
                     b.HasIndex("SubCategoryId");
+
+                    b.HasIndex("UoMId");
 
                     b.ToTable("Item");
                 });
@@ -2622,6 +2630,12 @@ namespace SoCot_HC_BE.Migrations
                         .WithMany()
                         .HasForeignKey("SubCategoryId");
 
+                    b.HasOne("SoCot_HC_BE.Model.UoM", "UoM")
+                        .WithMany()
+                        .HasForeignKey("UoMId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Form");
 
                     b.Navigation("ItemCategory");
@@ -2633,6 +2647,8 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("Strength");
 
                     b.Navigation("SubCategory");
+
+                    b.Navigation("UoM");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.ModuleStatusFlow", b =>

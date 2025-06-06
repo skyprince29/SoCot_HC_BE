@@ -72,11 +72,18 @@ namespace SoCot_HC_BE.Services
         {
             var query = _dbSet.AsQueryable();
 
-            // Filter by fromDepartmentId and currentDepartmentId
-            query = query.Where(t =>
-                t.FromDepartmentId == fromDepartmentId &&
-                t.DepartmentId == currentDepartmentId);
+            // Filter by fromDepartmentId
+            query = query
+               .Include(i => i.PatientRegistry)
+               .Include(i => i.Status)
+               .Where(t => t.FromDepartmentId == fromDepartmentId);
 
+            // Filter by currentDepartmentId optional
+
+            if (currentDepartmentId != Guid.Empty)
+            {
+                query = query.Where(t => t.DepartmentId == currentDepartmentId);
+            }
 
             // Optional filter by StatusId
             if (statusId.HasValue)

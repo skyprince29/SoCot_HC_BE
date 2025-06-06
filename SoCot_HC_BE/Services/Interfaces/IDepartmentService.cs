@@ -19,5 +19,12 @@ namespace SoCot_HC_BE.Services.Interfaces
             List<Guid> departmentTypeIds,
             bool isActiveOnly = true,
             CancellationToken cancellationToken = default);
+
+        Task<PaginationHandler<Department>>  GetDepartmentsExcludedAsync(
+          List<Guid>? excludedDepartmentIds, 
+          int pageNo, 
+          int limit,
+          string? keyword,
+          CancellationToken cancellationToken = default);
     }
 }

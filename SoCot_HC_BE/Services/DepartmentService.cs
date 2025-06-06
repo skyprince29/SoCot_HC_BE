@@ -7,6 +7,8 @@ using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using System.Collections.Generic;
 
 namespace SoCot_HC_BE.Services
 {
@@ -14,7 +16,7 @@ namespace SoCot_HC_BE.Services
     {
         public DepartmentService(AppDbContext context) : base(context)
         {
-      
+
         }
 
         public override async Task<Department?> GetAsync(Guid id, CancellationToken cancellationToken = default)
@@ -29,7 +31,7 @@ namespace SoCot_HC_BE.Services
             return department;
         }
 
-        public async Task<PaginationHandler<Department>> GetAllWithPagingAsync(int pageNo,int statusId, List<Guid>? departmentTypes,int limit, string keyword = "", CancellationToken cancellationToken = default)
+        public async Task<PaginationHandler<Department>> GetAllWithPagingAsync(int pageNo, int statusId, List<Guid>? departmentTypes, int limit, string keyword = "", CancellationToken cancellationToken = default)
         {
             int totalRecords = await _dbSet
                                     .CountAsync(d =>
@@ -268,6 +270,42 @@ namespace SoCot_HC_BE.Services
                 );
 
             return await query.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        public async Task<PaginationHandler<Department>> GetDepartmentsExcludedAsync(
+            List<Guid> excludedDepartmentIds,
+            int pageNo,
+            int limit,
+            string? keyword,
+            CancellationToken cancellationToken = default)
+        {
+            IQueryable<Department> query = _dbSet.AsNoTracking();
+
+            // Conditionally apply the exclusion filter
+            if (excludedDepartmentIds != null && excludedDepartmentIds.Any())
+            {
+                query = query.Where(d => !excludedDepartmentIds.Contains(d.DepartmentId));
+            }
+
+            // Conditionally apply the keyword filter with ToLower() for case-insensitivity
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                // Change this line:
+                query = query.Where(d => d.DepartmentName.ToLower().Contains(keyword.ToLower()));
+                // OR:
+                // query = query.Where(d => d.DepartmentName.ToUpper().Contains(keyword.ToUpper()));
+            }
+
+            int totalRecords = await query.CountAsync(cancellationToken);
+
+            var departments = await query
+                .OrderBy(d => d.DepartmentName)
+                .Skip((pageNo - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            var paginatedResult = new PaginationHandler<Department>(departments, totalRecords, pageNo, limit);
+            return paginatedResult;
         }
     }
 }

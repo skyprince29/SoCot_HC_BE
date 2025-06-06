@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SoCot_HC_BE.DTO;
+using SCHC_API.Handler;
 
 namespace SoCot_HC_BE.Services
 {
@@ -238,6 +239,39 @@ namespace SoCot_HC_BE.Services
                 p.Lastname.ToLower() == lastname.ToLower().Trim() &&
                 p.BirthDate.Date == birthDate.Date,
                 cancellationToken);
+        }
+
+        public async Task<PaginationHandler<Person>> GetAllPersonWithUserAccount(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
+        {
+
+            var userAccountQuery = _context.Set<UserAccount>().AsQueryable();
+            userAccountQuery = userAccountQuery.Include(ua => ua.PersonAsUserAccount);
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                string lowerKeyword = keyword.ToLower(); // Convert keyword to lowercase once for case-insensitive comparison
+
+                userAccountQuery = userAccountQuery.Where(ua =>
+                    // Check if the associated Person exists and its name properties contain the keyword
+                    ua.PersonAsUserAccount != null && (
+                        (ua.PersonAsUserAccount.Firstname != null && ua.PersonAsUserAccount.Firstname.ToLower().Contains(lowerKeyword)) ||
+                        (ua.PersonAsUserAccount.Middlename != null && ua.PersonAsUserAccount.Middlename.ToLower().Contains(lowerKeyword)) ||
+                        (ua.PersonAsUserAccount.Lastname != null && ua.PersonAsUserAccount.Lastname.ToLower().Contains(lowerKeyword))
+                    )
+                );
+            }
+
+            var personsQuery = userAccountQuery.Select(ua => ua.PersonAsUserAccount).Distinct();
+            int totalRecords = await personsQuery.CountAsync(cancellationToken);
+
+            var personsList = await personsQuery
+           .Skip((pageNo - 1) * limit) // Skip records from previous pages
+           .Take(limit)                // Take the specified number of records for the current page
+           .ToListAsync(cancellationToken); // Execute and materialize the results
+
+            var paginatedResult = new PaginationHandler<Person>(personsList!, totalRecords, pageNo, limit);
+
+            return paginatedResult!;
         }
     }
 }

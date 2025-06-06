@@ -77,6 +77,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<TransactionFlowHistory> TransactionFlowHistory { get; set; }
         public DbSet<ModuleStatusFlow> ModuleStatusFlow { get; set; }
         public DbSet<NonCommunicableDisease> NonCommunicableDisease { get; set; }
+        public DbSet<UserDepartment> UserDepartment { get; set; }
 
         // Add more DbSets here...
 
