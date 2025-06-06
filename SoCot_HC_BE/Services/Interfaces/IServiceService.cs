@@ -16,5 +16,7 @@ namespace SoCot_HC_BE.Services.Interfaces
 
         Task<Department?> GetDepartmentByServiceIdAsync(Guid serviceId, CancellationToken cancellationToken = default);
 
+        Task<List<Service>> GetServicesByDepartment(Guid departmentId, CancellationToken cancellationToken = default);
+
     }
 } 

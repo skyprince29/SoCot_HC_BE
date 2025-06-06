@@ -112,5 +112,16 @@ namespace SoCot_HC_BE.Services
 
             return service?.Department;
         }
+
+        public async Task<List<Service>> GetServicesByDepartment(Guid departmentId, CancellationToken cancellationToken = default)
+        {
+            var services = await _dbSet
+                        .Where(s => s.DepartmentId == departmentId
+                        && s.IsActive)
+                        .AsNoTracking()
+                        .ToListAsync(cancellationToken);
+
+            return services;
+        }
     }
 } 

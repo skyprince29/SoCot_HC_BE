@@ -91,5 +91,16 @@ namespace SoCot_HC_BE.Controllers
 
             return Ok(department);
         }
+
+        [HttpGet("GetServicesByDepartment/{departmentId}")]
+        public async Task<IActionResult> GetServicesByDepartment(Guid departmentId, CancellationToken cancellationToken)
+        {
+            var services = await _serviceService.GetServicesByDepartment(departmentId, cancellationToken);
+
+            if(services == null)
+                return NotFound(new { success = false, message = "Department not found." });
+
+            return Ok(services);
+        }
     }
 } 
