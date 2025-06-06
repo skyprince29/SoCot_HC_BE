@@ -9,6 +9,7 @@ using SoCot_HC_BE.Designations.Interfaces;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.DTO.OldReferralDto;
 using SoCot_HC_BE.Hub; // Corrected Hub namespace: Assuming this is where PatientDepartmentTransactionHub is
+using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Personnels;
 using SoCot_HC_BE.Personnels.Interfaces;
 using SoCot_HC_BE.Persons.Interfaces;
@@ -17,6 +18,7 @@ using SoCot_HC_BE.Repositories.Interfaces;
 using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
 using System.Text;
+using ReferralService = SoCot_HC_BE.Services.ReferralService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +38,6 @@ builder.Services.AddSwaggerGen();
 // CORS Configuration (consider tightening this in production)
 builder.Services.AddCors(options =>
 {
-    // Make sure your "AllowSpecificOrigins" policy is correctly defined.
-    // The commented-out "old code" is fine, but you're not using it.
     options.AddPolicy("AllowSpecificOrigins",
         policy =>
         {
@@ -152,6 +152,7 @@ builder.Services.AddScoped<IFormService, FormService>();
 builder.Services.AddScoped<IStrengthService, StrengthService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IUoMService, UoMService>();
+builder.Services.AddScoped<IUserDepartmentService, UserDepartmentService>();
 
 // This Adds AuthorizationFilter to ALL controllers. Keep this in mind if some should be anonymous.
 builder.Services.AddControllers(options =>
@@ -176,7 +177,7 @@ builder.Services.AddSwaggerGen(c =>
         Reference = new OpenApiReference
         {
             Id = JwtBearerDefaults.AuthenticationScheme,
-            Type = ReferenceType.SecurityScheme
+            Type = ReferenceType.SecurityScheme // FIX: Changed from SecuritySchemeType.SecurityScheme to ReferenceType.SecurityScheme
         }
     };
 
@@ -203,8 +204,10 @@ if (app.Environment.IsDevelopment())
 }
 
 // Enable for Publishing (Duplicate of above, can be removed if not needed in prod)
-app.UseSwagger();
-app.UseSwaggerUI();
+// It's generally recommended to only enable Swagger UI in development environments
+// for security reasons, unless you have a specific need and secure it properly.
+// app.UseSwagger();
+// app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -213,12 +216,12 @@ app.UseHttpsRedirection();
 // 1. APPLY CORS POLICY (MUST be before UseRouting, UseAuthentication, UseAuthorization, MapHub, MapControllers)
 app.UseCors("AllowSpecificOrigins"); // <-- Changed from app.UseCors() to apply the named policy!
 
-// 2. Authentication and Authorization middleware
+// 2. Routing middleware (MUST come before Authentication and Authorization)
+app.UseRouting();
+
+// 3. Authentication and Authorization middleware
 app.UseAuthentication(); // Must come before Authorization
 app.UseAuthorization();
-
-// 3. Routing middleware
-app.UseRouting();
 
 // 4. Map Endpoints (Hubs and Controllers)
 app.MapHub<AppHub>("/appHub"); // <-- Hub mapping
