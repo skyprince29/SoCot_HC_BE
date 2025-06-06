@@ -8,102 +8,99 @@ DBCC CHECKIDENT ('Municipality', RESEED, 0);
 DELETE FROM Province;
 DBCC CHECKIDENT ('Province', RESEED, 0);
 
--- Enable identity insert
-SET IDENTITY_INSERT Province ON;
+SET IDENTITY_INSERT [dbo].[Province] ON 
 
--- Insert Provinces
-INSERT INTO Province (ProvinceId, ProvinceName) VALUES
-    (1, 'Abra'),
-    (2, 'Agusan del Norte'),
-    (3, 'Agusan del Sur'),
-    (4, 'Aklan'),
-    (5, 'Albay'),
-    (6, 'Antique'),
-    (7, 'Apayao'),
-    (8, 'Aurora'),
-    (9, 'Bacolod City'),
-    (10, 'Basilan'),
-    (11, 'Bataan'),
-    (12, 'Batanes'),
-    (13, 'Batangas'),
-    (14, 'Benguet'),
-    (15, 'Biliran'),
-    (16, 'Bohol'),
-    (17, 'Bukidnon'),
-    (18, 'Bulacan'),
-    (19, 'Cagayan'),
-    (20, 'Camarines Norte'),
-    (21, 'Camarines Sur'),
-    (22, 'Camiguin'),
-    (23, 'Capiz'),
-    (24, 'Catanduanes'),
-    (25, 'Cavite'),
-    (26, 'Cebu'),
-    (27, 'City of Isabela'),
-    (28, 'City of Manila'),
-    (29, 'Cotabato (North Cotabato)'),
-    (30, 'Cotabato City'),
-    (31, 'Davao City'),
-    (32, 'Davao de Oro'),
-    (33, 'Davao del Norte'),
-    (34, 'Davao del Sur'),
-    (35, 'Davao Occidental'),
-    (36, 'Davao Oriental'),
-    (37, 'Dinagat Islands'),
-    (38, 'Eastern Samar'),
-    (39, 'General Santos City'),
-    (40, 'Guimaras'),
-    (41, 'Ifugao'),
-    (42, 'Ilocos Norte'),
-    (43, 'Ilocos Sur'),
-    (44, 'Iloilo'),
-    (45, 'Isabela'),
-    (46, 'Kalinga'),
-    (47, 'La Union'),
-    (48, 'Laguna'),
-    (49, 'Lanao del Norte'),
-    (50, 'Lanao del Sur'),
-    (51, 'Leyte'),
-    (52, 'Maguindanao'),
-    (53, 'Marinduque'),
-    (54, 'Masbate'),
-    (55, 'Misamis Occidental'),
-    (56, 'Misamis Oriental'),
-    (57, 'Mountain Province'),
-    (58, 'NCR, City of Manila, First District'),
-    (59, 'NCR, Fourth District'),
-    (60, 'NCR, Second District'),
-    (61, 'NCR, Third District'),
-    (62, 'Negros Occidental'),
-    (63, 'Negros Oriental'),
-    (64, 'Northern Samar'),
-    (65, 'Nueva Ecija'),
-    (66, 'Nueva Vizcaya'),
-    (67, 'Occidental Mindoro'),
-    (68, 'Oriental Mindoro'),
-    (69, 'Palawan'),
-    (70, 'Pampanga'),
-    (71, 'Pangasinan'),
-    (72, 'Quezon'),
-    (73, 'Quirino'),
-    (74, 'Rizal'),
-    (75, 'Romblon'),
-    (76, 'Samar (Western Samar)'),
-    (77, 'Sarangani'),
-    (78, 'Siquijor'),
-    (79, 'Sorsogon'),
-    (80, 'South Cotabato'),
-    (81, 'Southern Leyte'),
-    (82, 'Sultan Kudarat'),
-    (83, 'Sulu'),
-    (84, 'Surigao del Norte'),
-    (85, 'Surigao del Sur'),
-    (86, 'Tarlac'),
-    (87, 'Tawi-Tawi'),
-    (88, 'Zambales'),
-    (89, 'Zamboanga del Norte'),
-    (90, 'Zamboanga del Sur'),
-    (91, 'Zamboanga Sibugay');
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (1, N'Ilocos Norte')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (2, N'Ilocos Sur')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (3, N'La Union')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (4, N'Pangasinan')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (5, N'Batanes')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (6, N'Cagayan')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (7, N'Isabela')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (8, N'Nueva Vizcaya')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (9, N'Quirino')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (10, N'Bataan')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (11, N'Bulacan')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (12, N'Nueva Ecija')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (13, N'Pampanga')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (14, N'Tarlac')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (15, N'Zambales')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (16, N'Aurora')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (17, N'Batangas')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (18, N'Cavite')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (19, N'Laguna')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (20, N'Quezon')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (21, N'Rizal')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (22, N'Marinduque')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (23, N'Occidental Mindoro')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (24, N'Oriental Mindoro')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (25, N'Palawan')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (26, N'Romblon')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (27, N'Albay')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (28, N'Camarines Norte')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (29, N'Camarines Sur')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (30, N'Catanduanes')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (31, N'Masbate')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (32, N'Sorsogon')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (33, N'Aklan')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (34, N'Antique')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (35, N'Capiz')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (36, N'Iloilo')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (37, N'Negros Occidental')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (38, N'Guimaras')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (39, N'Bohol')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (40, N'Cebu')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (41, N'Negros Oriental')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (42, N'Siquijor')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (43, N'Eastern Samar')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (44, N'Leyte')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (45, N'Northern Samar')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (46, N'Samar (Western Samar)')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (47, N'Southern Leyte')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (48, N'Biliran')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (49, N'Zamboanga del Norte')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (50, N'Zamboanga del Sur')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (51, N'Zamboanga Sibugay')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (52, N'City of Isabela')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (53, N'Bukidnon')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (54, N'Camiguin')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (55, N'Lanao del Norte')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (56, N'Misamis Occidental')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (57, N'Misamis Oriental')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (58, N'Davao del Norte')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (59, N'Davao del Sur')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (60, N'Davao Oriental')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (61, N'Davao de Oro')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (62, N'Davao Occidental')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (63, N'Cotabato (North Cotabato)')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (64, N'South Cotabato')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (65, N'Sultan Kudarat')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (66, N'Sarangani')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (67, N'Cotabato City')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (68, N'NCR, City of Manila, First District')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (69, N'City of Manila')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (70, N'NCR, Second District')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (71, N'NCR, Third District')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (72, N'NCR, Fourth District')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (73, N'Abra')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (74, N'Benguet')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (75, N'Ifugao')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (76, N'Kalinga')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (77, N'Mountain Province')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (78, N'Apayao')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (79, N'Basilan')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (80, N'Lanao del Sur')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (81, N'Maguindanao')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (82, N'Sulu')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (83, N'Tawi-Tawi')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (84, N'Agusan del Norte')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (85, N'Agusan del Sur')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (86, N'Surigao del Norte')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (87, N'Surigao del Sur')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (88, N'Dinagat Islands')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (90, N'General Santos City')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (91, N'Davao City')
+INSERT [dbo].[Province] ([ProvinceId], [ProvinceName]) VALUES (92, N'Bacolod City')
 
--- Disable identity insert
-SET IDENTITY_INSERT Province OFF;
+SET IDENTITY_INSERT [dbo].[Province] OFF
+GO
