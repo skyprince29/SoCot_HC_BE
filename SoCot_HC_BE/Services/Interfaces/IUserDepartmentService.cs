@@ -9,6 +9,8 @@ namespace SoCot_HC_BE.Services.Interfaces
     {
         Task<PaginationHandler<UserDepartmentDto>> GetAllWithPagingAsync(Guid personId, int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default);
 
+        Task SaveUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken = default);
+        Task DeactivateUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken = default);
 
 
     }

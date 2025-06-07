@@ -21,7 +21,7 @@ namespace SoCot_HC_BE.Services.Interfaces
             CancellationToken cancellationToken = default);
 
         Task<PaginationHandler<Department>>  GetDepartmentsExcludedAsync(
-          List<Guid>? excludedDepartmentIds, 
+          Guid personId, 
           int pageNo, 
           int limit,
           string? keyword,

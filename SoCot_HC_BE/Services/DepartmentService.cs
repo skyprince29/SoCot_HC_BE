@@ -273,27 +273,26 @@ namespace SoCot_HC_BE.Services
         }
 
         public async Task<PaginationHandler<Department>> GetDepartmentsExcludedAsync(
-            List<Guid> excludedDepartmentIds,
+            Guid personId,
             int pageNo,
             int limit,
             string? keyword,
             CancellationToken cancellationToken = default)
         {
-            IQueryable<Department> query = _dbSet.AsNoTracking();
+                IQueryable<Department> query = _dbSet.AsNoTracking();
 
-            // Conditionally apply the exclusion filter
-            if (excludedDepartmentIds != null && excludedDepartmentIds.Any())
-            {
-                query = query.Where(d => !excludedDepartmentIds.Contains(d.DepartmentId));
+                List<Guid> departmentIds = await _context.UserDepartment
+                .Where(ud => (ud.PersonId.HasValue && ud.PersonId == personId) && ud.IsActive) 
+                .Select(ud => ud.DepartmentId.Value) 
+                .ToListAsync(cancellationToken);
+
+            if (departmentIds.Count > 0) {
+                query = query.Where(i => (!departmentIds.Contains(i.DepartmentId))); 
             }
 
-            // Conditionally apply the keyword filter with ToLower() for case-insensitivity
             if (!string.IsNullOrEmpty(keyword))
             {
-                // Change this line:
                 query = query.Where(d => d.DepartmentName.ToLower().Contains(keyword.ToLower()));
-                // OR:
-                // query = query.Where(d => d.DepartmentName.ToUpper().Contains(keyword.ToUpper()));
             }
 
             int totalRecords = await query.CountAsync(cancellationToken);

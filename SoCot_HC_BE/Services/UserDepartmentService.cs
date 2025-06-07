@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using SCHC_API.Handler;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.DTO;
@@ -16,12 +17,36 @@ namespace SoCot_HC_BE.Services
         {
         }
 
+        public async Task DeactivateUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken = default)
+        {
+            Guid personId = userDeptModelDto.personId;
+            List<Guid> departmentIds = userDeptModelDto.departmentIds;
+
+            foreach (var departmentId in departmentIds)
+            {
+                var data = await _dbSet.FirstOrDefaultAsync(
+                    i => (i.PersonId == personId && i.DepartmentId == departmentId), cancellationToken);
+
+                if (data == null)
+                {
+                    throw new Exception("User department not found.");
+                }
+                else
+                {
+                    data.IsActive = false;
+                    await UpdateAsync(data, cancellationToken);
+                }
+            }
+
+        }
+
         public async Task<PaginationHandler<UserDepartmentDto>> GetAllWithPagingAsync(
             Guid personId, int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
         {
             var query = _dbSet
                            .Include(ud => ud.Person)
                            .Include(ud => ud.Department)
+                           .Where(ud => ud.IsActive)
                            .AsNoTracking() 
                            .AsQueryable();
 
@@ -66,6 +91,32 @@ namespace SoCot_HC_BE.Services
 
             var paginatedResult = new PaginationHandler<UserDepartmentDto>(userDepartmentDtos, totalRecords, pageNo, limit);
             return paginatedResult!;
+        }
+
+        public async Task SaveUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken = default)
+        {
+
+            Guid personId = userDeptModelDto.personId;
+            List<Guid> departmentIds = userDeptModelDto.departmentIds;
+
+            foreach (var departmentId in departmentIds) {
+                var data = await _dbSet.FirstOrDefaultAsync(
+                    i => (i.PersonId == personId && i.DepartmentId == departmentId), cancellationToken);
+
+                if (data == null)
+                {
+                    UserDepartment userDepartment = new UserDepartment();
+                    userDepartment.PersonId = personId;
+                    userDepartment.DepartmentId = departmentId;
+                    userDepartment.IsActive = true;
+                    _dbSet.Add(userDepartment);
+                    await AddAsync(userDepartment, cancellationToken);
+                }
+                else {
+                    data.IsActive = true;
+                    await UpdateAsync(data, cancellationToken);
+                }
+            }
         }
 
 

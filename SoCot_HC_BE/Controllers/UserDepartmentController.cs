@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SCHC_API.Handler;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Persons.Interfaces;
 using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace SoCot_HC_BE.Controllers
@@ -61,16 +63,51 @@ namespace SoCot_HC_BE.Controllers
         }
 
         [HttpGet("GetDepartmentsExcludedAsync")]
-        public async Task<IActionResult> GetDepartmentsExcludedAsync([FromQuery] List<Guid>? excludedDepartmentIds, int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetDepartmentsExcludedAsync(Guid personId, int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
         {
             if (pageNo <= 0 || limit <= 0)
             {
                 return BadRequest(new { message = "Page number and limit must be greater than zero." });
             }
 
-            var paginatedResult = await _departmentService.GetDepartmentsExcludedAsync(excludedDepartmentIds, pageNo, limit, keyword, cancellationToken);
+            var paginatedResult = await _departmentService.GetDepartmentsExcludedAsync(personId, pageNo, limit, keyword, cancellationToken);
             return Ok(paginatedResult);
         }
+
+        [HttpPost("SaveUserDepartmentAsync")]
+        public async Task<IActionResult> SaveUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _userDepartmentService.SaveUserDepartmentAsync(userDeptModelDto, cancellationToken);
+                return Ok(new
+                {
+                    success = true,
+                    message =  "User Department added successfully."
+                });
+            }
+            catch (Exception ex) {
+                return BadRequest(new { success = false, errors = ex.Message });
+            }
+        }
+        [HttpPost("DeactivateUserDepartmentAsync")]
+        public async Task<IActionResult> DeactivateUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _userDepartmentService.DeactivateUserDepartmentAsync(userDeptModelDto, cancellationToken);
+                return Ok(new
+                {
+                    success = true,
+                    message = "User Department deactivated successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, errors = ex.Message });
+            }
+        }
+
 
     }
 }
