@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
+using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
@@ -48,7 +49,7 @@ namespace SoCot_HC_BE.Controllers
 
         // Save or update a Service
         [HttpPost("SaveService")]
-        public async Task<IActionResult> SaveService(Service service, CancellationToken cancellationToken)
+        public async Task<IActionResult> SaveService(ServiceDto service, CancellationToken cancellationToken)
         {
             try
             {
@@ -97,8 +98,19 @@ namespace SoCot_HC_BE.Controllers
         {
             var services = await _serviceService.GetServicesByDepartment(departmentId, cancellationToken);
 
-            if(services == null)
+            if (services == null)
                 return NotFound(new { success = false, message = "Department not found." });
+
+            return Ok(services);
+        }
+
+        [HttpGet("GetServicesByFacility/{facilityId}")]
+        public async Task<IActionResult> GetServicesByFacility(int facilityId, CancellationToken cancellationToken)
+        {
+            var services = await _serviceService.GetServicesByFacility(facilityId, cancellationToken);
+
+            if (services == null)
+                return NotFound(new { success = false, message = "Services not found." });
 
             return Ok(services);
         }

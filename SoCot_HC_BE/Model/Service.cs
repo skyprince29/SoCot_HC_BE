@@ -34,5 +34,7 @@ namespace SoCot_HC_BE.Model
         [ForeignKey("ServiceCategoryId")]
         public virtual ServiceCategory? ServiceCategory { get; set; }
         public bool IsActive { get; set; }
+
+        public virtual ICollection<ServiceDepartment> ServiceDepartments { get; set; }
     }
 }

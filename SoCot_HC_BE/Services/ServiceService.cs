@@ -1,5 +1,7 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
+using SoCot_HC_BE.DTO;
+using SoCot_HC_BE.Dtos;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
@@ -13,11 +15,25 @@ namespace SoCot_HC_BE.Services
         {
         }
 
+        public override async Task<Service?> GetAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+
+            // You can include related data here if needed, like navigation properties
+            var department = await _dbSet
+                .Include(f => f.ServiceDepartments)
+                    .ThenInclude(dt => dt.Department) // ✅ include the inner object
+                .FirstOrDefaultAsync(f => f.ServiceId == id, cancellationToken);
+
+            return department;
+        }
+
         public async Task<List<Service>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
         {
             var query = _dbSet
                 .Include(s => s.Facility)
                 .Include(s => s.ServiceClassification)
+                .Include(f => f.ServiceDepartments)
+                                .ThenInclude(dt => dt.Department)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(keyword))
@@ -43,11 +59,37 @@ namespace SoCot_HC_BE.Services
             return await query.CountAsync(cancellationToken);
         }
 
-        public async Task SaveServiceAsync(Service service, CancellationToken cancellationToken = default)
+        private Service DTOToModel(ServiceDto dto)
+        {
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto));
+            var service = new Service
+            {
+                ServiceId = dto.ServiceId == Guid.Empty ? Guid.Empty : dto.ServiceId,
+                ServiceName = dto.ServiceName ?? string.Empty,
+                Description = dto.Description,
+                FacilityId = dto.FacilityId,
+                DepartmentId = dto.DepartmentId,
+                ServiceClassificationId = dto.ServiceClassificationId,
+                ServiceCategoryId = dto.ServiceCategoryId,
+                IsActive = dto.IsActive,
+                ServiceDepartments = dto.DepartmentIds?
+                    .Select(deptId => new ServiceDepartment
+                    {
+                        ServiceDepartmentId = Guid.NewGuid(),
+                        DepartmentId = deptId,
+                        IsActive = true // assuming newly added departments are active
+                    }).ToList() ?? new List<ServiceDepartment>(),
+            };
+            return service;
+        }
+
+        public async Task SaveServiceAsync(ServiceDto serviceDto, CancellationToken cancellationToken = default)
         {
             // Determine if new or existing
-            bool isNew = service.ServiceId == Guid.Empty;
-            ValidateFields(service);
+            bool isNew = serviceDto.ServiceId == Guid.Empty;
+            ValidateFields(serviceDto);
+            Service service =  DTOToModel(serviceDto);
 
             if (isNew)
             {
@@ -63,12 +105,70 @@ namespace SoCot_HC_BE.Services
 
                 // Replace all fields
                 _context.Entry(existing).CurrentValues.SetValues(service);
+                SaveOrUpdateServiceDepartments(existing, serviceDto.DepartmentIds);
 
                 await UpdateAsync(existing, cancellationToken);
             }
         }
 
-        private void ValidateFields(Service service)
+        private void SaveOrUpdateServiceDepartments(Service existingService, List<Guid> newDepartmentIds)
+        {
+            var serviceDepartmentSet = _context.Set<ServiceDepartment>();
+
+            foreach (var departmentId in newDepartmentIds)
+            {
+                if (existingService.ServiceDepartments != null)
+                {
+                    var existingRelation = existingService.ServiceDepartments
+                    .FirstOrDefault(sd => sd.DepartmentId == departmentId);
+
+                    if (existingRelation != null)
+                    {
+                        // Reactivate if currently inactive
+                        if (!existingRelation.IsActive)
+                        {
+                            existingRelation.IsActive = true;
+                        }
+                    }
+                    else
+                    {
+                        // Add new relationship
+                        serviceDepartmentSet.Add(new ServiceDepartment
+                        {
+                            ServiceDepartmentId = Guid.NewGuid(),
+                            ServiceId = existingService.ServiceId,
+                            DepartmentId = departmentId,
+                            IsActive = true
+                        });
+                    }
+                } else
+                {
+                    // Add new relationship
+                    serviceDepartmentSet.Add(new ServiceDepartment
+                    {
+                        ServiceDepartmentId = Guid.NewGuid(),
+                        ServiceId = existingService.ServiceId,
+                        DepartmentId = departmentId,
+                        IsActive = true
+                    });
+                }
+            }
+
+            if(existingService.ServiceDepartments != null)
+            {
+                // Deactivate those that are not in the new list
+                foreach (var existing in existingService.ServiceDepartments)
+                {
+                    if (!newDepartmentIds.Contains(existing.DepartmentId))
+                    {
+                        existing.IsActive = false;
+                    }
+                }
+            }
+
+        }
+
+        private void ValidateFields(ServiceDto service)
         {
             var errors = new Dictionary<string, List<string>>();
 
@@ -121,6 +221,16 @@ namespace SoCot_HC_BE.Services
                         .AsNoTracking()
                         .ToListAsync(cancellationToken);
 
+            return services;
+        }
+
+        public async Task<List<Service>> GetServicesByFacility(int facilityId, CancellationToken cancellationToken = default)
+        {
+            var services = await _dbSet
+                       .Where(s => s.FacilityId == facilityId
+                       && s.IsActive)
+                       .AsNoTracking()
+                       .ToListAsync(cancellationToken);
             return services;
         }
     }

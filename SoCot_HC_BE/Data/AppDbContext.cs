@@ -78,6 +78,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<ModuleStatusFlow> ModuleStatusFlow { get; set; }
         public DbSet<NonCommunicableDisease> NonCommunicableDisease { get; set; }
         public DbSet<UserDepartment> UserDepartment { get; set; }
+        public DbSet<ServiceDepartment> ServiceDepartment { get; set; }
 
         // Add more DbSets here...
 
