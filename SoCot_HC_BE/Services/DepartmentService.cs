@@ -282,7 +282,7 @@ namespace SoCot_HC_BE.Services
                 IQueryable<Department> query = _dbSet.AsNoTracking();
 
                 List<Guid> departmentIds = await _context.UserDepartment
-                .Where(ud => (ud.PersonId.HasValue && ud.PersonId == personId) && ud.IsActive) 
+                .Where(ud => (ud.PersonId.HasValue && ud.PersonId == personId)) 
                 .Select(ud => ud.DepartmentId.Value) 
                 .ToListAsync(cancellationToken);
 

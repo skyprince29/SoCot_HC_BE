@@ -7,6 +7,7 @@ using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
+using System.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SoCot_HC_BE.Services
@@ -17,7 +18,7 @@ namespace SoCot_HC_BE.Services
         {
         }
 
-        public async Task DeactivateUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken = default)
+        public async Task DeactivateOrActivateUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken = default)
         {
             Guid personId = userDeptModelDto.personId;
             List<Guid> departmentIds = userDeptModelDto.departmentIds;
@@ -33,7 +34,7 @@ namespace SoCot_HC_BE.Services
                 }
                 else
                 {
-                    data.IsActive = false;
+                    data.IsActive = !data.IsActive;
                     await UpdateAsync(data, cancellationToken);
                 }
             }
@@ -41,14 +42,22 @@ namespace SoCot_HC_BE.Services
         }
 
         public async Task<PaginationHandler<UserDepartmentDto>> GetAllWithPagingAsync(
-            Guid personId, int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
+            Guid personId, int pageNo, int limit, string? keyword = null, bool? isActive = true, CancellationToken cancellationToken = default)
         {
             var query = _dbSet
                            .Include(ud => ud.Person)
                            .Include(ud => ud.Department)
-                           .Where(ud => ud.IsActive)
                            .AsNoTracking() 
                            .AsQueryable();
+
+            if (isActive.HasValue)
+            {
+                query = query.Where(ud => ud.IsActive == isActive);
+            }
+            else
+            {
+                query = query.Where(ud => ud.IsActive);
+            }
 
             if (personId != Guid.Empty)
             {
@@ -57,21 +66,14 @@ namespace SoCot_HC_BE.Services
 
             if (!string.IsNullOrWhiteSpace(keyword))
             {
-                string lowerKeyword = keyword.ToLower().Trim(); // Convert keyword to lowercase and trim once
-
-                query = query.Where(ud =>
-                    // Check Person's name fields (null-safe and case-insensitive)
-                    (ud.Person != null && ud.Person.Firstname != null && ud.Person.Firstname.ToLower().Contains(lowerKeyword)) ||
-                    (ud.Person != null && ud.Person.Middlename != null && ud.Person.Middlename.ToLower().Contains(lowerKeyword)) ||
-                    (ud.Person != null && ud.Person.Lastname != null && ud.Person.Lastname.ToLower().Contains(lowerKeyword)) 
-                );
+                string lowerKeyword = keyword.ToLower().Trim(); 
+                query = query.Where(ud => (ud.Department != null && ud.Department.DepartmentName.ToLower().Contains(lowerKeyword)));
             }
 
-            // Get total records *before* applying Skip/Take
             int totalRecords = await query.CountAsync(cancellationToken);
 
             var userDepartmentDtos = await query
-               .OrderBy(ud => ud.Person.Lastname) // Example ordering for consistent pagination
+               .OrderBy(ud => ud.Person.Lastname) 
                .Skip((pageNo - 1) * limit)
                .Take(limit)
                .Select(ud => new UserDepartmentDto
@@ -119,125 +121,80 @@ namespace SoCot_HC_BE.Services
             }
         }
 
+        public async Task<List<Department>> GetDepartmentsByUser(
+            Guid personId, CancellationToken cancellationToken = default)
+        {
+            var query = _dbSet
+                           .Include(ud => ud.Person)
+                           .Include(ud => ud.Department)
+                           .Where(ud => ud.IsActive)
+                           .AsNoTracking()
+                           .AsQueryable();
+
+            if (personId != Guid.Empty)
+            {
+                query = query.Where(ud => ud.PersonId == personId);
+            }
+
+            var userDepartmentDtos = await query
+               .OrderBy(ud => ud.Department.DepartmentName) 
+               .Select(ud => new Department
+               {
+                   DepartmentId = (Guid)(ud.DepartmentId != null ? ud.DepartmentId : Guid.Empty),
+                   DepartmentCode = ud.Department != null ? ud.Department.DepartmentCode : string.Empty,
+                   DepartmentName = ud.Department != null ? ud.Department.DepartmentName : string.Empty,
+                   IsActive = ud.IsActive,
+               })
+               .ToListAsync(cancellationToken);
+
+          return userDepartmentDtos!;
+        }
 
 
-        // Get a list of VitalSigns with paging and cancellation support.
-        //public async Task<List<VitalSign>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
-        //{
-        //    var query = _dbSet.AsQueryable();
+        public async Task<PaginationHandler<UserDepartmentAssignedDto>> GetAllWithPagingUserOnUserDepartmentAsync(
+         int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
+        {
+          
+            var baseQuery = _context.UserDepartment
+             .AsNoTracking()
+             .Include(ud => ud.Person)
+             .Include(ud => ud.Department) 
+             .Where(ud => ud.Person != null);
 
-        //    return await query
-        //        .Skip((pageNo - 1) * limit)
-        //        .Take(limit)
-        //        .ToListAsync(cancellationToken); // Pass the CancellationToken here
-        //}
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                string lowerKeyword = keyword.ToLower().Trim();
 
-        //// Count the number of VitalSigns, supporting cancellation.
-        //public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
-        //{
-        //    var query = _dbSet.AsQueryable();
-        //    return await query.CountAsync(cancellationToken); // Pass the CancellationToken here
-        //}
+                baseQuery = baseQuery.Where(ud =>
+                    (ud.Department != null && ud.Department.DepartmentName.ToLower().Contains(lowerKeyword)) ||
+                    (ud.Person.Firstname != null && ud.Person.Firstname.ToLower().Contains(lowerKeyword)) ||
+                    (ud.Person.Middlename != null && ud.Person.Middlename.ToLower().Contains(lowerKeyword)) ||
+                    (ud.Person.Lastname != null && ud.Person.Lastname.ToLower().Contains(lowerKeyword))
+                );
+            }
 
-        //// Optional: Get all VitalSigns without cancellation support (not recommended for production)
-        //public async Task<List<VitalSign>> GetAllWithoutTokenAsync()
-        //{
-        //    return await _dbSet.ToListAsync();
-        //}
+            var groupedQuery = baseQuery.GroupBy(ud => ud.PersonId);
+            int totalRecords = await groupedQuery.CountAsync(cancellationToken); 
 
-        //private VitalSign DTOToModel(VitalSignDto dto)
-        //{
-        //    if (dto == null)
-        //        throw new ArgumentNullException(nameof(dto));
+            var userDepartmentAssignedDtos = groupedQuery
+                .Select(group => new UserDepartmentAssignedDto 
+                {
+                    UserDepartmentId = group.FirstOrDefault().UserDepartmentId,
+                    PersonId = group.Key,
+                    Firstname = group.FirstOrDefault().Person.Firstname ?? string.Empty,
+                    Middlename = group.FirstOrDefault().Person.Middlename ?? string.Empty,
+                    Lastname = group.FirstOrDefault().Person.Lastname ?? string.Empty,
+                    TotalAssignedDepartments = group.Count(ud => ud.IsActive)
+                })
+                .AsEnumerable() 
+                .OrderBy(dto => dto.Lastname) 
+                .ThenBy(dto => dto.Firstname)
+                .Skip((pageNo - 1) * limit)
+                .Take(limit)
+                .ToList(); 
 
-        //    return new VitalSign
-        //    {
-        //        VitalSignId = dto.VitalSignId == Guid.Empty ? Guid.Empty : dto.VitalSignId,
-        //        PatientRegistryId = (dto.PatientRegistryId.HasValue ?
-        //            (dto.PatientRegistryId == Guid.Empty ? dto.PatientRegistryId : null) : null),
-        //        Temperature = dto.Temperature,
-        //        Height = dto.Height,
-        //        Weight = dto.Weight,
-        //        RespiratoryRate = dto.RespiratoryRate,
-        //        CardiacRate = dto.CardiacRate,
-        //        Systolic = dto.Systolic,
-        //        Diastolic = dto.Diastolic,
-        //        BloodPressure = dto.Systolic + "/" + dto.Diastolic,
-
-        //        // Copying base audit properties
-        //        CreatedBy = dto.CreatedBy,
-        //        CreatedDate = dto.CreatedDate,
-        //        UpdatedBy = dto.UpdatedBy,
-        //        UpdatedDate = dto.UpdatedDate
-        //    };
-        //}
-
-        //public async Task SaveVitalSignAsync(VitalSignDto vitalSignDto, CancellationToken cancellationToken = default)
-        //{
-        //    ValidateFields(vitalSignDto);
-        //    VitalSign vitalSign = DTOToModel(vitalSignDto);
-        //    // Determine if new or existing
-        //    bool isNew = vitalSign.VitalSignId == Guid.Empty;
-        //    if (isNew)
-        //    {
-        //        vitalSign.VitalSignId = Guid.NewGuid();
-        //        await AddAsync(vitalSign, cancellationToken);
-        //    }
-        //    else
-        //    {
-        //        var existing = await _dbSet.FindAsync(new object[] { vitalSign.VitalSignId }, cancellationToken);
-        //        if (existing == null)
-        //            throw new Exception("Vital Sign not found.");
-
-        //        // Replace all fields
-        //        _context.Entry(existing).CurrentValues.SetValues(vitalSign);
-
-        //        await UpdateAsync(existing, cancellationToken);
-        //    }
-        //}
-
-        //private void ValidateFields(VitalSignDto vitalSignDto)
-        //{
-        //    var errors = new Dictionary<string, List<string>>();
-        //    Guid? patientRegistryId = vitalSignDto.PatientRegistryId;
-        //    if (patientRegistryId.HasValue && patientRegistryId.Value != Guid.Empty)
-        //    {
-        //        var ptExists = _context.PatientRegistry.Any(f => f.PatientRegistryId == patientRegistryId);
-        //        if (ptExists)
-        //        {
-        //            ValidationHelper.AddError(errors, nameof(vitalSignDto.PatientRegistryId), "Patient registry is invalid.");
-        //        }
-        //    }
-
-        //    ValidationHelper.IsRequired(errors, nameof(vitalSignDto.Systolic), vitalSignDto.Systolic, "Systolic");
-        //    ValidationHelper.IsRequired(errors, nameof(vitalSignDto.Diastolic), vitalSignDto.Diastolic, "Diastolic");
-        //    Decimal? temperature = vitalSignDto.Temperature;
-        //    if (temperature!= null && temperature.Value <= 0)
-        //    {
-        //        ValidationHelper.AddError(errors, nameof(vitalSignDto.Temperature), "Temperature is invalid value.");
-        //    }
-        //    Decimal? height = vitalSignDto.Height;
-        //    if (height != null && height.Value <= 0)
-        //    {
-        //        ValidationHelper.AddError(errors, nameof(vitalSignDto.Height), "Height is required.");
-        //    }
-        //    Decimal? weight = vitalSignDto.Weight;
-        //    if (height != null && height <= 0)
-        //    {
-        //        ValidationHelper.AddError(errors, nameof(vitalSignDto.Weight), "Weight is required.");
-        //    }
-        //    int? cardiacRate = vitalSignDto.CardiacRate;
-        //    if (cardiacRate != null && cardiacRate.Value <= 0)
-        //    {
-        //        ValidationHelper.AddError(errors, nameof(vitalSignDto.CardiacRate), "Cardiac Rate is invalid value.");
-        //    }
-        //    int? respiratoryRate = vitalSignDto.RespiratoryRate;
-        //    if (respiratoryRate != null && respiratoryRate.Value <= 0)
-        //    {
-        //        ValidationHelper.AddError(errors, nameof(vitalSignDto.RespiratoryRate), "Respiratory Rate is invalid value.");
-        //    }
-        //    if (errors.Any())
-        //        throw new ModelValidationException("Validation failed", errors);
-        //}
+            var paginatedResult = new PaginationHandler<UserDepartmentAssignedDto>(userDepartmentAssignedDtos, totalRecords, pageNo, limit);
+            return paginatedResult;
+        }
     }
 }

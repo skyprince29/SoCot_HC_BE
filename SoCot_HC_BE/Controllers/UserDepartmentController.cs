@@ -44,7 +44,7 @@ namespace SoCot_HC_BE.Controllers
         }
 
         [HttpGet("GetAllWithPagingAsync")]
-        public async Task<IActionResult> GetAllWithPagingAsync(Guid personId, int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllWithPagingAsync(Guid personId, int pageNo, int limit, string? keyword, Boolean? isActive = true, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace SoCot_HC_BE.Controllers
                     return BadRequest(new { message = "Page number and limit must be greater than zero." });
                 }
 
-                var paginatedResult = await _userDepartmentService.GetAllWithPagingAsync(personId, pageNo, limit, keyword, cancellationToken);
+                var paginatedResult = await _userDepartmentService.GetAllWithPagingAsync(personId, pageNo, limit, keyword, isActive, cancellationToken);
                 return Ok(paginatedResult);
             }
             catch (Exception ex)
@@ -90,16 +90,16 @@ namespace SoCot_HC_BE.Controllers
                 return BadRequest(new { success = false, errors = ex.Message });
             }
         }
-        [HttpPost("DeactivateUserDepartmentAsync")]
-        public async Task<IActionResult> DeactivateUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken)
+        [HttpPost("DeactivateOrActivateUserDepartmentAsync")]
+        public async Task<IActionResult> DeactivateOrActivateUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken)
         {
             try
             {
-                await _userDepartmentService.DeactivateUserDepartmentAsync(userDeptModelDto, cancellationToken);
+                await _userDepartmentService.DeactivateOrActivateUserDepartmentAsync(userDeptModelDto, cancellationToken);
                 return Ok(new
                 {
                     success = true,
-                    message = "User Department deactivated successfully."
+                    message = "User Department activated/deactivated successfully."
                 });
             }
             catch (Exception ex)
@@ -108,6 +108,30 @@ namespace SoCot_HC_BE.Controllers
             }
         }
 
+        [HttpGet("GetDepartmentsByUser")]
+        public async Task<IActionResult> GetDepartmentsByUser(Guid personId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var departmentList = await _userDepartmentService.GetDepartmentsByUser(personId, cancellationToken);
+                return Ok(departmentList);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal error", error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
 
+        [HttpGet("GetAllWithPagingUserOnUserDepartmentAsync")]
+        public async Task<IActionResult> GetAllWithPagingUserOnUserDepartmentAsync(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
+        {
+            if (pageNo <= 0 || limit <= 0)
+            {
+                return BadRequest(new { message = "Page number and limit must be greater than zero." });
+            }
+
+            var paginatedResult = await _userDepartmentService.GetAllWithPagingUserOnUserDepartmentAsync(pageNo, limit, keyword, cancellationToken);
+            return Ok(paginatedResult);
+        }
     }
 }
