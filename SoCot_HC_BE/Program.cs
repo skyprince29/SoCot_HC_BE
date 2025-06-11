@@ -41,7 +41,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins",
         policy =>
         {
-         policy.WithOrigins()
+         policy.WithOrigins("https://localhost:44319")
             .AllowAnyMethod()    // Crucial for OPTIONS preflight, POST, GET, etc.
             .AllowAnyHeader()    // Allows any headers (e.g., Content-Type, Authorization)
             .AllowCredentials(); // REQUIRED for SignalR (and if you send cookies/auth tokens)
