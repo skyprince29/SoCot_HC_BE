@@ -2,9 +2,9 @@
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Utils;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SoCot_HC_BE.Services
 {
@@ -14,29 +14,124 @@ namespace SoCot_HC_BE.Services
         {
         }
 
-        // Get a list of VitalSigns with paging and cancellation support.
-        public async Task<List<VitalSign>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
+        private VitalSignDto MapToDto(VitalSign vitalSign, VitalSignReference? reference = null)
+        {
+            return new VitalSignDto
+            {
+                VitalSignId = vitalSign.VitalSignId,
+                ReferenceId = reference?.ReferenceId,
+                VitalSignReferenceType = reference?.VitalSignReferenceType,
+
+                Temperature = vitalSign.Temperature,
+                Height = vitalSign.Height,
+                Weight = vitalSign.Weight,
+                RespiratoryRate = vitalSign.RespiratoryRate,
+                CardiacRate = vitalSign.CardiacRate,
+                Systolic = vitalSign.Systolic,
+                Diastolic = vitalSign.Diastolic,
+                BloodPressure = vitalSign.BloodPressure,
+
+                CreatedBy = vitalSign.CreatedBy,
+                CreatedDate = vitalSign.CreatedDate
+            };
+        }
+
+        public async Task<VitalSignDto?> GetVitalSignDtoAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            var vitalSign = await _dbSet
+                .FirstOrDefaultAsync(f => f.VitalSignId == id, cancellationToken);
+
+            if (vitalSign == null)
+                return null;
+
+            var reference = await _context.Set<VitalSignReference>()
+                .FirstOrDefaultAsync(r => r.VitalSignId == id, cancellationToken);
+
+            return MapToDto(vitalSign, reference);
+        }
+
+        public async Task<List<VitalSignDto>> GetAllWithPagingAsync(
+            int pageNo,
+            int limit,
+            VitalSignReferenceType? referenceType = null,
+            Guid? referenceId = null,
+            CancellationToken cancellationToken = default)
         {
             var query = _dbSet.AsQueryable();
 
-            return await query
+            // Preload paged vital signs
+            var pagedVitalSigns = await query
+                .OrderByDescending(v => v.CreatedDate)
                 .Skip((pageNo - 1) * limit)
                 .Take(limit)
-                .ToListAsync(cancellationToken); // Pass the CancellationToken here
+                .ToListAsync(cancellationToken);
+
+            var vitalSignIds = pagedVitalSigns.Select(v => v.VitalSignId).ToList();
+
+            // Build the reference query
+            var referenceQuery = _context.Set<VitalSignReference>()
+                .Where(r => vitalSignIds.Contains(r.VitalSignId));
+
+            if (referenceType.HasValue)
+            {
+                referenceQuery = referenceQuery.Where(r => r.VitalSignReferenceType == referenceType.Value);
+            }
+
+            if (referenceId.HasValue && referenceId.Value != Guid.Empty)
+            {
+                referenceQuery = referenceQuery.Where(r => r.ReferenceId == referenceId.Value);
+            }
+
+            var references = await referenceQuery.ToListAsync(cancellationToken);
+            var referenceDict = references.ToDictionary(r => r.VitalSignId, r => r);
+
+            // Filter based on reference presence if filters were applied
+            var result = pagedVitalSigns
+                .Where(v => !referenceType.HasValue && !referenceId.HasValue || referenceDict.ContainsKey(v.VitalSignId))
+                .Select(v => {
+                    referenceDict.TryGetValue(v.VitalSignId, out var refItem);
+                    return MapToDto(v, refItem);
+                })
+                .ToList();
+
+            return result;
         }
 
-        // Count the number of VitalSigns, supporting cancellation.
-        public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
+        public async Task<int> CountAsync(
+            VitalSignReferenceType? referenceType = null,
+            Guid? referenceId = null,
+            CancellationToken cancellationToken = default)
         {
             var query = _dbSet.AsQueryable();
-            return await query.CountAsync(cancellationToken); // Pass the CancellationToken here
+
+            var allVitalSigns = await query.ToListAsync(cancellationToken);
+
+            if (!referenceType.HasValue && !referenceId.HasValue)
+                return allVitalSigns.Count;
+
+            var vitalSignIds = allVitalSigns.Select(v => v.VitalSignId).ToList();
+
+            var referenceQuery = _context.Set<VitalSignReference>()
+                .Where(r => vitalSignIds.Contains(r.VitalSignId));
+
+            if (referenceType.HasValue)
+            {
+                referenceQuery = referenceQuery.Where(r => r.VitalSignReferenceType == referenceType.Value);
+            }
+
+            if (referenceId.HasValue && referenceId.Value != Guid.Empty)
+            {
+                referenceQuery = referenceQuery.Where(r => r.ReferenceId == referenceId.Value);
+            }
+
+            var matchedIds = await referenceQuery
+                .Select(r => r.VitalSignId)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            return matchedIds.Count;
         }
 
-        // Optional: Get all VitalSigns without cancellation support (not recommended for production)
-        public async Task<List<VitalSign>> GetAllWithoutTokenAsync()
-        {
-            return await _dbSet.ToListAsync();
-        }
 
         private VitalSign DTOToModel(VitalSignDto dto)
         {
@@ -65,8 +160,8 @@ namespace SoCot_HC_BE.Services
 
         private VitalSignReference CreateVitalSignReferenceFromDto(VitalSignDto dto, Guid vitalSignId)
         {
-            if (dto.ReferenceId == null || dto.VitalSignReferenceType == null)
-                return new VitalSignReference();
+            if (dto.ReferenceId == null || dto.ReferenceId == Guid.Empty || dto.VitalSignReferenceType == null)
+                return null;
 
             return new VitalSignReference
             {
