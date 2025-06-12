@@ -8,9 +8,8 @@ namespace SoCot_HC_BE.Model
     {
         [Key]
         public Guid UserDepartmentId { get; set; }
-        public Guid? PersonId { get; set; }
-        public virtual Person? Person { get; set; }
-
+        public Guid? UserAccountId { get; set; }
+        public virtual UserAccount? UserAccount { get; set; }
         public Guid? DepartmentId { get; set; }
         public virtual Department? Department { get; set; }
 

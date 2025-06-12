@@ -20,11 +20,5 @@ namespace SoCot_HC_BE.Services.Interfaces
             bool isActiveOnly = true,
             CancellationToken cancellationToken = default);
 
-        Task<PaginationHandler<Department>>  GetDepartmentsExcludedAsync(
-          Guid personId, 
-          int pageNo, 
-          int limit,
-          string? keyword,
-          CancellationToken cancellationToken = default);
-    }
+}
 }

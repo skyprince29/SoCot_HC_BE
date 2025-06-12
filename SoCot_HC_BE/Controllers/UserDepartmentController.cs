@@ -20,28 +20,26 @@ namespace SoCot_HC_BE.Controllers
 
         private readonly IUserDepartmentService _userDepartmentService;
         private readonly IPersonService _personService;
-        private readonly IDepartmentService _departmentService;
 
-        public UserDepartmentController(IUserDepartmentService userDepartmentService, IPersonService personService, IDepartmentService departmentService)
+        public UserDepartmentController(IUserDepartmentService userDepartmentService, IPersonService personService)
         {
             _userDepartmentService = userDepartmentService;
             _personService = personService;
-            _departmentService = departmentService;
         }
 
 
-        [HttpGet("GetAllPersonWithUserAccount")]
-        public async Task<IActionResult> GetAllPersonWithUserAccount(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
-        {
-            if (pageNo <= 0 || limit <= 0)
-            {
-                return BadRequest(new { message = "Page number and limit must be greater than zero." });
-            }
+        //[HttpGet("GetAllPersonWithUserAccount")]
+        //public async Task<IActionResult> GetAllPersonWithUserAccount(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
+        //{
+        //    if (pageNo <= 0 || limit <= 0)
+        //    {
+        //        return BadRequest(new { message = "Page number and limit must be greater than zero." });
+        //    }
 
-            var paginatedResult = await _personService.GetAllPersonWithUserAccount(pageNo, limit, keyword, cancellationToken);
+        //    var paginatedResult = await _personService.GetAllPersonWithUserAccount(pageNo, limit, keyword, cancellationToken);
 
-            return Ok(paginatedResult);
-        }
+        //    return Ok(paginatedResult);
+        //}
 
         [HttpGet("GetAllWithPagingAsync")]
         public async Task<IActionResult> GetAllWithPagingAsync(Guid personId, int pageNo, int limit, string? keyword, Boolean? isActive = true, CancellationToken cancellationToken = default)
@@ -70,7 +68,7 @@ namespace SoCot_HC_BE.Controllers
                 return BadRequest(new { message = "Page number and limit must be greater than zero." });
             }
 
-            var paginatedResult = await _departmentService.GetDepartmentsExcludedAsync(personId, pageNo, limit, keyword, cancellationToken);
+            var paginatedResult = await _userDepartmentService.GetDepartmentsExcludedAsync(personId, pageNo, limit, keyword, cancellationToken);
             return Ok(paginatedResult);
         }
 
@@ -83,13 +81,16 @@ namespace SoCot_HC_BE.Controllers
                 return Ok(new
                 {
                     success = true,
-                    message =  "User Department added successfully."
+                    message = "User Department added successfully."
                 });
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return BadRequest(new { success = false, errors = ex.Message });
             }
         }
+
+
         [HttpPost("DeactivateOrActivateUserDepartmentAsync")]
         public async Task<IActionResult> DeactivateOrActivateUserDepartmentAsync(UserDeptModelDto userDeptModelDto, CancellationToken cancellationToken)
         {
@@ -108,19 +109,19 @@ namespace SoCot_HC_BE.Controllers
             }
         }
 
-        [HttpGet("GetDepartmentsByUser")]
-        public async Task<IActionResult> GetDepartmentsByUser(Guid personId, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var departmentList = await _userDepartmentService.GetDepartmentsByUser(personId, cancellationToken);
-                return Ok(departmentList);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal error", error = ex.Message, stackTrace = ex.StackTrace });
-            }
-        }
+        //[HttpGet("GetDepartmentsByUser")]
+        //public async Task<IActionResult> GetDepartmentsByUser(Guid personId, CancellationToken cancellationToken)
+        //{
+        //    try
+        //    {
+        //        var departmentList = await _userDepartmentService.GetDepartmentsByUser(personId, cancellationToken);
+        //        return Ok(departmentList);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Internal error", error = ex.Message, stackTrace = ex.StackTrace });
+        //    }
+        //}
 
         [HttpGet("GetAllWithPagingUserOnUserDepartmentAsync")]
         public async Task<IActionResult> GetAllWithPagingUserOnUserDepartmentAsync(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
@@ -131,6 +132,18 @@ namespace SoCot_HC_BE.Controllers
             }
 
             var paginatedResult = await _userDepartmentService.GetAllWithPagingUserOnUserDepartmentAsync(pageNo, limit, keyword, cancellationToken);
+            return Ok(paginatedResult);
+        }
+
+        [HttpGet("GetAllPersonUserAccountPagedAsync")]
+        public async Task<IActionResult> GetAllPersonUserAccountPagedAsync(int pageNo,int facilityId, int limit, string? keyword, CancellationToken cancellationToken)
+        {
+            if (pageNo <= 0 || limit <= 0)
+            {
+                return BadRequest(new { message = "Page number and limit must be greater than zero." });
+            }
+
+            var paginatedResult = await _userDepartmentService.GetAllPersonUserAccountPagedAsync(pageNo, facilityId, limit, keyword, cancellationToken);
             return Ok(paginatedResult);
         }
     }

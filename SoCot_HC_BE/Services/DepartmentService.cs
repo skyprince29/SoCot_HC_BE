@@ -271,40 +271,5 @@ namespace SoCot_HC_BE.Services
 
             return await query.AsNoTracking().ToListAsync(cancellationToken);
         }
-
-        public async Task<PaginationHandler<Department>> GetDepartmentsExcludedAsync(
-            Guid personId,
-            int pageNo,
-            int limit,
-            string? keyword,
-            CancellationToken cancellationToken = default)
-        {
-                IQueryable<Department> query = _dbSet.AsNoTracking();
-
-                List<Guid> departmentIds = await _context.UserDepartment
-                .Where(ud => (ud.PersonId.HasValue && ud.PersonId == personId)) 
-                .Select(ud => ud.DepartmentId.Value) 
-                .ToListAsync(cancellationToken);
-
-            if (departmentIds.Count > 0) {
-                query = query.Where(i => (!departmentIds.Contains(i.DepartmentId))); 
-            }
-
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                query = query.Where(d => d.DepartmentName.ToLower().Contains(keyword.ToLower()));
-            }
-
-            int totalRecords = await query.CountAsync(cancellationToken);
-
-            var departments = await query
-                .OrderBy(d => d.DepartmentName)
-                .Skip((pageNo - 1) * limit)
-                .Take(limit)
-                .ToListAsync(cancellationToken);
-
-            var paginatedResult = new PaginationHandler<Department>(departments, totalRecords, pageNo, limit);
-            return paginatedResult;
-        }
     }
 }

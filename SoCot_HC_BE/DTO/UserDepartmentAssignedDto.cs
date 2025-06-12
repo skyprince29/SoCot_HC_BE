@@ -2,11 +2,13 @@
 {
     public class UserDepartmentAssignedDto
     {
-        public Guid UserDepartmentId { get; set; }
+        public Guid? UserDepartmentId { get; set; }
         public Guid? PersonId { get; set; }
+        public Guid? userAccountId { get; set; }
         public string Firstname { get; set; } = string.Empty;
         public string Middlename { get; set; } = string.Empty;
         public string Lastname { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
         public string Fullname
         {
             get

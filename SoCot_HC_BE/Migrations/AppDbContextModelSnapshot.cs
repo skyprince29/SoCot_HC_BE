@@ -2248,20 +2248,20 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("PersonId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("UserAccountId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("UserDepartmentId");
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("PersonId");
+                    b.HasIndex("UserAccountId");
 
                     b.ToTable("UserDepartment");
                 });
@@ -3024,13 +3024,13 @@ namespace SoCot_HC_BE.Migrations
                         .WithMany()
                         .HasForeignKey("DepartmentId");
 
-                    b.HasOne("SoCot_HC_BE.Model.Person", "Person")
+                    b.HasOne("SoCot_HC_BE.Model.UserAccount", "UserAccount")
                         .WithMany()
-                        .HasForeignKey("PersonId");
+                        .HasForeignKey("UserAccountId");
 
                     b.Navigation("Department");
 
-                    b.Navigation("Person");
+                    b.Navigation("UserAccount");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Address", b =>

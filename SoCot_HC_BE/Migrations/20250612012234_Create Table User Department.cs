@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SoCot_HC_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class create_table_user_department : Migration
+    public partial class CreateTableUserDepartment : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,7 +16,7 @@ namespace SoCot_HC_BE.Migrations
                 columns: table => new
                 {
                     UserDepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PersonId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UserAccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -33,10 +33,10 @@ namespace SoCot_HC_BE.Migrations
                         principalTable: "Department",
                         principalColumn: "DepartmentId");
                     table.ForeignKey(
-                        name: "FK_UserDepartment_Person_PersonId",
-                        column: x => x.PersonId,
-                        principalTable: "Person",
-                        principalColumn: "PersonId");
+                        name: "FK_UserDepartment_UserAccount_UserAccountId",
+                        column: x => x.UserAccountId,
+                        principalTable: "UserAccount",
+                        principalColumn: "UserAccountId");
                 });
 
             migrationBuilder.CreateIndex(
@@ -45,9 +45,9 @@ namespace SoCot_HC_BE.Migrations
                 column: "DepartmentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserDepartment_PersonId",
+                name: "IX_UserDepartment_UserAccountId",
                 table: "UserDepartment",
-                column: "PersonId");
+                column: "UserAccountId");
         }
 
         /// <inheritdoc />

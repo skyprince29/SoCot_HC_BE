@@ -12,8 +12,8 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250604052051_create_table_user_department")]
-    partial class create_table_user_department
+    [Migration("20250612012234_Create Table User Department")]
+    partial class CreateTableUserDepartment
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -986,12 +986,10 @@ namespace SoCot_HC_BE.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("BrandName")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Code")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
@@ -1030,9 +1028,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<Guid?>("SubCategoryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("UoMId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -1052,8 +1047,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasIndex("StrengthId");
 
                     b.HasIndex("SubCategoryId");
-
-                    b.HasIndex("UoMId");
 
                     b.ToTable("Item");
                 });
@@ -1945,6 +1938,30 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("ServiceClassification");
                 });
 
+            modelBuilder.Entity("SoCot_HC_BE.Model.ServiceDepartment", b =>
+                {
+                    b.Property<Guid>("ServiceDepartmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ServiceDepartmentId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("ServiceDepartment");
+                });
+
             modelBuilder.Entity("SoCot_HC_BE.Model.Status", b =>
                 {
                     b.Property<byte>("Id")
@@ -2234,20 +2251,20 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("PersonId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("UserAccountId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("UserDepartmentId");
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("PersonId");
+                    b.HasIndex("UserAccountId");
 
                     b.ToTable("UserDepartment");
                 });
@@ -2630,12 +2647,6 @@ namespace SoCot_HC_BE.Migrations
                         .WithMany()
                         .HasForeignKey("SubCategoryId");
 
-                    b.HasOne("SoCot_HC_BE.Model.UoM", "UoM")
-                        .WithMany()
-                        .HasForeignKey("UoMId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Form");
 
                     b.Navigation("ItemCategory");
@@ -2647,8 +2658,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("Strength");
 
                     b.Navigation("SubCategory");
-
-                    b.Navigation("UoM");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.ModuleStatusFlow", b =>
@@ -2905,6 +2914,25 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("Facility");
                 });
 
+            modelBuilder.Entity("SoCot_HC_BE.Model.ServiceDepartment", b =>
+                {
+                    b.HasOne("SoCot_HC_BE.Model.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SoCot_HC_BE.Model.Service", "Service")
+                        .WithMany("ServiceDepartments")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Service");
+                });
+
             modelBuilder.Entity("SoCot_HC_BE.Model.SupplyStorage", b =>
                 {
                     b.HasOne("SoCot_HC_BE.Model.Department", "Department")
@@ -2982,13 +3010,13 @@ namespace SoCot_HC_BE.Migrations
                         .WithMany()
                         .HasForeignKey("DepartmentId");
 
-                    b.HasOne("SoCot_HC_BE.Model.Person", "Person")
+                    b.HasOne("SoCot_HC_BE.Model.UserAccount", "UserAccount")
                         .WithMany()
-                        .HasForeignKey("PersonId");
+                        .HasForeignKey("UserAccountId");
 
                     b.Navigation("Department");
 
-                    b.Navigation("Person");
+                    b.Navigation("UserAccount");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Address", b =>
@@ -3064,6 +3092,11 @@ namespace SoCot_HC_BE.Migrations
             modelBuilder.Entity("SoCot_HC_BE.Model.Referral", b =>
                 {
                     b.Navigation("ReferralServices");
+                });
+
+            modelBuilder.Entity("SoCot_HC_BE.Model.Service", b =>
+                {
+                    b.Navigation("ServiceDepartments");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.UserGroup", b =>
