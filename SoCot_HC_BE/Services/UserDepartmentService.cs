@@ -126,34 +126,34 @@ namespace SoCot_HC_BE.Services
             }
         }
 
-        //public async Task<List<Department>> GetDepartmentsByUser(
-        //    Guid personId, CancellationToken cancellationToken = default)
-        //{
-        //    var query = _dbSet
-        //                   .Include(ud => ud.Person)
-        //                   .Include(ud => ud.Department)
-        //                   .Where(ud => ud.IsActive)
-        //                   .AsNoTracking()
-        //                   .AsQueryable();
+        public async Task<List<Department>> GetDepartmentsByUser(
+            Guid personId, CancellationToken cancellationToken = default)
+        {
+            var query = _dbSet
+                           .Include(ud => ud.UserAccount)
+                           .Include(ud => ud.Department)
+                           .Where(ud => ud.IsActive)
+                           .AsNoTracking()
+                           .AsQueryable();
 
-        //    if (personId != Guid.Empty)
-        //    {
-        //        query = query.Where(ud => ud.PersonId == personId);
-        //    }
+            if (personId != Guid.Empty)
+            {
+                query = query.Where(ud => ud.UserAccount.PersonId == personId);
+            }
 
-        //    var userDepartmentDtos = await query
-        //       .OrderBy(ud => ud.Department.DepartmentName) 
-        //       .Select(ud => new Department
-        //       {
-        //           DepartmentId = (Guid)(ud.DepartmentId != null ? ud.DepartmentId : Guid.Empty),
-        //           DepartmentCode = ud.Department != null ? ud.Department.DepartmentCode : string.Empty,
-        //           DepartmentName = ud.Department != null ? ud.Department.DepartmentName : string.Empty,
-        //           IsActive = ud.IsActive,
-        //       })
-        //       .ToListAsync(cancellationToken);
+            var userDepartmentDtos = await query
+               .OrderBy(ud => ud.Department.DepartmentName)
+               .Select(ud => new Department
+               {
+                   DepartmentId = (Guid)(ud.DepartmentId != null ? ud.DepartmentId : Guid.Empty),
+                   DepartmentCode = ud.Department != null ? ud.Department.DepartmentCode : string.Empty,
+                   DepartmentName = ud.Department != null ? ud.Department.DepartmentName : string.Empty,
+                   IsActive = ud.IsActive,
+               })
+               .ToListAsync(cancellationToken);
 
-        //  return userDepartmentDtos!;
-        //}
+            return userDepartmentDtos!;
+        }
 
 
         public async Task<PaginationHandler<UserDepartmentAssignedDto>> GetAllWithPagingUserOnUserDepartmentAsync(

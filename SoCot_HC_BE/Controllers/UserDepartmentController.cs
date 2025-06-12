@@ -109,19 +109,19 @@ namespace SoCot_HC_BE.Controllers
             }
         }
 
-        //[HttpGet("GetDepartmentsByUser")]
-        //public async Task<IActionResult> GetDepartmentsByUser(Guid personId, CancellationToken cancellationToken)
-        //{
-        //    try
-        //    {
-        //        var departmentList = await _userDepartmentService.GetDepartmentsByUser(personId, cancellationToken);
-        //        return Ok(departmentList);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new { message = "Internal error", error = ex.Message, stackTrace = ex.StackTrace });
-        //    }
-        //}
+        [HttpGet("GetDepartmentsByUser")]
+        public async Task<IActionResult> GetDepartmentsByUser(Guid personId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var departmentList = await _userDepartmentService.GetDepartmentsByUser(personId, cancellationToken);
+                return Ok(departmentList);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal error", error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
 
         [HttpGet("GetAllWithPagingUserOnUserDepartmentAsync")]
         public async Task<IActionResult> GetAllWithPagingUserOnUserDepartmentAsync(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
