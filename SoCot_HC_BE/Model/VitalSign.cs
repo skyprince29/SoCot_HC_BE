@@ -8,7 +8,6 @@ namespace SoCot_HC_BE.Model
     {
         [Key]
         public Guid VitalSignId { get; set; }
-        public Guid? PatientRegistryId { get; set; }
         [Column(TypeName = "decimal(5,2)")]
         public decimal? Temperature { get; set; }
         [Column(TypeName = "decimal(5,2)")]

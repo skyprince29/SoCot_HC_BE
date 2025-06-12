@@ -55,7 +55,7 @@ namespace SoCot_HC_BE.Services
 
         VitalSignDto firstVitalSignDto = new VitalSignDto();
         firstVitalSignDto.VitalSignId = firstVitalSign == null ? Guid.Empty : firstVitalSign.VitalSignId;
-        firstVitalSignDto.PatientRegistryId = firstVitalSign == null ? Guid.Empty : firstVitalSign.PatientRegistryId;
+        //firstVitalSignDto.PatientRegistryId = firstVitalSign == null ? Guid.Empty : firstVitalSign.PatientRegistryId;
         firstVitalSignDto.Temperature = firstVitalSign == null ? null : firstVitalSign.Temperature;
         firstVitalSignDto.Height = firstVitalSign == null ? decimal.Zero : firstVitalSign.Height;
         firstVitalSignDto.Weight = firstVitalSign == null ? decimal.Zero : firstVitalSign.Weight;
@@ -67,7 +67,7 @@ namespace SoCot_HC_BE.Services
 
         VitalSignDto secondVitalSignDto = new VitalSignDto();
         secondVitalSignDto.VitalSignId = secondVitalSign == null ? Guid.Empty : secondVitalSign.VitalSignId;
-        secondVitalSignDto.PatientRegistryId = secondVitalSign == null ? Guid.Empty : secondVitalSign.PatientRegistryId;
+        //secondVitalSignDto.PatientRegistryId = secondVitalSign == null ? Guid.Empty : secondVitalSign.PatientRegistryId;
         secondVitalSignDto.Temperature = secondVitalSign == null ? null : secondVitalSign.Temperature;
         secondVitalSignDto.Height = secondVitalSign == null ? decimal.Zero : secondVitalSign.Height;
         secondVitalSignDto.Weight = secondVitalSign == null ? decimal.Zero : secondVitalSign.Weight;
@@ -298,7 +298,7 @@ namespace SoCot_HC_BE.Services
             VitalSign vitalSign = new VitalSign();
 
             vitalSign.VitalSignId = vitalSignDto == null ? Guid.Empty : vitalSignDto.VitalSignId;
-            vitalSign.PatientRegistryId = vitalSignDto == null ? Guid.Empty : vitalSignDto.PatientRegistryId;
+            //vitalSign.PatientRegistryId = vitalSignDto == null ? Guid.Empty : vitalSignDto.PatientRegistryId;
             vitalSign.Temperature = vitalSignDto == null ? null : vitalSignDto.Temperature;
             vitalSign.Height = vitalSignDto == null ? decimal.Zero : vitalSignDto.Height;
             vitalSign.Weight = vitalSignDto == null ? decimal.Zero : vitalSignDto.Weight;

@@ -46,8 +46,6 @@ namespace SoCot_HC_BE.Services
             return new VitalSign
             {
                 VitalSignId = dto.VitalSignId == Guid.Empty ? Guid.Empty : dto.VitalSignId,
-                PatientRegistryId = (dto.PatientRegistryId.HasValue ?
-                    (dto.PatientRegistryId == Guid.Empty ? dto.PatientRegistryId : null) : null),
                 Temperature = dto.Temperature,
                 Height = dto.Height,
                 Weight = dto.Weight,
@@ -65,6 +63,20 @@ namespace SoCot_HC_BE.Services
             };
         }
 
+        private VitalSignReference CreateVitalSignReferenceFromDto(VitalSignDto dto, Guid vitalSignId)
+        {
+            if (dto.ReferenceId == null || dto.VitalSignReferenceType == null)
+                return new VitalSignReference();
+
+            return new VitalSignReference
+            {
+                VitalSignReferenceId = Guid.NewGuid(),
+                VitalSignId = vitalSignId,
+                ReferenceId = dto.ReferenceId.Value,
+                VitalSignReferenceType = dto.VitalSignReferenceType.Value
+            };
+        }
+
         public async Task SaveVitalSignAsync(VitalSignDto vitalSignDto, CancellationToken cancellationToken = default)
         {
             ValidateFields(vitalSignDto);
@@ -75,6 +87,14 @@ namespace SoCot_HC_BE.Services
             {
                 vitalSign.VitalSignId = Guid.NewGuid();
                 await AddAsync(vitalSign, cancellationToken);
+
+                // Save VitalSignReference
+                var reference = CreateVitalSignReferenceFromDto(vitalSignDto, vitalSign.VitalSignId);
+                if (reference != null)
+                {
+                    await _context.Set<VitalSignReference>().AddAsync(reference, cancellationToken);
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
             }
             else
             {
@@ -86,20 +106,45 @@ namespace SoCot_HC_BE.Services
                 _context.Entry(existing).CurrentValues.SetValues(vitalSign);
 
                 await UpdateAsync(existing, cancellationToken);
+
+                // Update or Add VitalSignReference
+                var referenceSet = _context.Set<VitalSignReference>();
+                var existingReference = await referenceSet
+                    .FirstOrDefaultAsync(x => x.VitalSignId == vitalSign.VitalSignId, cancellationToken);
+
+                if (vitalSignDto.ReferenceId != null && vitalSignDto.VitalSignReferenceType != null)
+                {
+                    if (existingReference != null)
+                    {
+                        existingReference.ReferenceId = vitalSignDto.ReferenceId.Value;
+                        existingReference.VitalSignReferenceType = vitalSignDto.VitalSignReferenceType.Value;
+                        _context.Update(existingReference);
+                    }
+                    else
+                    {
+                        var newReference = CreateVitalSignReferenceFromDto(vitalSignDto, vitalSign.VitalSignId);
+                        await referenceSet.AddAsync(newReference, cancellationToken);
+                    }
+
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
+                else if (existingReference != null)
+                {
+                    // If now null but previously had one, delete it
+                    referenceSet.Remove(existingReference);
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
             }
         }
 
         private void ValidateFields(VitalSignDto vitalSignDto)
         {
             var errors = new Dictionary<string, List<string>>();
-            Guid? patientRegistryId = vitalSignDto.PatientRegistryId;
-            if (patientRegistryId.HasValue && patientRegistryId.Value != Guid.Empty)
+            // Reference validation: if one is provided, both must be provided
+            if (vitalSignDto.ReferenceId.HasValue ^ vitalSignDto.VitalSignReferenceType.HasValue)
             {
-                var ptExists = _context.PatientRegistry.Any(f => f.PatientRegistryId == patientRegistryId);
-                if (ptExists)
-                {
-                    ValidationHelper.AddError(errors, nameof(vitalSignDto.PatientRegistryId), "Patient registry is invalid.");
-                }
+                ValidationHelper.AddError(errors, nameof(vitalSignDto.ReferenceId), "Both ReferenceId and ReferenceType must be provided together.");
+                ValidationHelper.AddError(errors, nameof(vitalSignDto.VitalSignReferenceType), "Both ReferenceId and ReferenceType must be provided together.");
             }
 
             ValidationHelper.IsRequired(errors, nameof(vitalSignDto.Systolic), vitalSignDto.Systolic, "Systolic");
