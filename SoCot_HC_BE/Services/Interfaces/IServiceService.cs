@@ -15,6 +15,10 @@ namespace SoCot_HC_BE.Services.Interfaces
         // Save Service
         Task SaveServiceAsync(ServiceDto service, CancellationToken cancellationToken = default);
         Task<Department?> GetDepartmentByServiceIdAsync(Guid serviceId, CancellationToken cancellationToken = default);
+        Task<List<Department>> GetDepartmentFlowsByServiceIdAsync(
+            Guid serviceId,
+            Guid? excludeDepartmentId,
+            CancellationToken cancellationToken = default);
         Task<List<Service>> GetServicesByDepartment(Guid departmentId, CancellationToken cancellationToken = default);
         Task<List<Service>> GetServicesByFacility(int facilityId, CancellationToken cancellationToken = default);
     }

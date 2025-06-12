@@ -213,6 +213,28 @@ namespace SoCot_HC_BE.Services
             return service?.Department;
         }
 
+        public async Task<List<Department>> GetDepartmentFlowsByServiceIdAsync(
+            Guid serviceId,
+            Guid? excludeDepartmentId,
+            CancellationToken cancellationToken = default)
+        {
+            var service = await _dbSet
+                .AsNoTracking()
+                .Include(s => s.ServiceDepartments)
+                    .ThenInclude(sd => sd.Department)
+                .FirstOrDefaultAsync(s => s.ServiceId == serviceId, cancellationToken);
+
+            if (service == null)
+                return new List<Department>();
+
+            return service.ServiceDepartments
+                .Where(sd => sd.Department != null &&
+                            (!excludeDepartmentId.HasValue || sd.Department.DepartmentId != excludeDepartmentId.Value))
+                .Select(sd => sd.Department!)
+                .ToList();
+        }
+
+
         public async Task<List<Service>> GetServicesByDepartment(Guid departmentId, CancellationToken cancellationToken = default)
         {
             var services = await _dbSet

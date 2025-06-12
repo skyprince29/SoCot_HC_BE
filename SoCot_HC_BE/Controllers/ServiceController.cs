@@ -114,5 +114,19 @@ namespace SoCot_HC_BE.Controllers
 
             return Ok(services);
         }
+
+        [HttpGet("GetDepartmentFlowsByServiceId/{serviceId}")]
+        public async Task<IActionResult> GetDepartmentFlowsByServiceIdAsync(
+            Guid serviceId,
+            Guid? excludeDepartmentId,
+            CancellationToken cancellationToken = default)
+        {
+            var services = await _serviceService.GetDepartmentFlowsByServiceIdAsync(serviceId, excludeDepartmentId, cancellationToken);
+
+            if (services == null)
+                return NotFound(new { success = false, message = "Services not found." });
+
+            return Ok(services);
+        }
     }
 } 
