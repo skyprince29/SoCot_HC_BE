@@ -1,4 +1,5 @@
-﻿using SoCot_HC_BE.Dtos;
+﻿using SoCot_HC_BE.DTO;
+using SoCot_HC_BE.Dtos;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Repositories.Interfaces;
@@ -16,6 +17,6 @@ namespace SoCot_HC_BE.Services.Interfaces
         //Save Patient Registry
         Task<PatientRegistry> SavePatientRegistryAsync(PatientRegistryDto patientRegistryDto, CancellationToken cancellationToken = default);
         // Create a new Patient Registry
-        Task<PatientRegistry> CreatePatientRegistryAsync(string? referralNo, Guid patientId, PatientRegistryType patientRegistryType, int facilityId, bool isUrgent = false, CancellationToken cancellationToken  = default);
+        Task<PatientRegistry> CreatePatientRegistryAsync(AcceptReferralDto acceptReferralDto, CancellationToken cancellationToken  = default);
     }
 }

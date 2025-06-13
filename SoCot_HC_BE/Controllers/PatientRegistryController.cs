@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCHC_API.Handler;
+using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Dtos;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Model.Enums;
@@ -62,23 +63,14 @@ namespace SoCot_HC_BE.Controllers
         // Create a new Patient Registry
         [HttpPost("CreatePatientRegistry")]
         public async Task<IActionResult> CreatePatientRegistry(
-            string? referralNo, 
-            Guid patientId, 
-            PatientRegistryType patientRegistryType, 
-            int facilityId, 
-            bool isUrgent = false, 
+            AcceptReferralDto acceptReferralDto, 
             CancellationToken cancellationToken = default)
         {
             try
             {
                 // Call the service method to create a new PatientRegistry
                 var newPatientRegistry = await _patientRegistryService.CreatePatientRegistryAsync(
-                    referralNo, 
-                    patientId, 
-                    patientRegistryType, 
-                    facilityId, 
-                    isUrgent, 
-                    cancellationToken);
+                    acceptReferralDto,  cancellationToken);
 
                 return Ok(new
                 {

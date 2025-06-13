@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
+using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Dtos;
 using SoCot_HC_BE.Model;
-using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Persons.Interfaces;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
@@ -66,24 +66,29 @@ namespace SoCot_HC_BE.Services
         {
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
-
+            var patientId = dto.PatientId;
+            var patientRegistryId = dto.PatientRegistryId;
+            var statusId = dto.StatusId;
             return new PatientRegistry
             {
-                PatientRegistryId = dto.PatientRegistryId == Guid.Empty ? Guid.Empty : dto.PatientRegistryId,
+                PatientRegistryId = patientRegistryId == Guid.Empty ? Guid.Empty : patientRegistryId,
                 PatientRegistryCode = dto.PatientRegistryCode ?? string.Empty, // fallback if null
                 ReferralNo = dto.ReferralNo,
-                PatientId = dto.PatientId,
+                PatientId = ((!patientId.HasValue || patientId == Guid.Empty) ? null : patientId),
                 Name = dto.Name ?? string.Empty,
                 Address = dto.Address,
                 Gender = dto.Gender ?? string.Empty,
                 ContactNumber = dto.ContactNumber,
                 Age = dto.Age,
-                IsTemporaryPatient = dto.IsTemporaryPatient,
+                IsTemporaryPatient = (!patientId.HasValue || patientId == Guid.Empty),
                 IsUrgent = dto.IsUrgent,
                 PatientRegistryType = dto.PatientRegistryType,
                 FacilityId = dto.FacilityId,
                 IsActive = dto.IsActive,
-                StatusId = dto.StatusId.HasValue ? dto.StatusId.Value : (byte)0
+                StatusId = statusId.HasValue ? statusId.Value : (byte)0,
+                ServiceId = dto.ServiceId,
+                CreatedBy = dto.CreatedBy,
+                CreatedDate = dto.CreatedDate
             };
         }
 
@@ -156,21 +161,23 @@ namespace SoCot_HC_BE.Services
 
             ValidationHelper.IsRequired(errors, nameof(patientRegistry.Name), patientRegistry.Name, "Name");
             ValidationHelper.IsRequired(errors, nameof(patientRegistry.Gender), patientRegistry.Gender, "Gender");
+            ValidationHelper.IsRequired(errors, nameof(patientRegistry.ServiceId), patientRegistry.ServiceId, "Service");
 
+            // Need to discuss further for disabling duplicate registry
+            //bool duplicate = _dbSet.Any(p =>
+            //    p.Name == patientRegistry.Name &&
+            //    p.PatientRegistryId != patientRegistry.PatientRegistryId);
 
-            bool duplicate = _dbSet.Any(p =>
-                p.Name == patientRegistry.Name &&
-                p.PatientRegistryId != patientRegistry.PatientRegistryId);
-
-            if (duplicate)
-                ValidationHelper.AddError(errors, nameof(patientRegistry.Name), "A patient with the same name and birth date already exists.");
+            //if (duplicate)
+            //    ValidationHelper.AddError(errors, nameof(patientRegistry.Name), "A patient with the same name and birth date already exists.");
 
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
         }
 
-        public async Task<PatientRegistry> CreatePatientRegistryAsync(string? referralNo, Guid patientId, PatientRegistryType patientRegistryType, int facilityId, bool isUrgent = false, CancellationToken cancellationToken  = default)
+        public async Task<PatientRegistry> CreatePatientRegistryAsync(AcceptReferralDto acceptReferralDto, CancellationToken cancellationToken  = default)
         {
+            Guid patientId = acceptReferralDto.patientId;
             // Fetch person details using the method from PersonService
             var personDetails = await _personService.GetPersonDetailsAsync(patientId, cancellationToken);
 
@@ -184,17 +191,18 @@ namespace SoCot_HC_BE.Services
             {
                 PatientRegistryId = Guid.NewGuid(),
                 PatientRegistryCode = GeneratePatientRegistryCode(),
-                ReferralNo = referralNo,
+                ReferralNo = acceptReferralDto.referralNo,
                 PatientId = patientId,
                 Name = personDetails.FullName, // Use the fetched full name
                 Gender = personDetails.Gender ?? "Unknown", // Use the fetched gender or default to "Unknown"
                 Age = personDetails.Age, // Use the fetched age
                 Address = personDetails.FullAddress, // Use the fetched full address
                 ContactNumber = personDetails.ContactNumber, // Use the fetched contact number
-                PatientRegistryType = patientRegistryType,
-                FacilityId = facilityId,
+                PatientRegistryType = acceptReferralDto.patientRegistryType,
+                FacilityId = acceptReferralDto.facilityId,
                 IsTemporaryPatient = false,
-                IsUrgent = isUrgent
+                IsUrgent = acceptReferralDto.isUrgent,
+                ServiceId = acceptReferralDto.serviceId
             };
 
             // 1. Call the Save method and CAPTURE the returned entity

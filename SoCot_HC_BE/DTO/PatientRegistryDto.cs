@@ -34,5 +34,6 @@ namespace SoCot_HC_BE.Dtos
         public bool IsActive { get; set; } = true;
 
         public byte? StatusId { get; set; }
+        public Guid? ServiceId { get; set; }
     }
 }

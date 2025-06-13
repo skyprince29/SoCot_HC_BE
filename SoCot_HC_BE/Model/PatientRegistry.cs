@@ -55,5 +55,10 @@ namespace SoCot_HC_BE.Model
 
         [ForeignKey("StatusId")]
         public Status? Status { get; set; }
+
+        public Guid? ServiceId { get; set; }
+
+        [ForeignKey("ServiceId")]
+        public Service? Service { get; set; }
     }
 }
