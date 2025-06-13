@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250610112111_Update Household PersonIdHeadOfHousehold Allow Null")]
+    partial class UpdateHouseholdPersonIdHeadOfHouseholdAllowNull
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -961,8 +964,8 @@ namespace SoCot_HC_BE.Migrations
 
                     b.Property<string>("ResidenceName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -1822,49 +1825,6 @@ namespace SoCot_HC_BE.Migrations
                     b.ToTable("Route");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.SchoolAgeProfile", b =>
-                {
-                    b.Property<Guid>("SchoolAgeProfileId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("EducationalLevel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Grade")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsInSchool")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("PersonId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("SchoolYear")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("SchoolAgeProfileId");
-
-                    b.HasIndex("PersonId");
-
-                    b.ToTable("SchoolAgeProfile");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.Service", b =>
                 {
                     b.Property<Guid>("ServiceId")
@@ -1979,30 +1939,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("ServiceClassificationId");
 
                     b.ToTable("ServiceClassification");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.ServiceDepartment", b =>
-                {
-                    b.Property<Guid>("ServiceDepartmentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("ServiceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ServiceDepartmentId");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("ServiceDepartment");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.Status", b =>
@@ -2294,20 +2230,20 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("PersonId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserAccountId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("UserDepartmentId");
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("UserAccountId");
+                    b.HasIndex("PersonId");
 
                     b.ToTable("UserDepartment");
                 });
@@ -2361,6 +2297,9 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<decimal>("Height")
                         .HasColumnType("decimal(5,2)");
 
+                    b.Property<Guid?>("PatientRegistryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int?>("RespiratoryRate")
                         .HasColumnType("int");
 
@@ -2382,91 +2321,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("VitalSignId");
 
                     b.ToTable("VitalSigns");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.VitalSignReference", b =>
-                {
-                    b.Property<Guid>("VitalSignReferenceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ReferenceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("VitalSignId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("VitalSignReferenceType")
-                        .HasColumnType("int");
-
-                    b.HasKey("VitalSignReferenceId");
-
-                    b.ToTable("VitalSignReference");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.WRA", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FPMethod")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FPType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Fecundity")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("ForCounseling")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("HavePartner")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("PersonId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("ShiftToModernMethod")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("UsingAnyFPMethod")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("WraDateOfAssessment")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("WraDateRecorded")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("WraPlanToHaveMoreChildren")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("WraPlanToHveMoreChildrenDecision")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PersonId");
-
-                    b.ToTable("WRA");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.WoundType", b =>
@@ -2991,17 +2845,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Navigation("Service");
                 });
 
-            modelBuilder.Entity("SoCot_HC_BE.Model.SchoolAgeProfile", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Person", "Person")
-                        .WithMany()
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Person");
-                });
-
             modelBuilder.Entity("SoCot_HC_BE.Model.Service", b =>
                 {
                     b.HasOne("SoCot_HC_BE.Model.Department", "Department")
@@ -3046,25 +2889,6 @@ namespace SoCot_HC_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Facility");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.ServiceDepartment", b =>
-                {
-                    b.HasOne("SoCot_HC_BE.Model.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SoCot_HC_BE.Model.Service", "Service")
-                        .WithMany("ServiceDepartments")
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
-
-                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.SupplyStorage", b =>
@@ -3144,22 +2968,11 @@ namespace SoCot_HC_BE.Migrations
                         .WithMany()
                         .HasForeignKey("DepartmentId");
 
-                    b.HasOne("SoCot_HC_BE.Model.UserAccount", "UserAccount")
-                        .WithMany()
-                        .HasForeignKey("UserAccountId");
-
-                    b.Navigation("Department");
-
-                    b.Navigation("UserAccount");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.WRA", b =>
-                {
                     b.HasOne("SoCot_HC_BE.Model.Person", "Person")
                         .WithMany()
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PersonId");
+
+                    b.Navigation("Department");
 
                     b.Navigation("Person");
                 });
@@ -3237,11 +3050,6 @@ namespace SoCot_HC_BE.Migrations
             modelBuilder.Entity("SoCot_HC_BE.Model.Referral", b =>
                 {
                     b.Navigation("ReferralServices");
-                });
-
-            modelBuilder.Entity("SoCot_HC_BE.Model.Service", b =>
-                {
-                    b.Navigation("ServiceDepartments");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.UserGroup", b =>

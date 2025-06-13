@@ -8,12 +8,13 @@ namespace SoCot_HC_BE.Model
 
         [Key]
         public Guid AddressId { get; set; }
+        public string? TempId { get; set; }
         public int BarangayId { get; set; }
         public int MunicipalityId { get; set; }
         public int ProvinceId { get; set; }
-        [StringLength(30)]
+        [StringLength(50)]
         public string? Sitio { get; set; }
-        [StringLength(30)]
+        [StringLength(50)]
         public string? Purok { get; set; }
         [StringLength(10)]
         public string? ZipCode { get; set; }
@@ -23,9 +24,9 @@ namespace SoCot_HC_BE.Model
         public string? LotNo { get; set; }
         [StringLength(10)]
         public string? BlockNo { get; set; }
-        [StringLength(30)]
+        [StringLength(50)]
         public string? Street { get; set; }
-        [StringLength(30)]
+        [StringLength(50)]
         public string? Subdivision { get; set; }
 
         [ForeignKey(nameof(ProvinceId))]

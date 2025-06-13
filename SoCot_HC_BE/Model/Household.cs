@@ -14,9 +14,9 @@ namespace SoCot_HC_BE.Model
         [MaxLength(30)]
         public string? HouseholdNo { get; set; }
         [Required]
-        [MaxLength(50)]
+        [MaxLength(100)]
         public string? ResidenceName { get; set; }
-        public Guid PersonIdHeadOfHousehold { get; set; }
+        public Guid? PersonIdHeadOfHousehold { get; set; }
         public Guid AddressId { get; set; }
         public bool IsActive { get; set; }
 

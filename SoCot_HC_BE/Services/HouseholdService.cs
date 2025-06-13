@@ -204,7 +204,7 @@ public class HouseholdService : IHouseholdService
         };
         await _context.Households.AddAsync(household, cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken); 
+        await _context.SaveChangesAsync(cancellationToken);  
 
         // 5️⃣ Insert Families and FamilyMembers
         foreach (var familyReq in request.Families)
