@@ -124,6 +124,7 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IServiceCategoryService, ServiceCategoryService>();
 builder.Services.AddScoped<IWoundTypeService, WoundTypeService>();
 builder.Services.AddScoped<IDesignationService, DesignationService>();
+builder.Services.AddScoped<ISchoolAgeProfileService, SchoolAgeProfileService>();
 builder.Services.AddScoped<ISupplyStorageService, SupplyStorageService>();
 builder.Services.AddScoped<IModuleStatusFlowService, ModuleStatusFlowService>();
 builder.Services.AddScoped<ITransactionFlowHistoryService, TransactionFlowHistoryService>();
@@ -142,6 +143,7 @@ builder.Services.AddHttpClient<IReferralService, ReferralService>();
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IWRAService, WRAService>();
 builder.Services.AddScoped<IItemCategoryService, ItemCategoryService>();
 builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();

@@ -10,7 +10,7 @@ namespace SoCot_HC_BE.Data
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor)
+        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) 
             : base(options)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -53,6 +53,8 @@ namespace SoCot_HC_BE.Data
         public DbSet<WoundType> WoundType { get; set; }
         public DbSet<UserGroup> UserGroup { get; set; }
         public DbSet<Designation> Designation { get; set; }
+        public DbSet<WRA> WRA { get; set; }
+        public DbSet<SchoolAgeProfile> SchoolAgeProfile { get; set; }
         public DbSet<Status> Status { get; set; }
         public DbSet<PatientDepartmentTransaction> PatientDepartmentTransaction { get; set; }
         public DbSet<ItemCategory> ItemCategory { get; set; }
