@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SoCot_HC_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateTableUserDepartment : Migration
+    public partial class create_table_user_department_ : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,8 +53,6 @@ namespace SoCot_HC_BE.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "UserDepartment");
         }
     }
 }

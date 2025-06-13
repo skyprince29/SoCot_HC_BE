@@ -12,8 +12,8 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250612012234_Create Table User Department")]
-    partial class CreateTableUserDepartment
+    [Migration("20250613002725_create_table_user_department_")]
+    partial class create_table_user_department_
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -2318,9 +2318,6 @@ namespace SoCot_HC_BE.Migrations
                     b.Property<decimal>("Height")
                         .HasColumnType("decimal(5,2)");
 
-                    b.Property<Guid?>("PatientRegistryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int?>("RespiratoryRate")
                         .HasColumnType("int");
 
@@ -2342,6 +2339,26 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("VitalSignId");
 
                     b.ToTable("VitalSigns");
+                });
+
+            modelBuilder.Entity("SoCot_HC_BE.Model.VitalSignReference", b =>
+                {
+                    b.Property<Guid>("VitalSignReferenceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ReferenceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("VitalSignId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("VitalSignReferenceType")
+                        .HasColumnType("int");
+
+                    b.HasKey("VitalSignReferenceId");
+
+                    b.ToTable("VitalSignReference");
                 });
 
             modelBuilder.Entity("SoCot_HC_BE.Model.WoundType", b =>

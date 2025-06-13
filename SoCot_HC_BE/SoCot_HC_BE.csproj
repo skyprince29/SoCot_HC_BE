@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20250612012234_Create Table User Department.cs" />
+    <Compile Remove="Migrations\20250612012234_Create Table User Department.Designer.cs" />
     <Compile Remove="Model\Patient.cs" />
   </ItemGroup>
 
