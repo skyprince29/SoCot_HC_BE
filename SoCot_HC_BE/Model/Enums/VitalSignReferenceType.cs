@@ -3,5 +3,6 @@
     public enum VitalSignReferenceType
     {
         PatientRegistry = 1,
+        PatientDepartmentTransaction = 2,
     }
 }
