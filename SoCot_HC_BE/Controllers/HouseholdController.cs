@@ -50,12 +50,12 @@ namespace SoCot_HC_BE.Controllers
             return Ok(service);
         }
 
-        [HttpPost("SaveHousehold")]
-        public async Task<IActionResult> SaveHousehold([FromBody] SaveHouseholdRequest request, CancellationToken cancellationToken)
+        [HttpPost("SavePersonDetails")]
+        public async Task<IActionResult> SavePersonDetails([FromBody] SaveHouseholdRequest request, CancellationToken cancellationToken)
         {
             try
             {
-                await _householdService.SaveHouseholdAsync(request, cancellationToken);
+                await _householdService.SavePersonDetails(request, cancellationToken);
                 return Ok(new { success = true, message = "Household saved successfully." });
             }
             catch (ModelValidationException ex)

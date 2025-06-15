@@ -14,7 +14,7 @@ public interface IHouseholdService : IRepository<Household, Guid>
     Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default);
 
     // Save Household
-    Task SaveHouseholdAsync(SaveHouseholdRequest request, CancellationToken cancellationToken = default);
+    Task SavePersonDetails(SaveHouseholdRequest request, CancellationToken cancellationToken = default);
 
     Task AppendFamilyToExistingHousehold(AppendFamilyRequest request, CancellationToken cancellationToken = default);
 

@@ -59,7 +59,7 @@ namespace SoCot_HC_BE.Controllers
 
 
         [HttpPost("SavePerson")]
-        public async Task<IActionResult> SavePerson(Person person, CancellationToken cancellationToken)
+        public async Task<IActionResult> SavePerson(PersonDto person, CancellationToken cancellationToken)
         {
             try
             {

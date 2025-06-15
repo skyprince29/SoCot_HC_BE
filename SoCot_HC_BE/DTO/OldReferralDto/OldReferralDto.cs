@@ -98,10 +98,11 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
 
     public class FamilyDto
     {
-        public int Id { get; set; }
+        public Guid? Id { get; set; }
         public string? FamilySerialNo { get; set; }
-        public int HouseHoldId { get; set; }
+        public Guid HouseHoldId { get; set; }
         public HouseHoldDto? HouseHold { get; set; }
+        public Guid PersonHeadId { get; set; }
         public bool IsActive { get; set; }
     }
 

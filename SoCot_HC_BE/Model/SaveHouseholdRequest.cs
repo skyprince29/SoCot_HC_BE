@@ -34,4 +34,11 @@ namespace SoCot_HC_BE.Model.Requests
         public string? Citizenship { get; set; }
         public string? BloodType { get; set; }
     }
+
+    public class FamilyMemberRequestDTO
+    {
+        public Guid FamilyMemberId { get; set; }
+        public Guid FamilyId { get; set; }
+        public Guid PersonId { get; set; }
+    }
 }

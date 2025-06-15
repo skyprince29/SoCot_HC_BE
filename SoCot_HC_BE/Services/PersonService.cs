@@ -121,20 +121,38 @@ namespace SoCot_HC_BE.Services
             return await query.CountAsync(cancellationToken);
         }
 
-        public async Task SavePersonAsync(Person person, CancellationToken cancellationToken = default)
+        public async Task SavePersonAsync(PersonDto personDTO, CancellationToken cancellationToken = default)
         {
-            bool isNew = person.PersonId == Guid.Empty;
-            ValidateFields(person);
+            bool isNew = personDTO.PersonId == Guid.Empty;
+            ValidateFields(personDTO);
+
+            Person person = new Person
+            {
+                PersonId = Guid.NewGuid(),
+                Firstname = personDTO.Firstname,
+                Middlename = personDTO.Middlename,
+                Lastname = personDTO.Lastname,
+                Suffix = personDTO.Suffix,
+                BirthDate = personDTO.BirthDate,
+                Gender = personDTO.Gender,
+                CivilStatus = personDTO.CivilStatus,
+                Religion = personDTO.Religion,
+                ContactNo = personDTO.ContactNo,
+                Email = personDTO.Email,
+                IsDeceased = personDTO.IsDeceased,
+                Citizenship = personDTO.Citizenship,
+                BloodType = personDTO.BloodType,
+                PatientIdTemp = (int)personDTO.PatientIdTemp,
+            };
 
             if (isNew)
             {
-                person.PersonId = Guid.NewGuid();
                 await AddAsync(person, cancellationToken);
             }
             else
             {
                 var existing = await _dbSet
-                    .FirstOrDefaultAsync(p => p.PersonId == person.PersonId, cancellationToken);
+                    .FirstOrDefaultAsync(p => p.PersonId == personDTO.PersonId, cancellationToken);
 
                 if (existing == null)
                     throw new Exception("Person not found.");
@@ -144,12 +162,16 @@ namespace SoCot_HC_BE.Services
             }
 
             // 🔥 Save Family Memberships
-            if (person.FamilyMemberships != null && person.FamilyMemberships.Any())
+            if (personDTO.familyMemberDTO != null && personDTO.familyMemberDTO.Any())
             {
-                foreach (var membership in person.FamilyMemberships)
+                FamilyMember familyMember = null;
+                foreach (var membership in personDTO.familyMemberDTO)
                 {
-                    membership.PersonId = person.PersonId;
-                    await _context.FamilyMembers.AddAsync(membership, cancellationToken);
+                    familyMember = new FamilyMember
+                    {
+                        PersonId = personDTO.PersonId 
+                    };
+                    await _context.FamilyMembers.AddAsync(familyMember, cancellationToken);
                 }
             }
 
@@ -157,7 +179,7 @@ namespace SoCot_HC_BE.Services
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-        private void ValidateFields(Person person)
+        private void ValidateFields(PersonDto person)
         {
             var errors = new Dictionary<string, List<string>>();
 

@@ -108,7 +108,7 @@ public class HouseholdService : IHouseholdService
         return await query.CountAsync(cancellationToken);
     }
 
-    public async Task SaveHouseholdAsync(SaveHouseholdRequest request, CancellationToken cancellationToken = default)
+    public async Task SavePersonDetails(SaveHouseholdRequest request, CancellationToken cancellationToken = default)
     {
         var errors = new Dictionary<string, List<string>>();
 

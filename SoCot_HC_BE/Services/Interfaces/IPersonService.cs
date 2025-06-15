@@ -14,7 +14,7 @@ namespace SoCot_HC_BE.Persons.Interfaces
         Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default);
 
         // Save Person
-        Task SavePersonAsync(Person person, CancellationToken cancellationToken = default);
+        Task SavePersonAsync(PersonDto person, CancellationToken cancellationToken = default);
 
         // Get Person based on Id
         Task<Person?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

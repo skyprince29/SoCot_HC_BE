@@ -4,10 +4,12 @@ using SCHC_API.Handler;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Personnels.Interfaces;
 using SoCot_HC_BE.Utils;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SoCot_HC_BE.Controllers
 {
     [Authorize]
+    //[ApiExplorerSettings(GroupName = "Person")]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class PersonnelController : Controller
@@ -19,6 +21,7 @@ namespace SoCot_HC_BE.Controllers
             _personnelService = personnelService;
         }
 
+        [SwaggerOperation(Tags = new[] { "Person" })]
         // Get a specific personnel by ID
         [HttpGet("GetPersonnel/{id}")]
         public async Task<IActionResult> GetPersonnel(Guid id, CancellationToken cancellationToken)
