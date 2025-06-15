@@ -41,7 +41,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins",
         policy =>
         {
-         policy.WithOrigins("https://localhost:44319")
+         policy.WithOrigins("https://localhost:44317")
             .AllowAnyMethod()    // Crucial for OPTIONS preflight, POST, GET, etc.
             .AllowAnyHeader()    // Allows any headers (e.g., Content-Type, Authorization)
             .AllowCredentials(); // REQUIRED for SignalR (and if you send cookies/auth tokens)
@@ -162,7 +162,7 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "South Cotabato Health Care", Version = "v1" });
 
     // Add JWT Bearer definition
     var jwtSecurityScheme = new OpenApiSecurityScheme
@@ -199,7 +199,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.InjectStylesheet("/SwaggerCss/swagger-custom.css");
+        c.InjectJavascript("/SwaggerJs/custom-controller-filter.js");
+    });
 }
 
 // Enable for Publishing (Duplicate of above, can be removed if not needed in prod)
@@ -211,7 +215,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // **CRITICAL FIXES START HERE**
-
+app.UseStaticFiles();
 // 1. APPLY CORS POLICY (MUST be before UseRouting, UseAuthentication, UseAuthorization, MapHub, MapControllers)
 app.UseCors("AllowSpecificOrigins"); // <-- Changed from app.UseCors() to apply the named policy!
 

@@ -1,0 +1,19 @@
+﻿/* Hide Schemas section at the bottom of Swagger UI */
+.swagger-ui .models {
+    display: none !important;
+}
+
+/* Change font family across Swagger UI */
+body, .swagger-ui, .swagger-ui * {
+    font-family: 'Century Gothic', sans-serif !important;
+}
+
+/* Optional: Add border radius and hover color to buttons */
+button, .btn {
+    border-radius: 6px !important;
+    transition: background-color 0.2s ease;
+}
+
+button:hover, .btn:hover {
+    background-color: #81BFFE !important; /* Adjust to your desired color */
+}
