@@ -1,4 +1,5 @@
 ﻿using SoCot_HC_BE.DTO;
+using SoCot_HC_BE.DTO.ParamDto;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories.Interfaces;
 
@@ -8,40 +9,24 @@ namespace SoCot_HC_BE.Services.Interfaces
     {
         /// <summary>
         /// Retrieves a paginated list of PatientDepartmentTransactions filtered by department IDs,
-        /// optional keyword, and optional status ID.
+        /// transaction date range, optional keyword, and optional status ID.
         /// </summary>
-        /// <param name="fromDepartmentId">The originating department's ID.</param>
-        /// <param name="currentDepartmentId">The current/receiving department's ID.</param>
-        /// <param name="pageNo">Page number (1-based).</param>
-        /// <param name="limit">Number of records per page.</param>
-        /// <param name="keyword">Optional search keyword.</param>
-        /// <param name="statusId">Optional status ID to filter results.</param>
+        /// <param name="request">Pagination and filter parameters.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns>A paginated list of PatientDepartmentTransaction records.</returns>
         Task<List<PatientDepartmentTransaction>> GetAllWithPagingAsync(
-            Guid fromDepartmentId,
-            Guid currentDepartmentId,
-            int pageNo,
-            int limit,
-            string? keyword = null,
-            byte? statusId = null,
+            GetPagedPDTRequestParam request,
             CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Counts the number of PatientDepartmentTransactions filtered by department IDs,
-        /// optional keyword, and optional status ID.
+        /// transaction date range, optional keyword, and optional status ID.
         /// </summary>
-        /// <param name="fromDepartmentId">The originating department's ID.</param>
-        /// <param name="currentDepartmentId">The current/receiving department's ID.</param>
-        /// <param name="keyword">Optional search keyword.</param>
-        /// <param name="statusId">Optional status ID to filter results.</param>
+        /// <param name="request">Pagination and filter parameters.</param>
         /// <param name="cancellationToken">Optional cancellation token.</param>
         /// <returns>Total count of matching PatientDepartmentTransaction records.</returns>
         Task<int> CountAsync(
-            Guid fromDepartmentId,
-            Guid currentDepartmentId,
-            string? keyword = null,
-            byte? statusId = null,
+            GetPagedPDTRequestParam request,
             CancellationToken cancellationToken = default);
 
         /// <summary>

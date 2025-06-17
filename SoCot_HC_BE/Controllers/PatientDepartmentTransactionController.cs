@@ -1,7 +1,9 @@
+using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using SCHC_API.Handler;
 using SoCot_HC_BE.DTO;
+using SoCot_HC_BE.DTO.ParamDto;
 using SoCot_HC_BE.Hub;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Model.Enums;
@@ -42,26 +44,21 @@ namespace SoCot_HC_BE.Controllers
 
         [HttpGet("GetPagedPatientDepartmentTransactions")]
         public async Task<IActionResult> GetPagedPatientDepartmentTransactions(
-            [FromQuery] Guid fromDepartmentId,
-            [FromQuery] Guid currentDepartmentId,
-            [FromQuery] int pageNo,
-            [FromQuery] int limit,
-            [FromQuery] string? keyword,
-            [FromQuery] byte? status,
+            [FromQuery] GetPagedPDTRequestParam request,
             CancellationToken cancellationToken)
         {
-            if (pageNo <= 0 || limit <= 0)
+            if (request.PageNo <= 0 || request.Limit <= 0)
             {
                 return BadRequest(new { message = "Page number and limit must be greater than zero." });
             }
 
             var patientDT = await _patientDepartmentTransactionService.GetAllWithPagingAsync(
-                fromDepartmentId, currentDepartmentId, pageNo, limit, keyword, status, cancellationToken);
+                request, cancellationToken);
 
             var totalRecords = await _patientDepartmentTransactionService.CountAsync(
-                fromDepartmentId, currentDepartmentId, keyword, status, cancellationToken);
+                request, cancellationToken);
 
-            var paginatedResult = new PaginationHandler<PatientDepartmentTransaction>(patientDT, totalRecords, pageNo, limit);
+            var paginatedResult = new PaginationHandler<PatientDepartmentTransaction>(patientDT, totalRecords, request.PageNo, request.Limit);
             return Ok(paginatedResult);
         }
 

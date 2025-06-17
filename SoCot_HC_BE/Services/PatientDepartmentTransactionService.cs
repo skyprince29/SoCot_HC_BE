@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.DTO;
+using SoCot_HC_BE.DTO.ParamDto;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
@@ -27,71 +28,65 @@ namespace SoCot_HC_BE.Services
             return facility;
         }
 
-        public async Task<List<PatientDepartmentTransaction>> GetAllWithPagingAsync(
-            Guid fromDepartmentId,
-            Guid currentDepartmentId,
-            int pageNo,
-            int limit,
-            string? keyword = null,
-            byte? statusId = null,
-            CancellationToken cancellationToken = default)
+        private IQueryable<PatientDepartmentTransaction> BuildFilteredQuery(GetPagedPDTRequestParam request)
         {
-            var query = _dbSet.AsQueryable();
-
-            // Filter by fromDepartmentId
-             query = query
+            var query = _dbSet
                 .Include(i => i.PatientRegistry)
                 .Include(i => i.Status)
-                .Where(t => t.FromDepartmentId == fromDepartmentId);
+                .AsQueryable();
 
-            // Filter by currentDepartmentId optional
+            // Required: Current department
+            query = query.Where(t => t.DepartmentId == request.CurrentDepartmentId);
 
-            if (currentDepartmentId != Guid.Empty)
+            // Optional: FromDepartmentId
+            if (request.FromDepartmentId.HasValue && request.FromDepartmentId.Value != Guid.Empty)
             {
-                query = query.Where(t => t.DepartmentId == currentDepartmentId);
+                query = query.Where(t => t.FromDepartmentId == request.FromDepartmentId);
             }
 
-            // Optional filter by StatusId
-            if (statusId.HasValue)
+            // Optional: StatusId
+            if (request.StatusId.HasValue)
             {
-                query = query.Where(t => t.StatusId == statusId.Value);
+                query = query.Where(t => t.StatusId == request.StatusId.Value);
             }
+
+            // Required: Date filter (date only, inclusive)
+            query = query.Where(t =>
+                t.TransactionDate >= request.DateFrom.Date &&
+                t.TransactionDate < request.DateTo.Date.AddDays(1));
+
+            // Optional: Keyword
+            if (!string.IsNullOrWhiteSpace(request.Keyword))
+            {
+                string keyword = request.Keyword.Trim().ToLower();
+
+                query = query.Where(t =>
+                    (t.PatientRegistry != null && EF.Functions.Like(t.PatientRegistry.Name, $"%{keyword}%")) ||
+                    (t.Status != null && EF.Functions.Like(t.Status.Name, $"%{keyword}%")));
+            }
+
+            return query;
+        }
+
+        public async Task<List<PatientDepartmentTransaction>> GetAllWithPagingAsync(
+            GetPagedPDTRequestParam request,
+            CancellationToken cancellationToken = default)
+        {
+            var query = BuildFilteredQuery(request);
 
             return await query
-                .Skip((pageNo - 1) * limit)
-                .Take(limit)
+                .OrderByDescending(t => t.TransactionDate)
+                .Skip((request.PageNo - 1) * request.Limit)
+                .Take(request.Limit)
                 .ToListAsync(cancellationToken);
         }
 
         public async Task<int> CountAsync(
-            Guid fromDepartmentId,
-            Guid currentDepartmentId,
-            string? keyword = null,
-            byte? statusId = null,
+            GetPagedPDTRequestParam request,
             CancellationToken cancellationToken = default)
         {
-            var query = _dbSet.AsQueryable();
-
-            // Filter by fromDepartmentId
-            query = query
-               .Include(i => i.PatientRegistry)
-               .Include(i => i.Status)
-               .Where(t => t.FromDepartmentId == fromDepartmentId);
-
-            // Filter by currentDepartmentId optional
-
-            if (currentDepartmentId != Guid.Empty)
-            {
-                query = query.Where(t => t.DepartmentId == currentDepartmentId);
-            }
-
-            // Optional filter by StatusId
-            if (statusId.HasValue)
-            {
-                query = query.Where(t => t.StatusId == statusId.Value);
-            }
-
-            return await query.CountAsync(cancellationToken); // Pass the CancellationToken here
+            var query = BuildFilteredQuery(request);
+            return await query.CountAsync(cancellationToken);
         }
 
         public async Task<bool> UpdateAcceptedByAsync(Guid Id, Guid acceptedByUserId, CancellationToken cancellationToken = default)
