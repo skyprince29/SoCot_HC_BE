@@ -26,8 +26,8 @@ namespace SoCot_HC_BE.Services
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            if (await IsDuplicateLoggedStatus(entity.TransactionId, entity.ModuleId, cancellationToken))
-                return;
+            //if (await IsDuplicateLoggedStatus(entity.TransactionId, entity.ModuleId, cancellationToken))
+            //    return;
 
             var firstStatus = await _moduleStatusFlowService.GetFirstStatusAsync(entity.ModuleId, cancellationToken);
             if (firstStatus == null)
