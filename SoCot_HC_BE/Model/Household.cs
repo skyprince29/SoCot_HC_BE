@@ -19,8 +19,7 @@ namespace SoCot_HC_BE.Model
         public Guid? PersonIdHeadOfHousehold { get; set; }
         public Guid AddressId { get; set; }
         public bool IsActive { get; set; }
-
-
+        public int? TempHouseholdId { get; set; }
         [ForeignKey(nameof(PersonIdHeadOfHousehold))]
         [InverseProperty(nameof(Person.Households))]
         public virtual Person? PersonAsHeadOfHousehold { get; set; }

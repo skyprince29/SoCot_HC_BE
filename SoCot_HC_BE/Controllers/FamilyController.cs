@@ -1,9 +1,6 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SoCot_HC_BE.DTO.OldReferralDto;
+﻿using Microsoft.AspNetCore.Mvc;
+using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Services.Interfaces;
-using System.Threading;
 
 namespace SoCot_HC_BE.Controllers
 {

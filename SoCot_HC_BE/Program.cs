@@ -18,7 +18,6 @@ using SoCot_HC_BE.Repositories.Interfaces;
 using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
 using System.Text;
-using ReferralService = SoCot_HC_BE.Services.ReferralService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -138,7 +137,7 @@ builder.Services.AddScoped<IPatientDepartmentTransactionService, PatientDepartme
 builder.Services.AddScoped<ModuleServiceMapper>();
 
 // HTTP CLinet Injection
-builder.Services.AddHttpClient<IReferralService, ReferralService>();
+builder.Services.AddHttpClient<IReferralService, SoCot_HC_BE.Services.ReferralService>();
 
 // Register HttpContextAccessor for cancellation token usage (optional, but useful)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -152,7 +151,8 @@ builder.Services.AddScoped<IStrengthService, StrengthService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IUoMService, UoMService>();
 builder.Services.AddScoped<IUserDepartmentService, UserDepartmentService>();
-
+builder.Services.AddScoped<IFamilyService, FamilyService>();
+builder.Services.AddScoped<IFamilyMemberService, FamilyMemberService>();
 // This Adds AuthorizationFilter to ALL controllers. Keep this in mind if some should be anonymous.
 builder.Services.AddControllers(options =>
 {

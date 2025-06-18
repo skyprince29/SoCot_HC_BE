@@ -1,4 +1,5 @@
 using SoCot_HC_BE.Data;
+using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.DTO.OldReferralDto; // Assuming your DbContext is here
 using SoCot_HC_BE.Helpers;
 using SoCot_HC_BE.Model;
@@ -39,7 +40,7 @@ namespace SoCot_HC_BE.Services
                    // PersonnelId = referralDto.PersonnelId,
                     // UserId = referralDto.UserId,
                     IsAccepted = referralDto.IsAccepted,
-                    IsUrgent = referralDto.IsUrgent
+                    IsUrgent = referralDto.isUrgent == null? false : referralDto.isUrgent.Value,
                 };
                 _context.Referral.Add(referral);
                 await _context.SaveChangesAsync();
@@ -111,12 +112,12 @@ namespace SoCot_HC_BE.Services
         //    await _context.SaveChangesAsync();
         //}
 
-        public async Task SaveHouseHoldAsync(HouseHoldDto houseHoldDto)
+        public async Task SaveHouseHoldAsync(HouseholdDTO houseHoldDto)
         {
             var houseHold = new Household()
             {
                 //TempHouseholdId = houseHoldDto.Id,
-                HouseholdNo = houseHoldDto.PHouseholdNo,
+                HouseholdNo = houseHoldDto.HouseholdNo,
                 ResidenceName = houseHoldDto.ResidenceName,
                 //HeadofFamily = houseHoldDto.HeadofFamily,
                 //Address = houseHoldDto.Address,

@@ -14,10 +14,10 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
     public class UHCReferralDTO
     {
         public ReferralDto? Referral { get; set; }
-        public HouseHoldDto? HouseHold { get; set; }
-        public FamilyDto? Family { get; set; }
-        public FamilyMemberDto? FamilyMember { get; set; }
-        public PatientDto? Patient { get; set; }
+        public UHCHouseHoldDto? HouseHold { get; set; }
+        public UHCFamilyDto? Family { get; set; }
+        public UHCFamilyMemberDto? FamilyMember { get; set; }
+        public UHCPatientDto? Patient { get; set; }
     }
 
     public class ReferralDto
@@ -38,7 +38,7 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public string? Status { get; set; }
         public string? ReferringFacility { get; set; }
         public int? PatientId { get; set; }
-        public PatientDto? Patient { get; set; }
+        public UHCPatientDto? Patient { get; set; }
         public int? FacilityId { get; set; }
         public int? Referredfrom { get; set; }
         public int? PersonnelId { get; set; }
@@ -46,15 +46,15 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public bool IsAccepted { get; set; }
         public DateTime? LastUpdated { get; set; }
         public DateTime? DateGenerated { get; set; }
-        public bool IsUrgent { get; set; }
-        public HouseHoldDto? HouseHold { get; set; }
-        public FamilyDto? Family { get; set; }
-        public FamilyMemberDto? FamilyMember { get; set; }
+        public bool? isUrgent { get; set; }
+        public UHCHouseHoldDto? HouseHold { get; set; }
+        public UHCFamilyDto? Family { get; set; }
+        public UHCFamilyMemberDto? FamilyMember { get; set; }
         public PersonDto? Person { get; set; }
-        public UserDto? User { get; set; }
+        public UHCUserDto? User { get; set; }
     }
 
-    public class PatientDto
+    public class UHCPatientDto
     {
         public int Id { get; set; }
         public string? PHouseholdNo { get; set; }
@@ -84,7 +84,7 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public bool? IsActive { get; set; }
     }
 
-    public class HouseHoldDto
+    public class UHCHouseHoldDto
     {
         public int Id { get; set; }
         public string? PHouseholdNo { get; set; }
@@ -94,29 +94,41 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public string? Latitude { get; set; }
         public string? Longitude { get; set; }
         public bool IsActive { get; set; }
+        public int province_id { get; set; }
+        public int city_municipality_id { get; set; }
+        public int barangay_id { get; set; }
+        public string? Sitio { get; set; }
+        public string? Purok { get; set; }
+        public string? Zipcode { get; set; }
+        public string? HouseNo { get; set; }
+        public string? LotNo { get; set; }
+        public string? BlockNo { get; set; }
+        public string? Street { get; set; }
+        public string? Subdivision { get; set; }
     }
 
-    public class FamilyDto
+    public class UHCFamilyDto
     {
-        public Guid? Id { get; set; }
+        public int Id { get; set; }
         public string? FamilySerialNo { get; set; }
-        public Guid HouseHoldId { get; set; }
-        public HouseHoldDto? HouseHold { get; set; }
-        public Guid PersonHeadId { get; set; }
+        public int HouseHoldId { get; set; }
+        public UHCHouseHoldDto? HouseHold { get; set; }
+        public int PersonHeadId { get; set; }
         public bool IsActive { get; set; }
+        public DateTime DateCreated { get; set; }
     }
 
-    public class FamilyMemberDto
+    public class UHCFamilyMemberDto
     {
         public int Id { get; set; }
         public int? FamilyId { get; set; }
-        public FamilyDto? Family { get; set; }
+        public UHCFamilyDto? Family { get; set; }
         public int? PatientId { get; set; }
         public PatientDto? Patient { get; set; }
         public bool? IsActive { get; set; }
     }
 
-    public class PersonnelDto
+    public class UHCPersonnelDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -125,7 +137,7 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public string LicenseNo { get; set; }
     }
 
-    public class UserDto
+    public class UHCUserDto
     {
         public int Id { get; set; }
         public string? Name { get; set; }

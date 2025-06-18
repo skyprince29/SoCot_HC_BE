@@ -1,4 +1,4 @@
-﻿using SoCot_HC_BE.DTO.OldReferralDto;
+﻿using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Repositories.Interfaces;
 
