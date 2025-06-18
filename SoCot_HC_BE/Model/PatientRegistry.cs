@@ -60,5 +60,8 @@ namespace SoCot_HC_BE.Model
 
         [ForeignKey("ServiceId")]
         public Service? Service { get; set; }
+
+        [NotMapped]
+        public bool IsForwarded { get; set; }
     }
 }

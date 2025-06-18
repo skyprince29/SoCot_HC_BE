@@ -27,9 +27,24 @@ namespace SoCot_HC_BE.Services
         //Overloads method from Repository, Added facility to eager loading
         public override async Task<PatientRegistry?> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _dbSet
+            var registry = await _dbSet
                 .Include(pr => pr.Facility)
+                .Include(pr => pr.Service)
+                .Include(pr => pr.Status)
                 .FirstOrDefaultAsync(pr => pr.PatientRegistryId == id, cancellationToken);
+            if (registry != null)
+            {
+                await SetIsForwardedAsync(registry, cancellationToken); // 🧼 Clean and reusable
+            }
+            return registry;
+        }
+
+        private async Task SetIsForwardedAsync(PatientRegistry registry, CancellationToken cancellationToken = default)
+        {
+            if (registry == null) return;
+
+            registry.IsForwarded = await _context.PatientDepartmentTransaction
+                .AnyAsync(t => t.PatientRegistryId == registry.PatientRegistryId, cancellationToken);
         }
 
         public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
@@ -47,19 +62,54 @@ namespace SoCot_HC_BE.Services
 
         public async Task<List<PatientRegistry>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
         {
-            var query = _dbSet.Include(p => p.Facility).AsQueryable();
+            var query = _dbSet.AsQueryable();
 
             if (!string.IsNullOrEmpty(keyword))
             {
-                query = query
-                        .Where(v => v.Name.Contains(keyword)
-                            || (v.Address != null && v.Address.Contains(keyword)));
+                query = query.Where(v =>
+                    v.Name.Contains(keyword) ||
+                    (v.Address != null && v.Address.Contains(keyword)));
             }
 
-            return await query
+            var result = await query
+                .OrderByDescending(pr => pr.CreatedDate)
                 .Skip((pageNo - 1) * limit)
                 .Take(limit)
-                .ToListAsync(cancellationToken); // Pass the CancellationToken here
+                .Select(pr => new PatientRegistry
+                {
+                    PatientRegistryId = pr.PatientRegistryId,
+                    PatientRegistryCode = pr.PatientRegistryCode,
+                    ReferralNo = pr.ReferralNo,
+                    PatientId = pr.PatientId,
+                    Name = pr.Name,
+                    Address = pr.Address,
+                    Gender = pr.Gender,
+                    ContactNumber = pr.ContactNumber,
+                    Age = pr.Age,
+                    IsTemporaryPatient = pr.IsTemporaryPatient,
+                    IsUrgent = pr.IsUrgent,
+                    PatientRegistryType = pr.PatientRegistryType,
+                    FacilityId = pr.FacilityId,
+                    ServiceId = pr.ServiceId,
+                    StatusId = pr.StatusId,
+                    CreatedDate = pr.CreatedDate,
+                    CreatedBy = pr.CreatedBy,
+                    UpdatedDate = pr.UpdatedDate,
+                    UpdatedBy = pr.UpdatedBy,
+                    IsActive = pr.IsActive,
+
+                    // Load related objects only if needed
+                    Facility = pr.Facility,
+                    Service = pr.Service,
+                    Status = pr.Status,
+
+                    // Set IsForwarded via subquery
+                    IsForwarded = _context.PatientDepartmentTransaction
+                        .Any(t => t.PatientRegistryId == pr.PatientRegistryId)
+                })
+                .ToListAsync(cancellationToken);
+
+            return result;
         }
 
         private PatientRegistry DTOToModel(PatientRegistryDto dto)
