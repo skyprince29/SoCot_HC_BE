@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250617211228_update Family Person nullable")]
+    partial class updateFamilyPersonnullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -964,9 +967,6 @@ namespace SoCot_HC_BE.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("TempHouseholdId")
-                        .HasColumnType("int");
-
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -1423,9 +1423,6 @@ namespace SoCot_HC_BE.Migrations
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
 
-                    b.Property<Guid?>("ServiceId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<byte>("StatusId")
                         .HasColumnType("tinyint");
 
@@ -1438,8 +1435,6 @@ namespace SoCot_HC_BE.Migrations
                     b.HasKey("PatientRegistryId");
 
                     b.HasIndex("FacilityId");
-
-                    b.HasIndex("ServiceId");
 
                     b.HasIndex("StatusId");
 
@@ -2879,10 +2874,6 @@ namespace SoCot_HC_BE.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SoCot_HC_BE.Model.Service", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceId");
-
                     b.HasOne("SoCot_HC_BE.Model.Status", "Status")
                         .WithMany()
                         .HasForeignKey("StatusId")
@@ -2890,8 +2881,6 @@ namespace SoCot_HC_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Facility");
-
-                    b.Navigation("Service");
 
                     b.Navigation("Status");
                 });

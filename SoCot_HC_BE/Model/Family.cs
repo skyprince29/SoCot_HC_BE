@@ -14,7 +14,7 @@ namespace SoCot_HC_BE.Model
 
         public Guid HouseholdId { get; set; }
         //public int? TempHouseholdId { get; set; }
-        public Guid PersonId { get; set; }
+        public Guid? PersonId { get; set; }
         public bool IsActive { get; set; }
 
         [ForeignKey(nameof(HouseholdId))]
