@@ -82,8 +82,8 @@ namespace SoCot_HC_BE.Controllers
             }
         }
 
-        [HttpGet("GetDepartmentByServiceId/{serviceId}")]
-        public async Task<IActionResult> GetDepartmentByServiceId(Guid serviceId, CancellationToken cancellationToken)
+        [HttpGet("GetEntryPointDepartmentByServiceId/{serviceId}")]
+        public async Task<IActionResult> GetEntryPointDepartmentByServiceId(Guid serviceId, CancellationToken cancellationToken)
         {
             var department = await _serviceService.GetDepartmentByServiceIdAsync(serviceId, cancellationToken);
 
@@ -132,11 +132,7 @@ namespace SoCot_HC_BE.Controllers
                 });
             }
 
-            return Ok(new
-            {
-                success = true,
-                data = departmentFlows
-            });
+            return Ok(departmentFlows);
         }
     }
 } 
