@@ -7,9 +7,11 @@ using SoCot_HC_BE.Data;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Helpers;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Persons.Interfaces;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq.Expressions;
 using System.Threading;
@@ -20,9 +22,17 @@ namespace SoCot_HC_BE.Services
     public class UserAccountService : Repository<UserAccount, Guid>, IUserAccountService
     {
         private readonly IJwtService _jwtService;
-        public UserAccountService(AppDbContext context, IJwtService jwtService) : base(context)
+        private readonly IPersonService _personService;
+        private readonly IAddressService _addressService;
+        public UserAccountService(AppDbContext context, 
+            IJwtService jwtService,
+            IPersonService personService,
+            IAddressService addressService
+            ) : base(context)
         {
             _jwtService = jwtService;
+            _personService = personService;
+            _addressService = addressService;
         }
 
 
@@ -214,5 +224,109 @@ namespace SoCot_HC_BE.Services
             }
             throw new InvalidOperationException("Usernane or Password is incorrect");
         }
+
+        public async Task<List<UserCsvDto>> UploadCsv(IFormFile file, CancellationToken cancellationToken = default)
+        {
+            var users = new List<UserCsvDto>();
+            var failedUser = new List<string>();
+            var logFileName = $"FailedUserSaves_{DateTime.UtcNow:yyyyMMddHHmmss}.txt";
+            var logFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "CSVFileLogs", logFileName);
+            Directory.CreateDirectory(Path.GetDirectoryName(logFilePath)!);
+            Person person = null;
+            try
+            {
+                using var reader = new StreamReader(file.OpenReadStream());
+
+                string? headerLine = await reader.ReadLineAsync(); // Skip header
+                while (!reader.EndOfStream)
+                {
+                    string? line = await reader.ReadLineAsync();
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+
+                    var values = line.Split(',');
+                    if (values.Length < 20) continue;
+
+                    string firstname = values[11];
+                    string middlename = values[12];
+                    string lastname = values[13];
+                    string personName = $"{firstname} {lastname}";
+                    string Suffix = values[14];
+                    string contactNo = values[10];
+                    string email = values[9];
+
+                    int provinceId = int.TryParse(values[16], out var provId) ? provId : 0;
+                    int municipalCityId = int.TryParse(values[17], out var cityId) ? cityId : 0;
+                    int barangayId = int.TryParse(values[18], out var brgyId) ? brgyId : 0;
+
+                    await using var transaction = await _context.Database.BeginTransactionAsync();
+                    try
+                    {
+                        if (firstname == null && middlename == null && lastname == null)
+                        {
+                            failedUser.Add($"Failed to save {personName}: Province : {values[15]} City: {values[16]} Barangay : {values[17]}");
+                        } else
+                        {
+                            var address = new Address
+                            {
+                                ProvinceId = provinceId,
+                                MunicipalityId = municipalCityId,
+                                BarangayId = barangayId
+                            };
+                            await _context.Address.AddAsync(address);
+                            await _context.SaveChangesAsync(); // Save to get AddressId
+
+                            person = new Person
+                            {
+                                Firstname = firstname,
+                                Middlename = middlename,
+                                Lastname = lastname,
+                                Suffix = Suffix,
+                                BirthDate = DateTime.Now, // Replace with parsed value if needed
+                                Gender = "",
+                                CivilStatus = "",
+                                Religion = "",
+                                ContactNo = values[9],
+                                Email = values[8],
+                                AddressIdResidential = address.AddressId,
+                                AddressIdPermanent = address.AddressId,
+                                IsDeceased = false,
+                                Citizenship = "Filipino",
+                                BloodType = "N/A",
+                                PatientIdTemp = 0,
+                                CreatedDate = DateTime.Now,
+                                UpdatedDate = DateTime.Now
+                            };
+                            await _context.Person.AddAsync(person);
+                            await _context.SaveChangesAsync();
+
+                            //UserAccount userAccount = new UserAccount()
+                            //{
+
+                            //};
+                            await transaction.CommitAsync();
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        failedUser.Add($"Failed to save {personName}: for unknown error {person}");
+                    }
+                }
+
+                // Write all failed users at the end
+                if (failedUser.Any())
+                {
+                    await File.WriteAllLinesAsync(logFilePath, failedUser);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while uploading CSV", ex);
+            }
+
+            return users;
+        }
+
     }
 }

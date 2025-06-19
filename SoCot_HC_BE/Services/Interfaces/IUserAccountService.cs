@@ -10,5 +10,6 @@ namespace SoCot_HC_BE.Services.Interfaces
         Task<PaginationHandler<UserAccount>> GetAllWithPagingAsync(int pageNo, int statusId, int facilityId, int userGroupId, int limit, string keyword = "", CancellationToken cancellationToken = default);
         Task SaveUserAcccountAsync(UserAccountDTO userAccount, CancellationToken cancellationToken = default);
         Task <UserAccountTokenDTO>VerifyAccount(LoginDTO loginDTO, CancellationToken cancellationToken = default);
+        Task<List<UserCsvDto>> UploadCsv(IFormFile file, CancellationToken cancellationToken = default);
     }
 }

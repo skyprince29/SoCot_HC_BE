@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\logs\**" />
+    <Content Remove="wwwroot\logs\**" />
+    <EmbeddedResource Remove="wwwroot\logs\**" />
+    <None Remove="wwwroot\logs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Migrations\20250612012234_Create Table User Department.cs" />
     <Compile Remove="Migrations\20250612012234_Create Table User Department.Designer.cs" />
     <Compile Remove="Model\Patient.cs" />
@@ -24,5 +31,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\CSVFileLogs\" />
   </ItemGroup>
 </Project>

@@ -90,5 +90,15 @@ namespace SoCot_HC_BE.Controllers
             var userAccount = await _userAccountService.VerifyAccount(dto, cancellationToken);
             return Ok(userAccount);
         }
+
+        [HttpPost("upload-csv")]
+        public async Task<IActionResult> UploadCsv(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var users = await _userAccountService.UploadCsv(file);
+            return Ok(new { message = $"{users.Count} users parsed successfully.", users });
+        }
     }
 }
