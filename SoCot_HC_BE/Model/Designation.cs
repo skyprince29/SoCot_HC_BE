@@ -14,5 +14,6 @@ namespace SoCot_HC_BE.Model
         [MaxLength(300)]
         public required string DesignationName { get; set; }
         public bool IsActive { get; set; }
+        public int? tempId { get; set; }
     }
 }

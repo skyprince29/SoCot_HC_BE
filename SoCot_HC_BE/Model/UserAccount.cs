@@ -27,7 +27,10 @@ namespace SoCot_HC_BE.Model
         public bool IsinitLogin { get; set; }
         public bool IsActive { get; set; }
         public int? UserIdTemp { get; set; }
+        [ForeignKey("Designation")]
+        public Guid DesignationId { get; set; }
 
+        public Designation? Designation { get; set; }
         // --- Navigation Properties ---
         [ForeignKey(nameof(PersonId))]
         [InverseProperty(nameof(Person.UserAccountsAsPerson))]
