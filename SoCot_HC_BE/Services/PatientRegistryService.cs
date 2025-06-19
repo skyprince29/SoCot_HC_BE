@@ -47,20 +47,7 @@ namespace SoCot_HC_BE.Services
                 .AnyAsync(t => t.PatientRegistryId == registry.PatientRegistryId, cancellationToken);
         }
 
-        public async Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default)
-        {
-            var query = _dbSet.AsQueryable();
-
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                query = query
-                        .Where(v => v.Name.Contains(keyword)
-                             || (v.Address != null && v.Address.Contains(keyword)));
-            }
-            return await query.CountAsync(cancellationToken); // Pass the CancellationToken here
-        }
-
-        public async Task<List<PatientRegistry>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default)
+        public async Task<int> CountAsync(byte? statusId = null, string? keyword = null, CancellationToken cancellationToken = default)
         {
             var query = _dbSet.AsQueryable();
 
@@ -68,7 +55,31 @@ namespace SoCot_HC_BE.Services
             {
                 query = query.Where(v =>
                     v.Name.Contains(keyword) ||
-                    (v.Address != null && v.Address.Contains(keyword)));
+                    (v.PatientRegistryCode != null && v.PatientRegistryCode.Contains(keyword)));
+            }
+
+            if (statusId.HasValue)
+            {
+                query = query.Where(v => v.StatusId == statusId.Value);
+            }
+
+            return await query.CountAsync(cancellationToken);
+        }
+
+        public async Task<List<PatientRegistry>> GetAllWithPagingAsync(int pageNo, int limit, byte? statusId = null, string? keyword = null, CancellationToken cancellationToken = default)
+        {
+            var query = _dbSet.AsQueryable();
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(v =>
+                    v.Name.Contains(keyword) ||
+                    (v.PatientRegistryCode != null && v.PatientRegistryCode.Contains(keyword)));
+            }
+
+            if (statusId.HasValue)
+            {
+                query = query.Where(v => v.StatusId == statusId);
             }
 
             var result = await query
@@ -98,12 +109,10 @@ namespace SoCot_HC_BE.Services
                     UpdatedBy = pr.UpdatedBy,
                     IsActive = pr.IsActive,
 
-                    // Load related objects only if needed
                     Facility = pr.Facility,
                     Service = pr.Service,
                     Status = pr.Status,
 
-                    // Set IsForwarded via subquery
                     IsForwarded = _context.PatientDepartmentTransaction
                         .Any(t => t.PatientRegistryId == pr.PatientRegistryId)
                 })

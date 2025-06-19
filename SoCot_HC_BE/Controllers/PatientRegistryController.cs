@@ -105,15 +105,15 @@ namespace SoCot_HC_BE.Controllers
 
         // Get all Patient Registry with paging
         [HttpGet("GetPagedPatientRegistries")]
-        public async Task<IActionResult> GetPagedPatientRegistries(int pageNo, int limit, string? keyword, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetPagedPatientRegistries(CancellationToken cancellationToken, int pageNo, int limit, byte? statusId = null, string? keyword = null)
         {
             if (pageNo <= 0 || limit <= 0)
             {
                 return BadRequest(new { message = "Page number and limit must be greater than zero." });
             }
 
-            var patientRegistries = await _patientRegistryService.GetAllWithPagingAsync(pageNo, limit, keyword, cancellationToken);
-            var totalRecords = await _patientRegistryService.CountAsync(keyword, cancellationToken);
+            var patientRegistries = await _patientRegistryService.GetAllWithPagingAsync(pageNo, limit, statusId, keyword, cancellationToken);
+            var totalRecords = await _patientRegistryService.CountAsync(statusId, keyword, cancellationToken);
 
             var paginatedResult = new PaginationHandler<PatientRegistry>(patientRegistries, totalRecords, pageNo, limit);
             return Ok(paginatedResult);

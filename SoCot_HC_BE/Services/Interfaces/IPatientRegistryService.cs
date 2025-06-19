@@ -9,10 +9,10 @@ namespace SoCot_HC_BE.Services.Interfaces
     public interface IPatientRegistryService : IRepository<PatientRegistry, Guid>
     {
         // Get a list of VitalSigns with paging, using CancellationToken for async cancellation support.
-        Task<List<PatientRegistry>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default);
+        Task<List<PatientRegistry>> GetAllWithPagingAsync(int pageNo, int limit, byte? statusId = null, string? keyword = null, CancellationToken cancellationToken = default);
 
         // Get the total count of VitalSigns, again supporting async cancellation.
-        Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default);
+        Task<int> CountAsync(byte? statusId = null, string? keyword = null, CancellationToken cancellationToken = default);
 
         //Save Patient Registry
         Task<PatientRegistry> SavePatientRegistryAsync(PatientRegistryDto patientRegistryDto, CancellationToken cancellationToken = default);
