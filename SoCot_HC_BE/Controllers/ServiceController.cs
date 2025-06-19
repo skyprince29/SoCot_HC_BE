@@ -117,16 +117,26 @@ namespace SoCot_HC_BE.Controllers
 
         [HttpGet("GetDepartmentFlowsByServiceId/{serviceId}")]
         public async Task<IActionResult> GetDepartmentFlowsByServiceIdAsync(
-            Guid serviceId,
-            Guid? excludeDepartmentId,
-            CancellationToken cancellationToken = default)
+             Guid serviceId,
+             [FromQuery] Guid? excludeDepartmentId,
+             CancellationToken cancellationToken = default)
         {
-            var services = await _serviceService.GetDepartmentFlowsByServiceIdAsync(serviceId, excludeDepartmentId, cancellationToken);
+            var departmentFlows = await _serviceService.GetDepartmentFlowsByServiceIdAsync(serviceId, excludeDepartmentId, cancellationToken);
 
-            if (services == null)
-                return NotFound(new { success = false, message = "Services not found." });
+            if (departmentFlows == null || !departmentFlows.Any())
+            {
+                return NotFound(new
+                {
+                    success = false,
+                    message = "No department flows found for the specified service."
+                });
+            }
 
-            return Ok(services);
+            return Ok(new
+            {
+                success = true,
+                data = departmentFlows
+            });
         }
     }
 } 
