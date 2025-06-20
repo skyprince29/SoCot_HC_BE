@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using CsvHelper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SCHC_API.Handler;
 using SoCot_HC_BE.Data;
+using SoCot_HC_BE.Designations.Interfaces;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Helpers;
 using SoCot_HC_BE.Model;
@@ -11,10 +10,7 @@ using SoCot_HC_BE.Persons.Interfaces;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq.Expressions;
-using System.Threading;
+using System.Globalization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SoCot_HC_BE.Services
@@ -24,6 +20,7 @@ namespace SoCot_HC_BE.Services
         private readonly IJwtService _jwtService;
         private readonly IPersonService _personService;
         private readonly IAddressService _addressService;
+        private readonly IDesignationService _designationService;
         public UserAccountService(AppDbContext context, 
             IJwtService jwtService,
             IPersonService personService,
@@ -225,99 +222,170 @@ namespace SoCot_HC_BE.Services
             throw new InvalidOperationException("Usernane or Password is incorrect");
         }
 
-        public async Task<List<UserCsvDto>> UploadCsv(IFormFile file, CancellationToken cancellationToken = default)
+        public async Task<UploadedCSVSummaryDto> UploadCsv(IFormFile file, CancellationToken cancellationToken = default)
         {
-            var users = new List<UserCsvDto>();
-            var failedUser = new List<string>();
             var logFileName = $"FailedUserSaves_{DateTime.UtcNow:yyyyMMddHHmmss}.txt";
             var logFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "CSVFileLogs", logFileName);
             Directory.CreateDirectory(Path.GetDirectoryName(logFilePath)!);
-            Person person = null;
+
+            var users = new List<UserCsvDto>();
+            int countSaveRecord = 0;
+            int countFailedSaveRecord = 0;
+            int totalRecord = 0;
+
             try
             {
                 using var reader = new StreamReader(file.OpenReadStream());
-
-                string? headerLine = await reader.ReadLineAsync(); // Skip header
-                while (!reader.EndOfStream)
+                using var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
                 {
-                    string? line = await reader.ReadLineAsync();
-                    if (string.IsNullOrWhiteSpace(line)) continue;
+                    HasHeaderRecord = true,
+                    BadDataFound = null
+                });
 
-                    var values = line.Split(',');
-                    if (values.Length < 20) continue;
+                var records = csv.GetRecords<UserCsvDto>().ToList();
 
-                    string firstname = values[11];
-                    string middlename = values[12];
-                    string lastname = values[13];
-                    string personName = $"{firstname} {lastname}";
-                    string Suffix = values[14];
-                    string contactNo = values[10];
-                    string email = values[9];
+                foreach (var record in records)
+                {
+                    totalRecord++;
 
-                    int provinceId = int.TryParse(values[16], out var provId) ? provId : 0;
-                    int municipalCityId = int.TryParse(values[17], out var cityId) ? cityId : 0;
-                    int barangayId = int.TryParse(values[18], out var brgyId) ? brgyId : 0;
+                    string fullname = record.Name?.Trim() ?? "";
+                    string firstname = record.FirstName?.Trim() ?? "";
+                    string lastname = record.LastName?.Trim() ?? "";
+                    string middlename = record.MiddleName?.Trim() ?? "";
+                    string username = record.Username?.Trim() ?? "";
+                    string designationName = record.Designation?.Trim() ?? "";
+                    string contactNo = record.ContactNumber?.Trim() ?? "";
+                    string email = record.Email?.Trim() ?? "";
+
+                    int facilityId = int.TryParse(record.FacilityId?.Trim(), out var fId) ? fId : 0;
+                    int provinceId = int.TryParse(record.ProvinceID?.Trim(), out var provId) ? provId : 0;
+                    int municipalCityId = int.TryParse(record.CityMunicipalityID?.Trim(), out var cityId) ? cityId : 0;
+                    int barangayId = int.TryParse(record.barangay_id?.Trim(), out var brgyId) ? brgyId : 0;
+                    int userIdTemp = int.TryParse(record.Id?.Trim(), out var tempId) ? tempId : 0;
+
+                    if (firstname != string.Empty && lastname != string.Empty)
+                    {
+                        var existingPerson = await _context.Person
+                                            .FirstOrDefaultAsync(p => p.Firstname == firstname && p.Lastname == lastname);
+
+                        if (existingPerson != null)
+                        {
+                            await File.AppendAllTextAsync(logFilePath, $"{fullname} already save" + Environment.NewLine);
+                            continue;
+                        }
+                    }
+
+                    bool isValidData = await IsValidData(fullname, firstname, lastname, username, provinceId, municipalCityId, barangayId, facilityId, logFilePath);
+                    if (!isValidData)
+                    {
+                        countFailedSaveRecord++;
+                        continue;
+                    }
 
                     await using var transaction = await _context.Database.BeginTransactionAsync();
                     try
                     {
-                        if (firstname == null && middlename == null && lastname == null)
+                        var address = await _context.Addresses.FirstOrDefaultAsync(d =>
+                            d.ProvinceId == provinceId &&
+                            d.MunicipalityId == municipalCityId &&
+                            d.BarangayId == barangayId &&
+                            d.Sitio == null &&
+                            d.Purok == null &&
+                            d.ZipCode == null &&
+                            d.HouseNo == null &&
+                            d.BlockNo == null &&
+                            d.Street == null &&
+                            d.Subdivision == null);
+
+                        if (address == null)
                         {
-                            failedUser.Add($"Failed to save {personName}: Province : {values[15]} City: {values[16]} Barangay : {values[17]}");
-                        } else
-                        {
-                            var address = new Address
+                            address = new Address
                             {
                                 ProvinceId = provinceId,
                                 MunicipalityId = municipalCityId,
                                 BarangayId = barangayId
                             };
                             await _context.Address.AddAsync(address);
-                            await _context.SaveChangesAsync(); // Save to get AddressId
-
-                            person = new Person
-                            {
-                                Firstname = firstname,
-                                Middlename = middlename,
-                                Lastname = lastname,
-                                Suffix = Suffix,
-                                BirthDate = DateTime.Now, // Replace with parsed value if needed
-                                Gender = "",
-                                CivilStatus = "",
-                                Religion = "",
-                                ContactNo = values[9],
-                                Email = values[8],
-                                AddressIdResidential = address.AddressId,
-                                AddressIdPermanent = address.AddressId,
-                                IsDeceased = false,
-                                Citizenship = "Filipino",
-                                BloodType = "N/A",
-                                PatientIdTemp = 0,
-                                CreatedDate = DateTime.Now,
-                                UpdatedDate = DateTime.Now
-                            };
-                            await _context.Person.AddAsync(person);
                             await _context.SaveChangesAsync();
-
-                            //UserAccount userAccount = new UserAccount()
-                            //{
-
-                            //};
-                            await transaction.CommitAsync();
                         }
 
+                        var person = new Person
+                        {
+                            Firstname = firstname,
+                            Middlename = middlename,
+                            Lastname = lastname,
+                            Suffix = record.Suffix?.Trim(),
+                            BirthDate = DateTime.Now, // Placeholder
+                            Gender = "",
+                            CivilStatus = "",
+                            Religion = "",
+                            ContactNo = contactNo,
+                            Email = email,
+                            AddressIdResidential = address.AddressId,
+                            AddressIdPermanent = address.AddressId,
+                            IsDeceased = false,
+                            Citizenship = "Filipino",
+                            BloodType = "N/A",
+                            PatientIdTemp = 0,
+                            CreatedDate = DateTime.Now,
+                            UpdatedDate = DateTime.Now
+                        };
+                        await _context.Person.AddAsync(person);
+                        await _context.SaveChangesAsync();
+
+                        int defaultUserGroup = 5;
+
+                        var designation = await _context.Designation.FirstOrDefaultAsync(d => d.DesignationName == designationName);
+                        if (designation == null)
+                        {
+                            designation = new Designation
+                            {
+                                DesignationCode = "",
+                                DesignationName = designationName
+                            };
+                            await _context.Designation.AddAsync(designation);
+                            await _context.SaveChangesAsync();
+                        }
+
+                        var userAccount = new UserAccount
+                        {
+                            Username = username,
+                            Password = PasswordHelper.HashPassword("x"),
+                            PersonId = person.PersonId,
+                            FacilityId = facilityId,
+                            UserGroupId = defaultUserGroup,
+                            RememberMeToken = "",
+                            IsOnline = false,
+                            IsinitLogin = false,
+                            IsActive = true,
+                            UserIdTemp = userIdTemp,
+                            CreatedDate = DateTime.Now,
+                            UpdatedDate = DateTime.Now,
+                            DesignationId = designation.DesignationId
+                        };
+
+                        await _context.UserAccount.AddAsync(userAccount);
+                        await _context.SaveChangesAsync();
+
+                        //users.Add(new UserCsvDto
+                        //{
+                        //    FirstName = firstname,
+                        //    MiddleName = middlename,
+                        //    LastName = lastname,
+                        //    Email = email,
+                        //    Username = username
+                        //});
+
+                        countSaveRecord++;
+                        await transaction.CommitAsync();
                     }
                     catch (Exception ex)
                     {
+                        countFailedSaveRecord++;
                         await transaction.RollbackAsync();
-                        failedUser.Add($"Failed to save {personName}: for unknown error {person}");
+                        string error = $"Exception while saving {fullname}: {ex.InnerException?.Message ?? ex.Message}";
+                        await File.AppendAllTextAsync(logFilePath, error + Environment.NewLine);
                     }
-                }
-
-                // Write all failed users at the end
-                if (failedUser.Any())
-                {
-                    await File.WriteAllLinesAsync(logFilePath, failedUser);
                 }
             }
             catch (Exception ex)
@@ -325,8 +393,77 @@ namespace SoCot_HC_BE.Services
                 throw new Exception("An error occurred while uploading CSV", ex);
             }
 
-            return users;
+            return new UploadedCSVSummaryDto
+            {
+                TotalSaved = countSaveRecord,
+                TotalFailed = countFailedSaveRecord,
+                TotalRecords = totalRecord
+            };
         }
 
+
+        private async Task<bool> IsValidData(string fullName, string firstname, string lastname, string username,
+            int provinceId, int municipalityId, int barangayId, int FacilityId, string logFilePath)
+        {
+            bool isValid = true;
+            var errorMessages = new List<string>();
+            string errorMsg = $"Failed to save {fullName} with the following error(s): ";
+            errorMessages.Add($"Facility {FacilityId}.");
+            if (string.IsNullOrWhiteSpace(firstname))
+            {
+                errorMessages.Add("First name is missing.");
+                isValid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(lastname))
+            {
+                errorMessages.Add("Last name is missing.");
+                isValid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                errorMessages.Add("Username is missing.");
+                isValid = false;
+            }
+
+            if (provinceId == 0)
+            {
+                errorMessages.Add("Province is missing.");
+                isValid = false;
+            }
+
+            if (municipalityId == 0)
+            {
+                errorMessages.Add("Municipality is missing.");
+                isValid = false;
+            }
+
+            if (barangayId == 0)
+            {
+                errorMessages.Add("Barangay is missing.");
+                isValid = false;
+            }
+
+            if (FacilityId == 0)
+            {
+                errorMessages.Add("Facility is missing.");
+                isValid = false;
+            }
+
+            if (FacilityId == 0 || !await _context.Facility.AnyAsync(f => f.FacilityId == FacilityId))
+            {
+                await File.AppendAllTextAsync(logFilePath, $"Invalid FacilityId {FacilityId}");
+                isValid = false;
+            }
+
+            if (!isValid)
+            {
+                errorMsg += string.Join(" ", errorMessages);
+                await File.AppendAllTextAsync(logFilePath, errorMsg + Environment.NewLine);
+            }
+
+            return isValid;
+        }
     }
 }

@@ -97,8 +97,8 @@ namespace SoCot_HC_BE.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
 
-            var users = await _userAccountService.UploadCsv(file);
-            return Ok(new { message = $"{users.Count} users parsed successfully.", users });
+            var summary = await _userAccountService.UploadCsv(file);
+            return Ok(summary);
         }
     }
 }

@@ -82,7 +82,7 @@ namespace SoCot_HC_BE.Data
         public DbSet<UserDepartment> UserDepartment { get; set; }
         public DbSet<ServiceDepartment> ServiceDepartment { get; set; }
         public DbSet<VitalSignReference> VitalSignReference { get; set; }
- 
+        public DbSet<UserAccount> UserAccount { get; set; }
 
         // Add more DbSets here...
 
