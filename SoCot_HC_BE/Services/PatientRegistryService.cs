@@ -7,6 +7,7 @@ using SoCot_HC_BE.Persons.Interfaces;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
+using System.Transactions;
 
 namespace SoCot_HC_BE.Services
 {
@@ -160,7 +161,7 @@ namespace SoCot_HC_BE.Services
         public async Task<PatientRegistry> SavePatientRegistryAsync(PatientRegistryDto patientRegistryDto, bool isWithValidation, CancellationToken cancellationToken = default)
         {
             // Use a transaction to ensure consistency
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
             {
                 if (isWithValidation)
                     ValidateFields(patientRegistryDto);
@@ -177,7 +178,7 @@ namespace SoCot_HC_BE.Services
                         patientRegistry.PatientRegistryCode = $"001-{timestamp}";
 
                         await _transactionFlowHistoryService.StarterLogAsync(patientRegistry, cancellationToken);
-                        await AddAsync(patientRegistry, cancellationToken);
+                        await _dbSet.AddAsync(patientRegistry, cancellationToken);
                     }
                     else
                     {
@@ -189,19 +190,18 @@ namespace SoCot_HC_BE.Services
                         _context.Entry(existing).CurrentValues.SetValues(patientRegistry);
 
                         // Save once
-                        await _context.SaveChangesAsync(cancellationToken);
+                        //await _context.SaveChangesAsync(cancellationToken);
                     }
 
-                    // Commit the transaction
-                    transaction.Commit();
+                    await _context.SaveChangesAsync(cancellationToken); // Only save once, here
+                    await transaction.CommitAsync(cancellationToken);
 
-                    // Return the saved entity with its ID
                     return patientRegistry;
                 }
                 catch (Exception ex)
                 {
                     // Rollback if any error occurs
-                    transaction.Rollback();
+                    await transaction.RollbackAsync();
                     throw new Exception("Failed to save Patient Registry and log: " + ex.Message, ex);
                 }
             }
