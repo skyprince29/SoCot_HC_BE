@@ -11,5 +11,6 @@ namespace SoCot_HC_BE.Services.Interfaces
             where T : IBaseTransaction;
 
         Task UpdateStatusAsync(UpdateStatusDto dto, CancellationToken cancellationToken = default);
+        Task UpdateStatusAsync(UpdateStatusDto dto, bool isSave = false, CancellationToken cancellationToken = default);
     }
 }

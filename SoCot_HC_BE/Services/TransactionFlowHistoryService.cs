@@ -58,6 +58,11 @@ namespace SoCot_HC_BE.Services
 
         public async Task UpdateStatusAsync(UpdateStatusDto dto, CancellationToken cancellationToken = default)
         {
+            await UpdateStatusAsync(dto, true, cancellationToken);
+        }
+
+        public async Task UpdateStatusAsync(UpdateStatusDto dto, bool isSave = false, CancellationToken cancellationToken = default)
+        {
             if (dto.StatusId == null)
                 throw new ArgumentException("StatusId cannot be null.");
 
@@ -81,7 +86,15 @@ namespace SoCot_HC_BE.Services
 
             entity.StatusId = newStatus;
 
-            await moduleService.UpdateAsync(entity, cancellationToken);
+            if (isSave)
+            {
+                await moduleService.UpdateAsync(entity, cancellationToken);
+            }
+            else
+            {
+                _context.Attach(entity);
+                _context.Entry(entity).State = EntityState.Modified;
+            }
 
             bool isComplete = await _moduleStatusFlowService.IsCompleteStatusAsync(dto.ModuleId, newStatus, cancellationToken);
 
@@ -96,9 +109,11 @@ namespace SoCot_HC_BE.Services
                 dto.Remarks,
                 isComplete
             );
-
             await _dbSet.AddAsync(log, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
+            if (isSave)
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
         }
 
         private async Task<bool> IsDuplicateLoggedStatus(Guid transactionId, int moduleId, CancellationToken cancellationToken)

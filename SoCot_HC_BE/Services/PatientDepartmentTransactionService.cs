@@ -119,27 +119,58 @@ namespace SoCot_HC_BE.Services
             PatientForwardingDto dto,
             CancellationToken cancellationToken = default)
         {
-            ValidateFields(dto); // validate before proceeding
-            UserData user = _context.GetCurrentUser();
-
-            var transaction = new PatientDepartmentTransaction
+            using (var dbtransaction = await _context.Database.BeginTransactionAsync(cancellationToken))
             {
-                Id = Guid.NewGuid(),
-                PatientRegistryId = dto.PatientRegistryId,
-                FromDepartmentId = dto.FromDepartmentId.HasValue ? dto.FromDepartmentId : null,
-                DepartmentId = dto.CurrentDepartmentId,
-                ForwardedBy = user.UserId,
-                Remarks = dto.Remarks,
-                TransactionDate = DateTime.Now,
-                StatusId = 0,
-                IsCompleted = false,
-                IsActive = true
-            };
 
-            await _transactionFlowHistoryService.StarterLogAsync(transaction, cancellationToken);
+                ValidateFields(dto); // validate before proceeding
+                try
+                {
+                    UserData user = _context.GetCurrentUser();
 
-            await AddAsync(transaction, cancellationToken);
-            return transaction;
+                    var transaction = new PatientDepartmentTransaction
+                    {
+                        Id = Guid.NewGuid(),
+                        PatientRegistryId = dto.PatientRegistryId,
+                        FromDepartmentId = dto.FromDepartmentId.HasValue ? dto.FromDepartmentId : null,
+                        DepartmentId = dto.CurrentDepartmentId,
+                        ForwardedBy = user.UserId,
+                        Remarks = dto.Remarks,
+                        TransactionDate = DateTime.Now,
+                        StatusId = 0,
+                        IsCompleted = false,
+                        IsActive = true
+                    };
+                    await _dbSet.AddAsync(transaction, cancellationToken);
+
+                    await _transactionFlowHistoryService.StarterLogAsync(transaction, cancellationToken);
+
+
+                    var currentPDTId = dto.CurrentPatientDepartmentTransactionId;
+                    var statusId = dto.StatusId;
+                    if (currentPDTId.HasValue && statusId.HasValue)
+                    {
+                        var updateStatusDto = new UpdateStatusDto
+                        {
+                            TransactionId = currentPDTId.Value,
+                            ModuleId = transaction.ModuleId, // Make sure ModuleId exists on the transaction
+                            StatusId = statusId.Value,
+                            Remarks = dto.Remarks
+                        };
+
+                        await _transactionFlowHistoryService.UpdateStatusAsync(updateStatusDto, false, cancellationToken); // calling the method
+                    }
+
+                    await _context.SaveChangesAsync(cancellationToken); // Only save once, here
+                    await dbtransaction.CommitAsync(cancellationToken);
+                    return transaction;
+                }
+                catch (Exception ex)
+                {
+                    // Rollback if any error occurs
+                    await dbtransaction.RollbackAsync();
+                    throw new Exception("Failed to save Patient Department transaction and log: " + ex.Message, ex);
+                }
+            }
         }
 
         private void ValidateFields(PatientForwardingDto dto)
@@ -156,7 +187,7 @@ namespace SoCot_HC_BE.Services
                 ValidationHelper.AddError(errors, patientRegistryCN, "Patient Registry does not exist.");
             }
 
-            if (dto.IsTransfer)
+            if (dto.CurrentPatientDepartmentTransactionId.HasValue)
             {
                 string fromDeptCN = nameof(dto.FromDepartmentId);
                 Guid fromDeptId = dto.FromDepartmentId.HasValue ? dto.FromDepartmentId.Value : Guid.Empty;
