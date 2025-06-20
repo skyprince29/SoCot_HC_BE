@@ -13,7 +13,7 @@ namespace SoCot_HC_BE.Model
         }
 
         [NotMapped]
-        public override Guid TransactionId => PatientRegistryId;
+        public override Guid TransactionId => Id;
 
         [Key]
         public Guid Id { get; set; }
