@@ -52,5 +52,7 @@ namespace SoCot_HC_BE.Model
         public virtual ICollection<DentalRecordDetailsServices>? DentalRecordDetailsServices { get; set; }
         public virtual ICollection<DentalRecordDetailsFindings>? DentalRecordDetailsFindings { get; set; }
 
+        public Guid? PatientDepartmentTransactionReferenceId { get; set; }
+
     }
 }

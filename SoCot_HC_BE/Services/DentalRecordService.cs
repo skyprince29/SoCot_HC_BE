@@ -75,26 +75,41 @@ namespace SoCot_HC_BE.Services
             return dentalRecords;   
         }
 
-        public async Task<DentalRecord> CreateDentalRecord(String ReferralNo, CancellationToken cancellationToken = default) {
-        
-        DentalTreatment dentalTreatment = await _context.DentalTreatment
-                .Include(p => p.Patient)
-                .Include(pr => pr.Facility)
-                .Include(pr => pr.PatientRegistry)
-                .FirstOrDefaultAsync(i => i.PatientRegistry.ReferralNo == ReferralNo);
+        public async Task<DentalRecord> CreateDentalRecord(String ReferralNo, Guid userAccountId, CancellationToken cancellationToken = default) {
 
-            if (dentalTreatment == null) {
-                throw new ArgumentNullException("Dental Treatment not found.");
+            PatientRegistry? patientRegistry = await _context.Set<PatientRegistry>().Where(i => i.ReferralNo == ReferralNo).FirstOrDefaultAsync(cancellationToken);
+
+            if (patientRegistry == null)
+            {
+                throw new Exception("Patient Registry not found.");
             }
 
-            DentalRecord dentalRecord = new DentalRecord();
-            dentalRecord.PatientId = dentalTreatment.PatientId;
-            dentalRecord.Patient = dentalTreatment.Patient;
-            dentalRecord.FacilityId = dentalTreatment.FacilityId;
-            dentalRecord.Facility = dentalTreatment.Facility;
-            dentalRecord.PatientRegistryId = dentalTreatment.PatientRegistry.PatientRegistryId;
-            dentalRecord.ReferralNo = dentalTreatment.PatientRegistry.ReferralNo;
-            dentalRecord.CreatedBy = dentalTreatment.CreatedBy;
+            Person? patient = await _context.Set<Person>().Where(p => p.PersonId == patientRegistry.PatientId).FirstOrDefaultAsync(cancellationToken);
+
+
+            if (patient == null)
+            {
+                throw new Exception("Patient not found.");
+            }
+
+            UserAccount? userAccount = await _context.Set<UserAccount>()
+                .Include(u => u.FacilityAsUserAccount)
+                .Where(u => u.UserAccountId == userAccountId).FirstOrDefaultAsync(cancellationToken);
+
+           
+                if (userAccount == null)
+                {
+                    throw new Exception("user not found.");
+                }
+
+                DentalRecord dentalRecord = new DentalRecord();
+            dentalRecord.PatientId = patient.PersonId;
+            dentalRecord.Patient = patient;
+            dentalRecord.FacilityId = userAccount.FacilityId;
+            dentalRecord.Facility = userAccount.FacilityAsUserAccount;
+            dentalRecord.PatientRegistryId = patientRegistry.PatientRegistryId;
+            dentalRecord.ReferralNo = ReferralNo;
+            dentalRecord.CreatedBy = userAccount.PersonId;
             dentalRecord.CreatedDate = DateTime.Now;
             dentalRecord.DateRecord = DateTime.Now;
 

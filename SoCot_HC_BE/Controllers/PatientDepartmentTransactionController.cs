@@ -116,5 +116,20 @@ namespace SoCot_HC_BE.Controllers
             }
         }
 
+
+
+        [HttpGet("GetPatientDeptmentTransactionVitalsignAsync/{id}")]
+        public async Task<IActionResult> GetPatientDeptmentTransactionVitalsignAsync(Guid id, CancellationToken cancellationToken)
+        {
+            var transaction = await _patientDepartmentTransactionService.GetPatientDeptmentTransactionVitalsignAsync(id, cancellationToken);
+
+            if (transaction == null)
+            {
+                return NotFound(new { success = false, message = "Transaction not found." });
+            }
+
+            return Ok(transaction);
+        }
+
     }
 }

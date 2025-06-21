@@ -22,9 +22,9 @@ namespace SoCot_HC_BE.Controllers
 
 
         [HttpGet("CreateDentalRecord")]
-        public async Task<DentalRecord> CreateDentalRecord(String ReferralNo)
+        public async Task<DentalRecord> CreateDentalRecord(String ReferralNo, Guid userAccountId)
         {
-            return await _dentalRecordService.CreateDentalRecord(ReferralNo);
+            return await _dentalRecordService.CreateDentalRecord(ReferralNo, userAccountId);
         }
 
         [HttpGet("UpdateDentalRecord")]

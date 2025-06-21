@@ -41,5 +41,10 @@ namespace SoCot_HC_BE.Model
         public bool IsActive { get; set; } = true;
 
         public string? Remarks { get; set; }
+
+        [NotMapped]
+        public string FromDepartment { get; set; }
+        [NotMapped]
+        public string Department { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using SoCot_HC_BE.Data;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.DTO.ParamDto;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
@@ -38,34 +39,77 @@ namespace SoCot_HC_BE.Services
             // Required: Current department
             query = query.Where(t => t.DepartmentId == request.CurrentDepartmentId);
 
-            // Optional: FromDepartmentId
+
+            var joinedQuery = query
+            // Left Join for FromDepartmentId
+            .GroupJoin(_context.Set<Department>(), // Your Department DbSet
+                       patientTrans => patientTrans.FromDepartmentId, // Key from PatientDepartmentTransaction
+                       department => department.DepartmentId, // Key from Department
+                       (patientTrans, fromDepartments) => new { patientTrans, fromDepartments }) // Result selector for GroupJoin
+            .SelectMany(
+                temp => temp.fromDepartments.DefaultIfEmpty(), // DefaultIfEmpty for Left Join
+                (temp, fromDepartment) => new { temp.patientTrans, fromDepartment }) // Result selector for SelectMany
+                                                                                     // Left Join for DepartmentId (Current Department)
+            .GroupJoin(_context.Set<Department>(), // Your Department DbSet
+                       temp => temp.patientTrans.DepartmentId, // Key from PatientDepartmentTransaction
+                       department => department.DepartmentId, // Key from Department
+                       (temp, currentDepartments) => new { temp.patientTrans, temp.fromDepartment, currentDepartments }) // Result selector for GroupJoin
+            .SelectMany(
+                temp => temp.currentDepartments.DefaultIfEmpty(), // DefaultIfEmpty for Left Join
+                (temp, currentDepartment) => new // Project into an anonymous type
+                {
+                    PatientTransaction = temp.patientTrans,
+                    FromDepartmentName = temp.fromDepartment != null ? temp.fromDepartment.DepartmentName : null, // Assuming Department.Name
+                    CurrentDepartmentName = currentDepartment != null ? currentDepartment.DepartmentName : null // Assuming Department.Name
+                });
+
+
             if (request.FromDepartmentId.HasValue && request.FromDepartmentId.Value != Guid.Empty)
             {
-                query = query.Where(t => t.FromDepartmentId == request.FromDepartmentId);
+                joinedQuery = joinedQuery.Where(t => t.PatientTransaction.FromDepartmentId == request.FromDepartmentId);
             }
 
-            // Optional: StatusId
             if (request.StatusId.HasValue)
             {
-                query = query.Where(t => t.StatusId == request.StatusId.Value);
+                joinedQuery = joinedQuery.Where(t => t.PatientTransaction.StatusId == request.StatusId.Value);
             }
 
-            // Required: Date filter (date only, inclusive)
-            query = query.Where(t =>
-                t.TransactionDate >= request.DateFrom.Date &&
-                t.TransactionDate < request.DateTo.Date.AddDays(1));
+            joinedQuery = joinedQuery.Where(t =>
+                t.PatientTransaction.TransactionDate >= request.DateFrom.Date &&
+                t.PatientTransaction.TransactionDate < request.DateTo.Date.AddDays(1));
 
-            // Optional: Keyword
             if (!string.IsNullOrWhiteSpace(request.Keyword))
             {
                 string keyword = request.Keyword.Trim().ToLower();
 
-                query = query.Where(t =>
-                    (t.PatientRegistry != null && EF.Functions.Like(t.PatientRegistry.Name, $"%{keyword}%")) ||
-                    (t.Status != null && EF.Functions.Like(t.Status.Name, $"%{keyword}%")));
+                joinedQuery = joinedQuery.Where(t =>
+                    (t.PatientTransaction.PatientRegistry != null && EF.Functions.Like(t.PatientTransaction.PatientRegistry.Name, $"%{keyword}%")) ||
+                    (t.PatientTransaction.Status != null && EF.Functions.Like(t.PatientTransaction.Status.Name, $"%{keyword}%"))); 
             }
 
-            return query;
+
+            var finalResult = joinedQuery.Select(x => new PatientDepartmentTransaction
+            {
+                Id = x.PatientTransaction.Id,
+                PatientRegistryId = x.PatientTransaction.PatientRegistryId,
+                PatientRegistry = x.PatientTransaction.PatientRegistry, 
+                FromDepartmentId = x.PatientTransaction.FromDepartmentId,
+                DepartmentId = x.PatientTransaction.DepartmentId,
+                TransactionDate = x.PatientTransaction.TransactionDate,
+                ForwardedBy = x.PatientTransaction.ForwardedBy,
+                AcceptedBy = x.PatientTransaction.AcceptedBy,
+                Status = x.PatientTransaction.Status,
+                IsCompleted = x.PatientTransaction.IsCompleted,
+                IsActive = x.PatientTransaction.IsActive,
+                Remarks = x.PatientTransaction.Remarks,
+                FromDepartment = x.FromDepartmentName,
+                Department = x.CurrentDepartmentName,
+                ModuleId = x.PatientTransaction.ModuleId, 
+                StatusId = x.PatientTransaction.StatusId, 
+
+            });
+
+            return finalResult;
         }
 
         public async Task<List<PatientDepartmentTransaction>> GetAllWithPagingAsync(
@@ -215,6 +259,53 @@ namespace SoCot_HC_BE.Services
 
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
+        }
+
+        public async Task<PatientDeptTransVitalSignsDto> GetPatientDeptmentTransactionVitalsignAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+
+            PatientDeptTransVitalSignsDto dto = new PatientDeptTransVitalSignsDto();
+
+          PatientDepartmentTransaction? patientDepartmentTransaction = await _dbSet
+                .Include(p => p.PatientRegistry)
+                .Include(p => p.Status)
+                .FirstOrDefaultAsync(i => i.Id == id);
+            
+            if (patientDepartmentTransaction != null)
+            {
+                dto.PatientDepartmentTransaction = patientDepartmentTransaction;
+            }
+            else
+            {
+                return dto;
+
+            }
+
+            var vitalSignIds = await _context.Set<VitalSignReference>()
+                .Where(vref => ((int)vref.VitalSignReferenceType) == (int)VitalSignReferenceType.PatientDepartmentTransaction
+                && vref.ReferenceId == patientDepartmentTransaction.Id)
+                .Select(vref => vref.VitalSignId) // Select only the IDs
+                .Distinct() // Get unique IDs to prevent duplicate VitalSign fetches
+                .ToListAsync(cancellationToken);
+
+            if (vitalSignIds.Any()) // Only query if there are IDs to search for
+            {
+                var vitalSigns = await _context.Set<VitalSign>()
+                 .Where(vs => vitalSignIds.Contains(vs.VitalSignId))
+                 .OrderByDescending(vs => vs.CreatedDate) // <--- ADDED THIS LINE
+                 .ToListAsync(cancellationToken);
+
+                // 4. Add the fetched VitalSigns to the DTO's list.
+                //    Assuming dto.VitalSigns is initialized as new List<VitalSign>()
+                dto.VitalSigns = vitalSigns;
+            }
+
+
+
+
+
+            return dto;
+
         }
     }
 }

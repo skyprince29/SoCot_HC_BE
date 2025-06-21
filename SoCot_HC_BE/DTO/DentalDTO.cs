@@ -25,7 +25,7 @@ namespace SoCot_HC_BE.DTO
             public ToothCountDTO ToothCount { get; set; } = new ToothCountDTO();
             public virtual ICollection<ServicesDTO>? Services { get; set; }
             public virtual ICollection<FindingsDTO>? Findings { get; set; }
-
+            public Guid? PatientDepartmentTransactionReferenceId { get; set; }
         }
 
         public class MedicalHistoryDTO() {

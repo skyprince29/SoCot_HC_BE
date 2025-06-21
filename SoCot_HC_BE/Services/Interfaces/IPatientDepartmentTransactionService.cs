@@ -49,5 +49,6 @@ namespace SoCot_HC_BE.Services.Interfaces
         /// <param name="cancellationToken">A cancellation token to cancel the operation if needed.</param>
         /// <returns>The created <see cref="PatientDepartmentTransaction"/> object.</returns>
         Task<PatientDepartmentTransaction> CreateTransactionAsync(PatientForwardingDto dto, CancellationToken cancellationToken = default);
+        Task<PatientDeptTransVitalSignsDto> GetPatientDeptmentTransactionVitalsignAsync(Guid id, CancellationToken cancellationToken = default);
     }
 }
