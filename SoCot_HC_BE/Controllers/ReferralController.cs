@@ -29,5 +29,20 @@ namespace SoCot_HC_BE.Controllers
             }
 
         }
+
+        [HttpGet("MarkReferralAsArrived")]
+        public async Task<IActionResult> MarkReferralAsArrived(int referralId, int facilityId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                UHCReferralDTO dto = await _referralService.MarkReferralArrived(referralId, facilityId, cancellationToken);
+                return Ok(dto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Request has been interupted" });
+            }
+        }
+
     }
 }

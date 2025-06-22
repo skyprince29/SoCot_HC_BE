@@ -7,5 +7,6 @@ namespace SoCot_HC_BE.Services.Interfaces
     public interface IReferralService : IRepository<ReferralDto, Guid>
     {
         Task<UHCReferralDTO> GetUHCReferralAsync(int referralId , int facilityId, CancellationToken cancellationToken = default);
+        Task<UHCReferralDTO> MarkReferralArrived(int referralId, int facilityId, CancellationToken cancellationToken = default);
     }
 }

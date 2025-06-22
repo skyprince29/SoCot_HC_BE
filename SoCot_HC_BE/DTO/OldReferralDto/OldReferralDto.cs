@@ -1,4 +1,7 @@
+using SoCot_HC_BE.Model;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace SoCot_HC_BE.DTO.OldReferralDto
 {
@@ -18,6 +21,7 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public UHCFamilyDto? Family { get; set; }
         public UHCFamilyMemberDto? FamilyMember { get; set; }
         public UHCPatientDto? Patient { get; set; }
+        public UHCPersonnelDto? Personnel { get; set; }
     }
 
     public class ReferralDto
@@ -65,7 +69,7 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public string? Middlename { get; set; }
         public string? Sex { get; set; }
         public string? CivilStatus { get; set; }
-        public DateTime? Birthdate { get; set; }
+        public DateTime Birthdate { get; set; }
         public int? Age { get; set; }
         public string? BloodType { get; set; }
         public string? BirthPlace { get; set; }
@@ -82,6 +86,8 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public string? FatherFname { get; set; }
         public string? MotherFname { get; set; }
         public bool? IsActive { get; set; }
+        public string? Suffix { get; set; }
+        public string Gender { get; set; }
     }
 
     public class UHCHouseHoldDto
@@ -162,4 +168,27 @@ namespace SoCot_HC_BE.DTO.OldReferralDto
         public string? UserIDNo { get; set; }
         public string? AccessibleModules { get; set; }
     }
+
+    public class UHCReferralService
+    {
+        public int Id { get; set; }
+        public int ReferralId { get; set; }
+        public int ServiceId { get; set; }
+        public Service Service { get; set; }
+        public string ServiceName { get; set; }
+        public string ServiceDescription { get; set; }
+        public int ServiceCategoryId { get; set; }
+    }
+
+
+    public class UHCService
+    {
+        public int Id { get; set; }
+        public string ServiceName { get; set; }
+        public string Description { get; set; }
+        public int? FacilityId { get; set; }
+        public Facility Facility { get; set; }
+        public int FacilityServiceCategoriesId { get; set; }
+    }
+
 }
