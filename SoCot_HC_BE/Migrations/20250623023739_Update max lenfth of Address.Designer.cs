@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoCot_HC_BE.Data;
 
@@ -11,9 +12,11 @@ using SoCot_HC_BE.Data;
 namespace SoCot_HC_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250623023739_Update max lenfth of Address")]
+    partial class UpdatemaxlenfthofAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,9 +143,6 @@ namespace SoCot_HC_BE.Migrations
 
                     b.Property<int?>("FacilityId")
                         .HasColumnType("int");
-
-                    b.Property<Guid?>("PatientDepartmentTransactionReferenceId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("PatientId")
                         .HasColumnType("uniqueidentifier");

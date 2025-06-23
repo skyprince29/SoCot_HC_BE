@@ -27,7 +27,7 @@ namespace SoCot_HC_BE.Model
 
         [MaxLength(50)]
         public required string Name { get; set; }
-        [MaxLength(50)]
+        [MaxLength(200)]
         public string? Address { get; set; }
 
         [MaxLength(20)]
