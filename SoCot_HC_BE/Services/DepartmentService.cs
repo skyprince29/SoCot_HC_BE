@@ -51,6 +51,7 @@ namespace SoCot_HC_BE.Services
                                  d.DepartmentTypes.Any(dt => departmentTypes.Contains(dt.DepartmentTypeId))) &&
                                 (string.IsNullOrEmpty(keyword) || d.DepartmentName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
                             )
+                            .Skip((pageNo - 1) * limit)
                             .AsNoTracking()
                             .ToListAsync();
 

@@ -63,6 +63,8 @@ namespace SoCot_HC_BE.Services
                                 (facilityId == 0 ? u.FacilityId != facilityId : u.FacilityId == facilityId) &&
                                 (userGroupId == 0 ? u.UserGroupId != userGroupId : u.UserGroupId == userGroupId)
                             )
+                            .Skip((pageNo - 1) * limit)
+                            .Take(limit)
                             .AsNoTracking()
                             .ToListAsync();
 
