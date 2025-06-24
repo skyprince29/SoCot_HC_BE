@@ -30,7 +30,7 @@ namespace SoCot_HC_BE.Services
                     Reason = referralDto.Reason,
                     Remarks = referralDto.Remarks,
                     Diagnosis = referralDto.Diagnosis,
-                    Status = referralDto.Status,
+                    //Status = referralDto.Status,
                     ReferredFrom = referralDto.Referredfrom.HasValue
                             ? referralDto.Referredfrom.Value
                             : 0,
@@ -39,7 +39,7 @@ namespace SoCot_HC_BE.Services
                      ? referralDto.FacilityId.Value : 0,
                    // PersonnelId = referralDto.PersonnelId,
                     // UserId = referralDto.UserId,
-                    IsAccepted = referralDto.IsAccepted,
+                    //IsAccepted = referralDto.IsAccepted,
                     IsUrgent = referralDto.isUrgent == null? false : referralDto.isUrgent.Value,
                 };
                 _context.Referral.Add(referral);

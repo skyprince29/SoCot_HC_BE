@@ -17,6 +17,7 @@ public class ModuleServiceMapper
         {
             (int)ModuleEnum.PatientRegistry => _serviceProvider.GetService<IPatientRegistryService>(),
             (int)ModuleEnum.PatientDepartmentTransaction => _serviceProvider.GetService<IPatientDepartmentTransactionService>(),
+            (int)ModuleEnum.Referral => _serviceProvider.GetService<IPatientDepartmentTransactionService>(),
             // add other modules here...
             _ => null
         };

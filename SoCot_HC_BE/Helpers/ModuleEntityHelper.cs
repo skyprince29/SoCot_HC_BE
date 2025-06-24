@@ -11,6 +11,7 @@ namespace SoCot_HC_BE.Helpers
         {
             { (int)ModuleEnum.PatientRegistry, typeof(PatientRegistry) },
             { (int)ModuleEnum.PatientDepartmentTransaction, typeof(PatientDepartmentTransaction) },
+            { (int)ModuleEnum.Referral, typeof(Referral) },
             // Add other mappings here
             // { (int)ModuleEnum.RequestSlip, typeof(RequestSlip) },
         };
