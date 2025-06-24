@@ -57,6 +57,29 @@ namespace SoCot_HC_BE.Controllers
             }
         }
 
+        [HttpGet("GetPagedPersonsByFilters")]
+        public async Task<IActionResult> GetPagedPersonsByFilters(int pageNo, int limit, string? firstname, string? lastname,DateTime birthdate , CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (pageNo <= 0 || limit <= 0)
+                {
+                    return BadRequest(new { message = "Page number and limit must be greater than zero." });
+                }
+
+                var dtoList = await _personService.GetPersonsByFiltersPagedAsync(pageNo, limit, firstname, lastname, birthdate, cancellationToken);
+                var totalRecords = await _personService.CountByFiltersAsync(firstname, lastname, birthdate, cancellationToken);
+                //var totalRecords = dtoList.Count();
+
+                var paginatedResult = new PaginationHandler<PersonDto>(dtoList, totalRecords, pageNo, limit);
+                return Ok(paginatedResult);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal error", error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
+
 
         [HttpPost("SavePerson")]
         public async Task<IActionResult> SavePerson(PersonDto person, CancellationToken cancellationToken)

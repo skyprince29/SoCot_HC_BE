@@ -262,5 +262,64 @@ namespace SoCot_HC_BE.Services
                 p.BirthDate.Date == birthDate.Date,
                 cancellationToken);
         }
+        public async Task<List<PersonDto>> GetPersonsByFiltersPagedAsync(int pageNo, int limit, string? firstname = null,string? lastname = null, DateTime? birthdate = null, CancellationToken cancellationToken = default)
+         {
+
+            // Prevent DateTime.MinValue from being used as an actual filter
+            if (birthdate.HasValue && birthdate.Value == DateTime.MinValue)
+            {
+                birthdate = null;
+            }
+
+            var query = _dbSet
+                .AsNoTracking()
+                .Where(d =>
+                            (string.IsNullOrEmpty(firstname) || d.Firstname.Contains(firstname, StringComparison.OrdinalIgnoreCase)) &&
+                            (string.IsNullOrEmpty(lastname) || d.Lastname.Contains(lastname, StringComparison.OrdinalIgnoreCase)) &&
+                            (!birthdate.HasValue || d.BirthDate.Date == birthdate.Value.Date)
+                );
+
+            int totalRecords = await query.CountAsync(cancellationToken);
+
+            var persons = await query
+                .Skip((pageNo - 1) * limit)
+                .Take(limit)
+                .Select(d => new PersonDto
+                {
+
+                    Fullname = d.Fullname,
+                    BirthDate = d.BirthDate,
+                    Gender = d.Gender
+
+                    // add properties as you like
+                })
+                .ToListAsync(cancellationToken);
+
+
+            return persons;
+        }
+        public async Task<int> CountByFiltersAsync( string? firstname = null, string? lastname = null,    DateTime? birthdate = null, CancellationToken cancellationToken = default)
+        {
+            var query = _dbSet.AsNoTracking();
+
+            if (!string.IsNullOrEmpty(firstname))
+            {
+                query = query.Where(p => p.Firstname.Contains(firstname, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrEmpty(lastname))
+            {
+                query = query.Where(p => p.Lastname.Contains(lastname, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (birthdate.HasValue && birthdate.Value != DateTime.MinValue)
+            {
+                query = query.Where(p => p.BirthDate.Date == birthdate.Value.Date);
+            }
+
+            return await query.CountAsync(cancellationToken);
+        }
+
+
     }
 }

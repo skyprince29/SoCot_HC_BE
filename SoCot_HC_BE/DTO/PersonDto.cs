@@ -1,4 +1,6 @@
-﻿namespace SoCot_HC_BE.DTO
+﻿using SoCot_HC_BE.Model;
+
+namespace SoCot_HC_BE.DTO
 {
     public class PersonDto
     {
@@ -21,14 +23,16 @@
         public string? Citizenship { get; set; }
         public string? BloodType { get; set; }
         public int? PatientIdTemp { get; set; } = null;
-        public string Fullname
-        {
-            get
-            {
-                var middle = !string.IsNullOrEmpty(Middlename) ? $"{Middlename[0]}." : "";
-                return $"{Lastname}, {Firstname} {middle}".Trim();
-            }
-        }
+
+        public string? Fullname { get; set; }
+        //public string Fullname
+        //{
+        //    get
+        //    {
+        //        var middle = !string.IsNullOrEmpty(Middlename) ? $"{Middlename[0]}." : "";
+        //        return $"{Lastname}, {Firstname} {middle}".Trim();
+        //    }
+        //}
 
         public AddressDto? ResidentialAddress { get; set; }
         public AddressDto? PermanentAddress { get; set; }

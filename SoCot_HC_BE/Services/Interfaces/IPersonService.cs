@@ -10,8 +10,12 @@ namespace SoCot_HC_BE.Persons.Interfaces
         // Get a list of Persons with paging, using CancellationToken for async cancellation support.
         Task<List<PersonDto>> GetAllWithPagingAsync(int pageNo, int limit, string? keyword = null, CancellationToken cancellationToken = default);
 
+        Task<List<PersonDto>> GetPersonsByFiltersPagedAsync(int pageNo, int limit, string? firstname = null, string? lastname = null, DateTime? birhtdate = null, CancellationToken cancellationToken = default);
+
         // Get the total count of Person, again supporting async cancellation.
         Task<int> CountAsync(string? keyword = null, CancellationToken cancellationToken = default);
+
+        Task<int> CountByFiltersAsync(string? firstname = null, string? lastname = null, DateTime? birhtdate = null, CancellationToken cancellationToken = default);
 
         // Save Person
         Task SavePersonAsync(PersonDto person, CancellationToken cancellationToken = default);
