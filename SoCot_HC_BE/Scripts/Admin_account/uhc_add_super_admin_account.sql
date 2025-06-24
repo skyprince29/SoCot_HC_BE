@@ -39,8 +39,10 @@ SET @AddressId = (
     ORDER BY AddressId DESC  -- Use a timestamp column if available
 );
 
-
+DECLARE @FacilityId INT;
 SET @FacilityId = 2289;
+DECLARE @PersonId uniqueidentifier;
+DECLARE @CreatedBy uniqueidentifier;
 SET @PersonId = '{CF246EDF-5900-4356-8205-48554232DB0A}';
 SET @CreatedBy ='{CECB264D-B24B-42F8-AC73-D4A6F983FA91}';
 

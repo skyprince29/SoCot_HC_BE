@@ -3,7 +3,9 @@ DELETE FROM Service;
 DELETE FROM ServiceCategory;
 DELETE FROM Department;
 
+DECLARE @FacilityId INT;
 SET @FacilityId = 2289;
+DECLARE @CreatedBy uniqueidentifier;
 SET @CreatedBy = '{CECB264D-B24B-42F8-AC73-D4A6F983FA91}';
 
 INSERT INTO Department VALUES ('{9E8A3E8E-A0CC-4AEC-41FF-08DDB25FB049}', 'D001', @FacilityId, 'OPD', NULL, 'False', 'True',   @CreatedBy, GETDATE(), NULL, NULL, 'OPD Main Department');
