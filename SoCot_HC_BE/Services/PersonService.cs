@@ -84,6 +84,8 @@ namespace SoCot_HC_BE.Services
                         .Where(m => m.Family != null)
                         .Select(m => m.Family!.FamilyNo)
                         .FirstOrDefault(),
+                       Fullname = p.Fullname,
+                       Completename = p.Completename,
 
                        ResidentialAddress = p.AddressAsResidential == null ? null : new AddressDto
                        {

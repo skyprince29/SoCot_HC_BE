@@ -25,6 +25,7 @@ namespace SoCot_HC_BE.DTO
         public int? PatientIdTemp { get; set; } = null;
 
         public string? Fullname { get; set; }
+        public string? Completename { get; set; }
         //public string Fullname
         //{
         //    get
