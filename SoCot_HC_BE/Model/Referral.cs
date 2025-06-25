@@ -44,8 +44,10 @@ namespace SoCot_HC_BE.Model
         [ForeignKey("AttendingPhysicianId")]
         public Personnel? AttendingPhysician { get; set; }
         public bool IsUrgent { get; set; }
+        [ForeignKey("StatusId")]
+        public Status? Status { get; set; }
 
         // Navigation property
-        public virtual ICollection<ReferralService>? ReferralServices { get; set; }
+        public virtual ICollection<ReferralService> ReferralServices { get; set; }
     }
 }

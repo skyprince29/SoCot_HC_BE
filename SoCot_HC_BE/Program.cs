@@ -153,6 +153,7 @@ builder.Services.AddScoped<IUoMService, UoMService>();
 builder.Services.AddScoped<IUserDepartmentService, UserDepartmentService>();
 builder.Services.AddScoped<IFamilyService, FamilyService>();
 builder.Services.AddScoped<IFamilyMemberService, FamilyMemberService>();
+builder.Services.AddScoped<IFacilityReferralService, FacilityReferralService>();
 // This Adds AuthorizationFilter to ALL controllers. Keep this in mind if some should be anonymous.
 builder.Services.AddControllers(options =>
 {
