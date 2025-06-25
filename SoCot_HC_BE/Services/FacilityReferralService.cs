@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoCot_HC_BE.Data;
 using SoCot_HC_BE.DTO;
-using SoCot_HC_BE.DTO.OldReferralDto;
 using SoCot_HC_BE.DTO.ParamDto;
-using SoCot_HC_BE.Dtos;
 using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Persons.Interfaces;
 using SoCot_HC_BE.Repositories;
@@ -27,19 +25,19 @@ namespace SoCot_HC_BE.Services
         }
 
         //Overloads method from Repository, Added facility to eager loading
-        //public override async Task<Referral?> GetAsync(Guid id, CancellationToken cancellationToken = default)
-        //{
-        //    var registry = await _dbSet
-        //        .Include(pr => pr.ReferredFrom)
-        //        .Include(pr => pr.ReferredTo)
-        //        .Include(pr => pr.Personnel)
-        //        .Include(pr => pr.AttendingPhysician)
-        //        .Include(pr => pr.Status)
-        //        .Include(pr => pr.ReferralServices)
-        //            .ThenInclude(dt => dt.Service)
-        //        .FirstOrDefaultAsync(pr => pr.ReferralId == id, cancellationToken);
-        //    return registry;
-        //}
+        public override async Task<Referral?> GetAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            var registry = await _dbSet
+                .Include(pr => pr.FacilityReferredFrom)
+                .Include(pr => pr.FacilityReferredTo)
+                .Include(pr => pr.Personnel)
+                .Include(pr => pr.AttendingPhysician)
+                .Include(pr => pr.Status)
+                .Include(pr => pr.ReferralServices)
+                    .ThenInclude(dt => dt.Service)
+                .FirstOrDefaultAsync(pr => pr.ReferralId == id, cancellationToken);
+            return registry;
+        }
 
         //private IQueryable<Referral> BuildFilteredQuery(GetPagedReferralParam request)
         //{

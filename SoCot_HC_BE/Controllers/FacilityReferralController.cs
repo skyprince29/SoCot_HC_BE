@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.Model.Enums;
+using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
 
@@ -55,6 +56,18 @@ namespace SoCot_HC_BE.Controllers
 
                 return BadRequest(new { success = false, errors = modelErrors });
             }
+        }
+
+        [HttpGet("GetReferral/{id}")]
+        public async Task<IActionResult> GetReferral(Guid id, CancellationToken cancellationToken)
+        {
+            var patientRegistry = await _facilityReferralService.GetAsync(id, cancellationToken);
+            if (patientRegistry == null)
+            {
+                return NotFound(new { success = false, message = "Referral not found." });
+            }
+
+            return Ok(patientRegistry);
         }
     }
 }
