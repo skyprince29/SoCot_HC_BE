@@ -32,6 +32,7 @@ namespace SoCot_HC_BE.Services
                 .Include(pr => pr.FacilityReferredTo)
                 .Include(pr => pr.Personnel)
                 .Include(pr => pr.AttendingPhysician)
+                .Include(pr => pr.Person)
                 .Include(pr => pr.Status)
                 .Include(pr => pr.ReferralServices)
                     .ThenInclude(dt => dt.Service)
@@ -39,101 +40,88 @@ namespace SoCot_HC_BE.Services
             return registry;
         }
 
-        //private IQueryable<Referral> BuildFilteredQuery(GetPagedReferralParam request)
-        //{
-        //    var query = _dbSet
-        //        .Include(i => i.ReferredFrom)
-        //        .Include(pr => pr.ReferredTo)
-        //        .Include(pr => pr.Personnel)
-        //        .Include(pr => pr.AttendingPhysician)
-        //        .Include(i => i.Status)
-        //        .AsQueryable();
+        private IQueryable<Referral> BuildFilteredReferralQuery(GetPagedReferralParam request)
+        {
+            var query = _dbSet
+                .Include(r => r.Status)
+                .Include(r => r.FacilityReferredFrom)
+                .Include(r => r.FacilityReferredTo)
+                .Include(pr => pr.Person)
+                .Include(r => r.Personnel)
+                .Include(r => r.AttendingPhysician)
+                .AsQueryable();
+            // Optional: ReferredFrom
+            if (request.ReferredFrom.HasValue)
+            {
+                query = query.Where(r => r.ReferredFrom == request.ReferredFrom.Value);
+            }
+            
+            // Optional: ReferredTo
+            if (request.ReferredTo.HasValue)
+            {
+                query = query.Where(r => r.ReferredTo == request.ReferredTo.Value);
+            }
 
-        //    // Required: Current department
-        //    query = query.Where(t => t.ReferredFrom == request.ReferredFrom);
+            // Optional: Status
+            if (request.StatusId.HasValue)
+            {
+                query = query.Where(r => r.StatusId == request.StatusId.Value);
+            }
 
+            if (request.DateFrom.HasValue && request.DateTo.HasValue)
+            {
+                
+            }
+            else if (request.DateFrom.HasValue)
+            {
+                query = query.Where(r =>
+                    r.ReferralDateTime >= request.DateFrom.Value.Date &&
+                    r.ReferralDateTime < request.DateFrom.Value.Date.AddDays(1));
+            }
+            else if (request.DateTo.HasValue)
+            {
+                query = query.Where(r =>
+                    r.ReferralDateTime >= request.DateTo.Value.Date &&
+                    r.ReferralDateTime < request.DateTo.Value.Date.AddDays(1));
+            }
 
-        //    var joinedQuery = query
-        //    // Left Join for FromDepartmentId
-        //    .GroupJoin(_context.Set<Department>(), // Your Department DbSet
-        //               patientTrans => patientTrans.FromDepartmentId, // Key from PatientDepartmentTransaction
-        //               department => department.DepartmentId, // Key from Department
-        //               (patientTrans, fromDepartments) => new { patientTrans, fromDepartments }) // Result selector for GroupJoin
-        //    .SelectMany(
-        //        temp => temp.fromDepartments.DefaultIfEmpty(), // DefaultIfEmpty for Left Join
-        //        (temp, fromDepartment) => new { temp.patientTrans, fromDepartment }) // Result selector for SelectMany
-        //                                                                             // Left Join for DepartmentId (Current Department)
-        //    .GroupJoin(_context.Set<Department>(), // Your Department DbSet
-        //               temp => temp.patientTrans.DepartmentId, // Key from PatientDepartmentTransaction
-        //               department => department.DepartmentId, // Key from Department
-        //               (temp, currentDepartments) => new { temp.patientTrans, temp.fromDepartment, currentDepartments }) // Result selector for GroupJoin
-        //    .SelectMany(
-        //        temp => temp.currentDepartments.DefaultIfEmpty(), // DefaultIfEmpty for Left Join
-        //        (temp, currentDepartment) => new // Project into an anonymous type
-        //        {
-        //            Referral = temp.patientTrans,
-        //            FromDepartmentName = temp.fromDepartment != null ? temp.fromDepartment.DepartmentName : null, // Assuming Department.Name
-        //            CurrentDepartmentName = currentDepartment != null ? currentDepartment.DepartmentName : null // Assuming Department.Name
-        //        });
+            // Optional: Keyword search
+            if (!string.IsNullOrWhiteSpace(request.Keyword))
+            {
+                string keyword = request.Keyword.Trim().ToLower();
+                query = query.Where(r =>
+                    EF.Functions.Like(r.Complains.ToLower(), $"%{keyword}%") ||
+                    EF.Functions.Like(r.Reason.ToLower(), $"%{keyword}%") ||
+                    EF.Functions.Like(r.ReferralNo.ToLower(), $"%{keyword}%") ||
+                    (r.Person != null && (
+                        EF.Functions.Like(r.Person.Fullname.ToLower(), $"%{keyword}%") ||
+                        EF.Functions.Like(r.Person.Completename.ToLower(), $"%{keyword}%")
+                    ))
+                );
+            }
+            return query;
+        }
 
+        public async Task<List<Referral>> GetAllWithPagingAsync(
+            GetPagedReferralParam request,
+            CancellationToken cancellationToken = default)
+        {
+            var query = BuildFilteredReferralQuery(request);
 
-        //    if (request.FromDepartmentId.HasValue && request.FromDepartmentId.Value != Guid.Empty)
-        //    {
-        //        joinedQuery = joinedQuery.Where(t => t.Referral.FromDepartmentId == request.FromDepartmentId);
-        //    }
+            return await query
+                .OrderByDescending(r => r.ReferralDateTime)
+                .Skip((request.PageNo - 1) * request.Limit)
+                .Take(request.Limit)
+                .ToListAsync(cancellationToken);
+        }
 
-        //    if (request.StatusId.HasValue)
-        //    {
-        //        joinedQuery = joinedQuery.Where(t => t.Referral.StatusId == request.StatusId.Value);
-        //    }
-
-        //    joinedQuery = joinedQuery.Where(t =>
-        //        t.Referral.ReferralDateTime >= request.DateFrom.Date &&
-        //        t.Referral.ReferralDateTime < request.DateTo.Date.AddDays(1));
-
-        //    if (!string.IsNullOrWhiteSpace(request.Keyword))
-        //    {
-        //        string keyword = request.Keyword.Trim().ToLower();
-
-        //        joinedQuery = joinedQuery.Where(t =>
-        //            (t.Referral.PatientRegistry != null && EF.Functions.Like(t.Referral.PatientRegistry.Name, $"%{keyword}%")) ||
-        //            (t.Referral.Status != null && EF.Functions.Like(t.Referral.Status.Name, $"%{keyword}%")));
-        //    }
-
-
-        //    var finalResult = joinedQuery.Select(x => new Referral
-        //    {
-        //        ReferralId = x.PatientTransaction.Id,
-        //        PatientRegistryId = x.PatientTransaction.PatientRegistryId,
-        //        PatientRegistry = x.PatientTransaction.PatientRegistry,
-        //        FromDepartmentId = x.PatientTransaction.FromDepartmentId,
-        //        DepartmentId = x.PatientTransaction.DepartmentId,
-        //        TransactionDate = x.PatientTransaction.TransactionDate,
-        //        ForwardedBy = x.PatientTransaction.ForwardedBy,
-        //        AcceptedBy = x.PatientTransaction.AcceptedBy,
-        //        Status = x.PatientTransaction.Status,
-        //        IsCompleted = x.PatientTransaction.IsCompleted,
-        //        IsActive = x.PatientTransaction.IsActive,
-        //        Remarks = x.PatientTransaction.Remarks,
-        //        FromDepartment = x.FromDepartmentName,
-        //        Department = x.CurrentDepartmentName,
-        //        ModuleId = x.PatientTransaction.ModuleId,
-        //        StatusId = x.PatientTransaction.StatusId,
-
-        //    });
-
-        //    return finalResult;
-        //}
-
-        //public Task<int> CountAsync(GetPagedReferralParam request, CancellationToken cancellationToken = default)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<List<Referral>> GetAllWithPagingAsync(GetPagedReferralParam request, CancellationToken cancellationToken = default)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public async Task<int> CountAsync(
+            GetPagedReferralParam request,
+            CancellationToken cancellationToken = default)
+        {
+            var query = BuildFilteredReferralQuery(request);
+            return await query.CountAsync(cancellationToken);
+        }
 
         private Referral DTOToModel(FacilityReferralDto dto)
         {
@@ -250,6 +238,7 @@ namespace SoCot_HC_BE.Services
             ValidationHelper.IsRequired(errors, nameof(referral.ReferredFrom), referral.ReferredFrom, "Referred From");
             ValidationHelper.IsRequired(errors, nameof(referral.ReferredTo), referral.ReferredTo, "Referred To");
             ValidationHelper.IsRequired(errors, nameof(referral.ReferralDateTime), referral.ReferralDateTime, "Referral Date");
+            ValidationHelper.IsRequired(errors, nameof(referral.PersonnelId), referral.PersonnelId, "PersonnelId");
 
             if (referral.ReferralServiceIds == null || !referral.ReferralServiceIds.Any())
                 ValidationHelper.AddError(errors, nameof(referral.ReferralServiceIds), "At least one service must be selected.");

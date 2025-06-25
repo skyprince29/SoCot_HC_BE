@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SCHC_API.Handler;
 using SoCot_HC_BE.DTO;
+using SoCot_HC_BE.DTO.ParamDto;
+using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Model.Enums;
-using SoCot_HC_BE.Services;
 using SoCot_HC_BE.Services.Interfaces;
 using SoCot_HC_BE.Utils;
 
@@ -68,6 +70,26 @@ namespace SoCot_HC_BE.Controllers
             }
 
             return Ok(patientRegistry);
+        }
+
+        [HttpGet("GetPagedReferrals")]
+        public async Task<IActionResult> GetPagedReferrals(
+           [FromQuery] GetPagedReferralParam request,
+           CancellationToken cancellationToken)
+        {
+            if (request.PageNo <= 0 || request.Limit <= 0)
+            {
+                return BadRequest(new { message = "Page number and limit must be greater than zero." });
+            }
+
+            var referrals = await _facilityReferralService.GetAllWithPagingAsync(
+                request, cancellationToken);
+
+            var totalRecords = await _facilityReferralService.CountAsync(
+                request, cancellationToken);
+
+            var paginatedResult = new PaginationHandler<Referral>(referrals, totalRecords, request.PageNo, request.Limit);
+            return Ok(paginatedResult);
         }
     }
 }

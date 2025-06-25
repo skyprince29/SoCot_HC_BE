@@ -48,7 +48,9 @@ namespace SoCot_HC_BE.Model
         public bool IsUrgent { get; set; }
         [ForeignKey("StatusId")]
         public Status? Status { get; set; }
-
+        public Guid? PersonId { get; set; }
+        [ForeignKey("PersonId")]
+        public Person? Person { get; set; }
         // Navigation property
         public virtual ICollection<ReferralService> ReferralServices { get; set; }
     }
