@@ -276,8 +276,8 @@ namespace SoCot_HC_BE.Services
             var query = _dbSet
                 .AsNoTracking()
                 .Where(d =>
-                            (string.IsNullOrEmpty(firstname) || d.Firstname.Contains(firstname, StringComparison.OrdinalIgnoreCase)) &&
-                            (string.IsNullOrEmpty(lastname) || d.Lastname.Contains(lastname, StringComparison.OrdinalIgnoreCase)) &&
+                            (string.IsNullOrEmpty(firstname) || d.Firstname.Contains(firstname)) &&
+                            (string.IsNullOrEmpty(lastname) || d.Lastname.Contains(lastname)) &&
                             (!birthdate.HasValue || d.BirthDate.Date == birthdate.Value.Date)
                 );
 
@@ -306,12 +306,12 @@ namespace SoCot_HC_BE.Services
 
             if (!string.IsNullOrEmpty(firstname))
             {
-                query = query.Where(p => p.Firstname.Contains(firstname, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(p => p.Firstname.Contains(firstname));
             }
 
             if (!string.IsNullOrEmpty(lastname))
             {
-                query = query.Where(p => p.Lastname.Contains(lastname, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(p => p.Lastname.Contains(lastname));
             }
 
             if (birthdate.HasValue && birthdate.Value != DateTime.MinValue)
