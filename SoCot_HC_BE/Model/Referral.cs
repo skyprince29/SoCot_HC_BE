@@ -27,9 +27,11 @@ namespace SoCot_HC_BE.Model
         public string? Diagnosis { get; set; }
         [Required]
         public required int ReferredTo { get; set; }
+        [ForeignKey("ReferredTo")]
         public Facility? FacilityReferredTo { get; set; }
         [Required]
         public required int ReferredFrom { get; set; }
+        [ForeignKey("ReferredFrom")]
         public Facility? FacilityReferredFrom { get; set; }
         [Required, MaxLength(50)]
         public required string ReferralNo { get; set; }
