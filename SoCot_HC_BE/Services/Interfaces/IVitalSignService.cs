@@ -24,4 +24,9 @@ public interface IVitalSignService : IRepository<VitalSign, Guid>
 
     // Save or update VitalSign and its references
     Task SaveVitalSignAsync(VitalSignDto vitalSignDto, CancellationToken cancellationToken = default);
+    Task SaveVitalSignAsync(VitalSignDto vitalSignDto, bool isReferrencesaving, CancellationToken cancellationToken = default);
+
+    VitalSign DTOToModel(VitalSignDto dto);
+
+    void ValidateFields(VitalSignDto vitalSignDto, Dictionary<string, List<string>>? preErrors, string prefix = "");
 }

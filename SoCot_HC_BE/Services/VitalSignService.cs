@@ -5,6 +5,7 @@ using SoCot_HC_BE.Model;
 using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Utils;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SoCot_HC_BE.Services
 {
@@ -14,7 +15,7 @@ namespace SoCot_HC_BE.Services
         {
         }
 
-        private VitalSignDto MapToDto(VitalSign vitalSign, VitalSignReference? reference = null)
+        public VitalSignDto MapToDto(VitalSign vitalSign, VitalSignReference? reference = null)
         {
             return new VitalSignDto
             {
@@ -133,7 +134,7 @@ namespace SoCot_HC_BE.Services
         }
 
 
-        private VitalSign DTOToModel(VitalSignDto dto)
+        public VitalSign DTOToModel(VitalSignDto dto)
         {
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
@@ -172,23 +173,32 @@ namespace SoCot_HC_BE.Services
             };
         }
 
-        public async Task SaveVitalSignAsync(VitalSignDto vitalSignDto, CancellationToken cancellationToken = default)
+        public async Task SaveVitalSignAsync(VitalSignDto vitalSignDto,  CancellationToken cancellationToken = default)
         {
-            ValidateFields(vitalSignDto);
+            await SaveVitalSignAsync(vitalSignDto, false, cancellationToken);
+        }
+
+        public async Task SaveVitalSignAsync(VitalSignDto vitalSignDto, bool isReferrencesaving, CancellationToken cancellationToken = default)
+        {
+            if (!isReferrencesaving)
+            {
+                ValidateFields(vitalSignDto);
+            }
+
             VitalSign vitalSign = DTOToModel(vitalSignDto);
             // Determine if new or existing
             bool isNew = vitalSign.VitalSignId == Guid.Empty;
+            var referenceSet = _context.Set<VitalSignReference>();
             if (isNew)
             {
                 vitalSign.VitalSignId = Guid.NewGuid();
-                await AddAsync(vitalSign, cancellationToken);
+                await _dbSet.AddAsync(vitalSign, cancellationToken);
 
                 // Save VitalSignReference
                 var reference = CreateVitalSignReferenceFromDto(vitalSignDto, vitalSign.VitalSignId);
                 if (reference != null)
                 {
-                    await _context.Set<VitalSignReference>().AddAsync(reference, cancellationToken);
-                    await _context.SaveChangesAsync(cancellationToken);
+                    await referenceSet.AddAsync(reference, cancellationToken);
                 }
             }
             else
@@ -199,11 +209,9 @@ namespace SoCot_HC_BE.Services
 
                 // Replace all fields
                 _context.Entry(existing).CurrentValues.SetValues(vitalSign);
-
-                await UpdateAsync(existing, cancellationToken);
+                _dbSet.Update(existing);
 
                 // Update or Add VitalSignReference
-                var referenceSet = _context.Set<VitalSignReference>();
                 var existingReference = await referenceSet
                     .FirstOrDefaultAsync(x => x.VitalSignId == vitalSign.VitalSignId, cancellationToken);
 
@@ -220,23 +228,30 @@ namespace SoCot_HC_BE.Services
                         var newReference = CreateVitalSignReferenceFromDto(vitalSignDto, vitalSign.VitalSignId);
                         await referenceSet.AddAsync(newReference, cancellationToken);
                     }
-
-                    await _context.SaveChangesAsync(cancellationToken);
                 }
                 else if (existingReference != null)
                 {
                     // If now null but previously had one, delete it
                     referenceSet.Remove(existingReference);
+                }
+                if (!isReferrencesaving)
+                {
                     await _context.SaveChangesAsync(cancellationToken);
                 }
             }
         }
 
-        private void ValidateFields(VitalSignDto vitalSignDto)
+        public void ValidateFields(VitalSignDto vitalSignDto)
         {
-            var errors = new Dictionary<string, List<string>>();
+            ValidateFields(vitalSignDto, null, "");
+        }
+
+        public void ValidateFields(VitalSignDto vitalSignDto, Dictionary<string, List<string>>? preErrors, string prefix = "")
+        {
+            var errors = new Dictionary<string, List<string>>(); ;
+            bool isStandAlone = (string.IsNullOrEmpty(prefix) && preErrors == null);
             // Reference validation: if one is provided, both must be provided
-            if (vitalSignDto.ReferenceId.HasValue ^ vitalSignDto.VitalSignReferenceType.HasValue)
+            if ((isStandAlone) && vitalSignDto.ReferenceId.HasValue ^ vitalSignDto.VitalSignReferenceType.HasValue)
             {
                 ValidationHelper.AddError(errors, nameof(vitalSignDto.ReferenceId), "Both ReferenceId and ReferenceType must be provided together.");
                 ValidationHelper.AddError(errors, nameof(vitalSignDto.VitalSignReferenceType), "Both ReferenceId and ReferenceType must be provided together.");
@@ -245,7 +260,7 @@ namespace SoCot_HC_BE.Services
             ValidationHelper.IsRequired(errors, nameof(vitalSignDto.Systolic), vitalSignDto.Systolic, "Systolic");
             ValidationHelper.IsRequired(errors, nameof(vitalSignDto.Diastolic), vitalSignDto.Diastolic, "Diastolic");
             Decimal? temperature = vitalSignDto.Temperature;
-            if (temperature!= null && temperature.Value <= 0)
+            if (temperature != null && temperature.Value <= 0)
             {
                 ValidationHelper.AddError(errors, nameof(vitalSignDto.Temperature), "Temperature is invalid value.");
             }
@@ -270,7 +285,26 @@ namespace SoCot_HC_BE.Services
                 ValidationHelper.AddError(errors, nameof(vitalSignDto.RespiratoryRate), "Respiratory Rate is invalid value.");
             }
             if (errors.Any())
-                throw new ModelValidationException("Validation failed", errors);
+            {
+                if (!isStandAlone)
+                {
+                    // Merge errors into preErrors with prefixed keys
+                    foreach (var kvp in errors)
+                    {
+                        string prefixedKey = prefix + kvp.Key;
+
+                        if (!preErrors.ContainsKey(prefixedKey))
+                            preErrors[prefixedKey] = new List<string>();
+
+                        preErrors[prefixedKey].AddRange(kvp.Value);
+                    }
+                }
+                else
+                {
+                    // No external error collector provided — throw directly
+                    throw new ModelValidationException("Validation failed", errors);
+                }
+            }
         }
     }
 }

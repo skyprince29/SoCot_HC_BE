@@ -4,5 +4,6 @@
     {
         PatientRegistry = 1,
         PatientDepartmentTransaction = 2,
+        Referral = 3
     }
 }

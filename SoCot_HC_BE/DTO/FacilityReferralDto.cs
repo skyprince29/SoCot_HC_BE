@@ -17,9 +17,11 @@
         public Guid? AttendingPhysicianId { get; set; }
         public bool IsUrgent { get; set; }
         public byte? StatusId { get; set; }
+        public Guid? PersonId { get; set; }
 
 
         // List of ReferralService IDs
-        public List<Guid> ReferralServiceIds { get; set; }
+        public List<Guid> ReferralServiceIds { get; set; } = new List<Guid>();
+        public VitalSignDto VitalSign { get; set; } = new VitalSignDto(); 
     }
 }

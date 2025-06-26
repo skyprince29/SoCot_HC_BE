@@ -3,6 +3,7 @@ using SoCot_HC_BE.Data;
 using SoCot_HC_BE.DTO;
 using SoCot_HC_BE.DTO.ParamDto;
 using SoCot_HC_BE.Model;
+using SoCot_HC_BE.Model.Enums;
 using SoCot_HC_BE.Persons.Interfaces;
 using SoCot_HC_BE.Repositories;
 using SoCot_HC_BE.Services.Interfaces;
@@ -14,13 +15,16 @@ namespace SoCot_HC_BE.Services
     {
         private readonly IPersonService _personService;
         private readonly ITransactionFlowHistoryService _transactionFlowHistoryService;
+        private readonly IVitalSignService _vitalSignService;
         public FacilityReferralService
             (AppDbContext context,
             IPersonService personService,
+            IVitalSignService vitalSignService,
             ITransactionFlowHistoryService transactionFlowHistoryService
             ) : base(context)
         {
             _personService = personService;
+            _vitalSignService = vitalSignService;
             _transactionFlowHistoryService = transactionFlowHistoryService;
         }
 
@@ -149,13 +153,14 @@ namespace SoCot_HC_BE.Services
                 CreatedBy = dto.CreatedBy,
                 CreatedDate = dto.CreatedDate,
                 StatusId = statusId.HasValue ? statusId.Value : (byte)0,
-                ReferralServices = dto.ReferralServiceIds?
+                PersonId = dto.PersonId, 
+                ReferralServices = dto.ReferralServiceIds
                     .Select(serviceId => new SoCot_HC_BE.Model.ReferralService
                     {
                         Id = Guid.NewGuid(),
                         ServiceId = serviceId,
                         ReferralId = referralId == Guid.Empty ? Guid.Empty : referralId,
-                    }).ToList() ?? new List<SoCot_HC_BE.Model.ReferralService>(),
+                    }).ToList(),
             };
         }
 
@@ -164,9 +169,11 @@ namespace SoCot_HC_BE.Services
             using (var dbtransaction = await _context.Database.BeginTransactionAsync(cancellationToken))
             {
                 ValidateFields(facilityReferralDto);
+
                 try
                 {
                     Referral referral = DTOToModel(facilityReferralDto);
+                   
                     UserData user = _context.GetCurrentUser();
 
                     // Determine if new or existing
@@ -194,7 +201,10 @@ namespace SoCot_HC_BE.Services
                         AddOrUpdateReferralService(existing, facilityReferralDto.ReferralServiceIds);
                         _context.Update(existing);
                     }
-                    await _context.SaveChangesAsync(cancellationToken); // Only save once, here
+                    facilityReferralDto.VitalSign.ReferenceId = referral.ReferralId;
+                    facilityReferralDto.VitalSign.VitalSignReferenceType = VitalSignReferenceType.Referral;
+                    await _vitalSignService.SaveVitalSignAsync(facilityReferralDto.VitalSign, true, cancellationToken);
+                    await _context.SaveChangesAsync(cancellationToken);
                     await dbtransaction.CommitAsync(cancellationToken);
                     return referral;
                 }
@@ -238,10 +248,12 @@ namespace SoCot_HC_BE.Services
             ValidationHelper.IsRequired(errors, nameof(referral.ReferredFrom), referral.ReferredFrom, "Referred From");
             ValidationHelper.IsRequired(errors, nameof(referral.ReferredTo), referral.ReferredTo, "Referred To");
             ValidationHelper.IsRequired(errors, nameof(referral.ReferralDateTime), referral.ReferralDateTime, "Referral Date");
-            ValidationHelper.IsRequired(errors, nameof(referral.PersonnelId), referral.PersonnelId, "PersonnelId");
+            ValidationHelper.IsRequired(errors, nameof(referral.PersonId), referral.PersonId, "PersonId");
 
-            if (referral.ReferralServiceIds == null || !referral.ReferralServiceIds.Any())
+            if (!referral.ReferralServiceIds.Any())
                 ValidationHelper.AddError(errors, nameof(referral.ReferralServiceIds), "At least one service must be selected.");
+
+            _vitalSignService.ValidateFields(referral.VitalSign, errors, "VitalSign.");
 
             if (errors.Any())
                 throw new ModelValidationException("Validation failed", errors);
