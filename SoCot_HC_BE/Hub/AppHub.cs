@@ -5,9 +5,9 @@ namespace SoCot_HC_BE.Hub
     public class AppHub: Microsoft.AspNetCore.SignalR.Hub
     {
 
-        public async Task NotifyPatientDepartmentTransactionReload(string message = "Patient department transaction list refreshed!")
+        public async Task NotifyPatientDepartmentTransactionReload(string message = "Reload page.")
         {
-            await Clients.All.SendAsync("ReloadPatientDepartmentTransactions", message);
+            await Clients.All.SendAsync("ReloadPageAsyncSignalR", message);
          }
 
         // Optional: Connection Lifecycle Methods

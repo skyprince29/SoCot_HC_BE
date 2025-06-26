@@ -19,9 +19,10 @@ namespace SoCot_HC_BE.Services
 
         }
 
-        public async Task<PaginationHandler<DentalRecord>> GetAllWithPagingAsync(int pageNo, int limit, string keyword = "", CancellationToken cancellationToken = default)
+        public async Task<PaginationHandler<DentalRecord>> GetAllWithPagingAsync(int pageNo, int limit, string keyword = "", Guid? patientRegistryId = null, CancellationToken cancellationToken = default)
         {
-            var dentalRecords = await _dbSet
+
+            var query = _dbSet
                 .Include(p => p.Patient)
                 .Include(f => f.Facility)
                 .Include(pr => pr.Physician)
@@ -38,8 +39,20 @@ namespace SoCot_HC_BE.Services
                 dt.Patient.Lastname.Contains(keyword) ||
                 (dt.Patient.Middlename != null && dt.Patient.Middlename.Contains(keyword))
                 )
+             .AsQueryable();
+
+            if (patientRegistryId != null)
+            {
+                query = query.Where(i => i.PatientRegistryId == patientRegistryId);
+            }
+
+
+            var dentalRecords = 
+                await query
                .AsNoTracking()
                .ToListAsync();
+
+           
 
             int totalRecords = dentalRecords.Count;
 

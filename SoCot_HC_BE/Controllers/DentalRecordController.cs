@@ -34,14 +34,14 @@ namespace SoCot_HC_BE.Controllers
         }
 
         [HttpGet("GetPagedDentalRecords")]
-        public async Task<IActionResult> GetPagedDentalRecords(int pageNo, int limit, CancellationToken cancellationToken, string keyword = "")
+        public async Task<IActionResult> GetPagedDentalRecords(int pageNo, int limit,Guid? patientRegistryId , CancellationToken cancellationToken, string keyword = "")
         {
             if (pageNo <= 0 || limit <= 0)
             {
                 return BadRequest(new { message = "Page number and limit must be greater than zero." });
             }
 
-            var paginatedResult = await _dentalRecordService.GetAllWithPagingAsync(pageNo, limit, keyword, cancellationToken);
+            var paginatedResult = await _dentalRecordService.GetAllWithPagingAsync(pageNo, limit, keyword, patientRegistryId, cancellationToken);
             return Ok(paginatedResult);
         }
 

@@ -70,7 +70,7 @@ namespace SoCot_HC_BE.Controllers
             if (!success)
                 return NotFound("Transaction not found.");
 
-            await _appHubContext.Clients.All.SendAsync("ReloadPatientDepartmentTransactions", "A patient department transaction was accepted!");
+            await _appHubContext.Clients.All.SendAsync("ReloadPageAsyncSignalR", "Accepted Transaction. Reload page");
             return Ok("Transaction accepted successfully.");
         }
 
@@ -80,7 +80,8 @@ namespace SoCot_HC_BE.Controllers
             try
             {
                 PatientDepartmentTransaction savedPDT = await _patientDepartmentTransactionService.CreateTransactionAsync(dto, cancellationToken);
-
+                
+                await _appHubContext.Clients.All.SendAsync("ReloadPageAsyncSignalR", "Forwarded Transaction. Reload page");
                 return Ok(new
                 {
                     success = true,

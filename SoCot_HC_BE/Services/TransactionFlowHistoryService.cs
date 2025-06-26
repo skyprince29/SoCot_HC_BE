@@ -116,6 +116,53 @@ namespace SoCot_HC_BE.Services
             }
         }
 
+        public async Task UpdateStatusEntityAsync(PatientDepartmentTransaction entity, UpdateStatusDto dto, Boolean isSave = false, CancellationToken cancellationToken = default)
+        {
+            if (dto.StatusId == null)
+                throw new ArgumentException("StatusId cannot be null.");
+
+            if (entity == null)
+                throw new Exception("Entity not found.");
+
+            byte currentStatus = entity.StatusId;
+            byte newStatus = dto.StatusId.Value;
+
+            if (currentStatus == newStatus)
+                throw new Exception("The new status is the same as the current status.");
+            else if (await _moduleStatusFlowService.IsCompleteStatusAsync(dto.ModuleId, currentStatus, cancellationToken))
+                throw new Exception("Cannot update status because the transaction is already marked as complete.");
+
+            entity.StatusId = newStatus;
+
+            if (isSave)
+            {
+                _context.Set<PatientDepartmentTransaction>().Update(entity);
+            }
+            else
+            {
+                _context.Set<PatientDepartmentTransaction>().Attach(entity);
+                _context.Set<PatientDepartmentTransaction>().Entry(entity).State = EntityState.Modified;
+            }
+
+
+            bool isComplete = await _moduleStatusFlowService.IsCompleteStatusAsync(dto.ModuleId, newStatus, cancellationToken);
+
+            var user = _context.GetCurrentUser();
+
+            var log = CreateLogEntry(
+                user.UserId,
+                dto.ModuleId,
+                dto.TransactionId,
+                currentStatus,
+                newStatus,
+                dto.Remarks,
+                isComplete
+            );
+
+            await _context.Set<TransactionFlowHistory>().AddAsync(log, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         private async Task<bool> IsDuplicateLoggedStatus(Guid transactionId, int moduleId, CancellationToken cancellationToken)
         {
             return await _dbSet.AnyAsync(x =>

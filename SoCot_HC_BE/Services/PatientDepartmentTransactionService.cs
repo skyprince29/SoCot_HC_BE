@@ -12,21 +12,72 @@ namespace SoCot_HC_BE.Services
 {
     public class PatientDepartmentTransactionService : Repository<PatientDepartmentTransaction, Guid>, IPatientDepartmentTransactionService
     {
-
         private readonly ITransactionFlowHistoryService _transactionFlowHistoryService;
-        public PatientDepartmentTransactionService(AppDbContext context, ITransactionFlowHistoryService transactionFlowHistoryService) : base(context)
+        private readonly IModuleStatusFlowService _moduleStatusFlowService;
+        public PatientDepartmentTransactionService(
+            AppDbContext context, 
+            ITransactionFlowHistoryService transactionFlowHistoryService,
+            IModuleStatusFlowService moduleStatusFlowService) 
+            : base(context)
         {
             _transactionFlowHistoryService = transactionFlowHistoryService;
+            _moduleStatusFlowService = moduleStatusFlowService;
         }
 
         public override async Task<PatientDepartmentTransaction?> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            // You can include related data here if needed, like navigation properties
-            var facility = await _dbSet
-                .Include(f => f.PatientRegistry) // Example: include navigation property if needed
-                .FirstOrDefaultAsync(f => f.Id == id, cancellationToken);
 
-            return facility;
+            var query = _dbSet
+             .Include(i => i.PatientRegistry)
+             .Include(i => i.Status)
+             .AsQueryable();
+
+            query = query.Where(t => t.Id == id);
+
+
+            var joinedQuery = query
+          .GroupJoin(_context.Set<Department>(),
+                     patientTrans => patientTrans.FromDepartmentId,
+                     department => department.DepartmentId,
+                     (patientTrans, fromDepartments) => new { patientTrans, fromDepartments })
+          .SelectMany(
+              temp => temp.fromDepartments.DefaultIfEmpty(),
+              (temp, fromDepartment) => new { temp.patientTrans, fromDepartment })
+          .GroupJoin(_context.Set<Department>(),
+                     temp => temp.patientTrans.DepartmentId,
+                     department => department.DepartmentId,
+                     (temp, currentDepartments) => new { temp.patientTrans, temp.fromDepartment, currentDepartments })
+          .SelectMany(
+              temp => temp.currentDepartments.DefaultIfEmpty(),
+              (temp, currentDepartment) => new
+              {
+                  PatientTransaction = temp.patientTrans,
+                  FromDepartmentName = temp.fromDepartment != null ? temp.fromDepartment.DepartmentName : "",
+                  CurrentDepartmentName = currentDepartment != null ? currentDepartment.DepartmentName : ""
+              });
+
+            var finalResult = joinedQuery.Select(x => new PatientDepartmentTransaction
+            {
+                Id = x.PatientTransaction.Id,
+                PatientRegistryId = x.PatientTransaction.PatientRegistryId,
+                PatientRegistry = x.PatientTransaction.PatientRegistry,
+                FromDepartmentId = x.PatientTransaction.FromDepartmentId,
+                DepartmentId = x.PatientTransaction.DepartmentId,
+                TransactionDate = x.PatientTransaction.TransactionDate,
+                ForwardedBy = x.PatientTransaction.ForwardedBy,
+                AcceptedBy = x.PatientTransaction.AcceptedBy,
+                Status = x.PatientTransaction.Status,
+                IsCompleted = x.PatientTransaction.IsCompleted,
+                IsActive = x.PatientTransaction.IsActive,
+                Remarks = x.PatientTransaction.Remarks,
+                FromDepartment = x.FromDepartmentName,
+                Department = x.CurrentDepartmentName,
+                ModuleId = x.PatientTransaction.ModuleId,
+                StatusId = x.PatientTransaction.StatusId,
+            });
+
+            return await finalResult.FirstOrDefaultAsync();
+
         }
 
         private IQueryable<PatientDepartmentTransaction> BuildFilteredQuery(GetPagedPDTRequestParam request)
@@ -36,9 +87,11 @@ namespace SoCot_HC_BE.Services
                 .Include(i => i.Status)
                 .AsQueryable();
 
-            // Required: Current department
-            query = query.Where(t => t.DepartmentId == request.CurrentDepartmentId);
+            if (!request.isForForward) {
+                // Required: Current department
+                query = query.Where(t => t.DepartmentId == request.CurrentDepartmentId);
 
+            }
 
             var joinedQuery = query
             // Left Join for FromDepartmentId
@@ -145,16 +198,15 @@ namespace SoCot_HC_BE.Services
             transaction.AcceptedBy = user.UserId !=  Guid.Empty ? user.UserId  : acceptedByUserId;
             await _context.SaveChangesAsync(cancellationToken);
 
-            // Now call UpdateStatusAsync to set status to "On-going" (ID = 9)
             var dto = new UpdateStatusDto
             {
                 TransactionId = Id,
-                ModuleId = transaction.ModuleId, // Make sure ModuleId exists on the transaction
+                ModuleId = (int)ModuleEnum.PatientDepartmentTransaction, // Make sure ModuleId exists on the transaction
                 StatusId = 9,
                 Remarks = "Marked as accepted and set to On-going."
             };
 
-            await _transactionFlowHistoryService.UpdateStatusAsync(dto, cancellationToken); // calling the method
+            await _transactionFlowHistoryService.UpdateStatusEntityAsync(transaction, dto, true, cancellationToken); // calling the method
 
             return true;
         }
@@ -193,6 +245,7 @@ namespace SoCot_HC_BE.Services
                     var statusId = dto.StatusId;
                     if (currentPDTId.HasValue && statusId.HasValue)
                     {
+                        var currentPDT = await _dbSet.FirstOrDefaultAsync(t => t.Id == currentPDTId, cancellationToken);
                         var updateStatusDto = new UpdateStatusDto
                         {
                             TransactionId = currentPDTId.Value,
@@ -201,7 +254,7 @@ namespace SoCot_HC_BE.Services
                             Remarks = dto.Remarks
                         };
 
-                        await _transactionFlowHistoryService.UpdateStatusAsync(updateStatusDto, false, cancellationToken); // calling the method
+                        await _transactionFlowHistoryService.UpdateStatusEntityAsync(currentPDT, updateStatusDto, false, cancellationToken);// calling the method
                     }
 
                     await _context.SaveChangesAsync(cancellationToken); // Only save once, here
