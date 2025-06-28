@@ -234,10 +234,10 @@ namespace SoCot_HC_BE.Services
                     // If now null but previously had one, delete it
                     referenceSet.Remove(existingReference);
                 }
-                if (!isReferrencesaving)
-                {
-                    await _context.SaveChangesAsync(cancellationToken);
-                }
+            }
+            if (!isReferrencesaving)
+            {
+                await _context.SaveChangesAsync(cancellationToken);
             }
         }
 
