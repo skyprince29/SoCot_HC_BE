@@ -62,6 +62,20 @@ namespace SoCot_HC_BE.Controllers
             return Ok(paginatedResult);
         }
 
+
+        [HttpPatch("DefferTransaction")]
+        public async Task<IActionResult> DefferTransaction([FromBody] UpdateStatusDto dto, CancellationToken cancellationToken)
+        {
+            var success = await _patientDepartmentTransactionService.UpdateDefferedByAsync(dto, cancellationToken);
+
+            if (!success)
+                return NotFound("Transaction not found.");
+
+            await _appHubContext.Clients.All.SendAsync("ReloadPageAsyncSignalR", "Deffered Transaction. Reload page");
+            return Ok("Transaction deffered successfully.");
+        }
+
+
         [HttpPatch("AcceptTransaction")]
         public async Task<IActionResult> AcceptTransaction([FromBody] AcceptTransactionDto dto)
         {

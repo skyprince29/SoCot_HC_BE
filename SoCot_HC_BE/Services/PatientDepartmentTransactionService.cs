@@ -15,9 +15,9 @@ namespace SoCot_HC_BE.Services
         private readonly ITransactionFlowHistoryService _transactionFlowHistoryService;
         private readonly IModuleStatusFlowService _moduleStatusFlowService;
         public PatientDepartmentTransactionService(
-            AppDbContext context, 
+            AppDbContext context,
             ITransactionFlowHistoryService transactionFlowHistoryService,
-            IModuleStatusFlowService moduleStatusFlowService) 
+            IModuleStatusFlowService moduleStatusFlowService)
             : base(context)
         {
             _transactionFlowHistoryService = transactionFlowHistoryService;
@@ -87,9 +87,25 @@ namespace SoCot_HC_BE.Services
                 .Include(i => i.Status)
                 .AsQueryable();
 
-            if (!request.isForForward) {
+            if (!request.isForForward)
+            {
                 // Required: Current department
                 query = query.Where(t => t.DepartmentId == request.CurrentDepartmentId);
+
+                if (request.FromDepartmentId.HasValue && request.FromDepartmentId.Value != Guid.Empty)
+                {
+                    query = query.Where(t => t.FromDepartmentId == request.FromDepartmentId);
+                }
+
+                if (request.StatusId.HasValue)
+                {
+                    query = query.Where(t => t.StatusId == request.StatusId.Value);
+                }
+            }
+            else
+            {
+                query = query.Where(t => t.FromDepartmentId != Guid.Empty);
+                query = query.Where(t => t.FromDepartmentId == request.FromDepartmentId);
 
             }
 
@@ -117,15 +133,7 @@ namespace SoCot_HC_BE.Services
                 });
 
 
-            if (request.FromDepartmentId.HasValue && request.FromDepartmentId.Value != Guid.Empty)
-            {
-                joinedQuery = joinedQuery.Where(t => t.PatientTransaction.FromDepartmentId == request.FromDepartmentId);
-            }
-
-            if (request.StatusId.HasValue)
-            {
-                joinedQuery = joinedQuery.Where(t => t.PatientTransaction.StatusId == request.StatusId.Value);
-            }
+          
 
             joinedQuery = joinedQuery.Where(t =>
                 t.PatientTransaction.TransactionDate >= request.DateFrom.Date &&
@@ -137,7 +145,7 @@ namespace SoCot_HC_BE.Services
 
                 joinedQuery = joinedQuery.Where(t =>
                     (t.PatientTransaction.PatientRegistry != null && EF.Functions.Like(t.PatientTransaction.PatientRegistry.Name, $"%{keyword}%")) ||
-                    (t.PatientTransaction.Status != null && EF.Functions.Like(t.PatientTransaction.Status.Name, $"%{keyword}%"))); 
+                    (t.PatientTransaction.Status != null && EF.Functions.Like(t.PatientTransaction.Status.Name, $"%{keyword}%")));
             }
 
 
@@ -145,7 +153,7 @@ namespace SoCot_HC_BE.Services
             {
                 Id = x.PatientTransaction.Id,
                 PatientRegistryId = x.PatientTransaction.PatientRegistryId,
-                PatientRegistry = x.PatientTransaction.PatientRegistry, 
+                PatientRegistry = x.PatientTransaction.PatientRegistry,
                 FromDepartmentId = x.PatientTransaction.FromDepartmentId,
                 DepartmentId = x.PatientTransaction.DepartmentId,
                 TransactionDate = x.PatientTransaction.TransactionDate,
@@ -157,8 +165,8 @@ namespace SoCot_HC_BE.Services
                 Remarks = x.PatientTransaction.Remarks,
                 FromDepartment = x.FromDepartmentName,
                 Department = x.CurrentDepartmentName,
-                ModuleId = x.PatientTransaction.ModuleId, 
-                StatusId = x.PatientTransaction.StatusId, 
+                ModuleId = x.PatientTransaction.ModuleId,
+                StatusId = x.PatientTransaction.StatusId,
 
             });
 
@@ -185,8 +193,43 @@ namespace SoCot_HC_BE.Services
             var query = BuildFilteredQuery(request);
             return await query.CountAsync(cancellationToken);
         }
+        public async Task<bool> UpdateDefferedByAsync(UpdateStatusDto dto, CancellationToken cancellationToken = default)
+        {
 
-        public async Task<bool> UpdateAcceptedByAsync(Guid Id, Guid acceptedByUserId, CancellationToken cancellationToken = default)
+
+
+            if (dto.StatusId == null)
+                throw new ArgumentException("StatusId cannot be null.");
+
+
+            var entity = await _dbSet.FirstOrDefaultAsync(t => t.Id == dto.TransactionId, cancellationToken);
+
+             if (entity == null)
+                throw new Exception("Entity not found.");
+
+            
+                var updateStatusDto = new UpdateStatusDto
+                {
+                    TransactionId = entity.Id,
+                    ModuleId = (int) ModuleEnum.PatientDepartmentTransaction, // Make sure ModuleId exists on the transaction
+                    StatusId = dto.StatusId,
+                    Remarks = dto.Remarks
+                };
+
+                await _transactionFlowHistoryService.UpdateStatusEntityAsync<PatientDepartmentTransaction>(
+                        entity,
+                        updateStatusDto,
+                        isSave: false,
+                        cancellationToken
+                    );
+
+
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+
+
+            public async Task<bool> UpdateAcceptedByAsync(Guid Id, Guid acceptedByUserId, CancellationToken cancellationToken = default)
         {
             var transaction = await _dbSet.FirstOrDefaultAsync(t => t.Id == Id, cancellationToken);
 
@@ -330,11 +373,11 @@ namespace SoCot_HC_BE.Services
 
             PatientDeptTransVitalSignsDto dto = new PatientDeptTransVitalSignsDto();
 
-          PatientDepartmentTransaction? patientDepartmentTransaction = await _dbSet
-                .Include(p => p.PatientRegistry)
-                .Include(p => p.Status)
-                .FirstOrDefaultAsync(i => i.Id == id);
-            
+            PatientDepartmentTransaction? patientDepartmentTransaction = await _dbSet
+                  .Include(p => p.PatientRegistry)
+                  .Include(p => p.Status)
+                  .FirstOrDefaultAsync(i => i.Id == id);
+
             if (patientDepartmentTransaction != null)
             {
                 dto.PatientDepartmentTransaction = patientDepartmentTransaction;

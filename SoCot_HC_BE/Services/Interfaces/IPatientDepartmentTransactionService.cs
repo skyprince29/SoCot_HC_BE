@@ -50,5 +50,6 @@ namespace SoCot_HC_BE.Services.Interfaces
         /// <returns>The created <see cref="PatientDepartmentTransaction"/> object.</returns>
         Task<PatientDepartmentTransaction> CreateTransactionAsync(PatientForwardingDto dto, CancellationToken cancellationToken = default);
         Task<PatientDeptTransVitalSignsDto> GetPatientDeptmentTransactionVitalsignAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<bool> UpdateDefferedByAsync(UpdateStatusDto dto, CancellationToken cancellationToken = default);
     }
 }
