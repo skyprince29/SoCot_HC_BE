@@ -196,7 +196,6 @@ namespace SoCot_HC_BE.Services
             UserData user = _context.GetCurrentUser();
 
             transaction.AcceptedBy = user.UserId !=  Guid.Empty ? user.UserId  : acceptedByUserId;
-            await _context.SaveChangesAsync(cancellationToken);
 
             var dto = new UpdateStatusDto
             {
@@ -205,9 +204,13 @@ namespace SoCot_HC_BE.Services
                 StatusId = 9,
                 Remarks = "Marked as accepted and set to On-going."
             };
-
-            await _transactionFlowHistoryService.UpdateStatusEntityAsync(transaction, dto, true, cancellationToken); // calling the method
-
+            await _transactionFlowHistoryService.UpdateStatusEntityAsync<PatientDepartmentTransaction>(
+                             transaction,
+                             dto,
+                             isSave: false,
+                             cancellationToken
+                         );
+            await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
 
@@ -238,8 +241,6 @@ namespace SoCot_HC_BE.Services
                     };
                     await _dbSet.AddAsync(transaction, cancellationToken);
 
-                    await _transactionFlowHistoryService.StarterLogAsync(transaction, cancellationToken);
-
 
                     var currentPDTId = dto.CurrentPatientDepartmentTransactionId;
                     var statusId = dto.StatusId;
@@ -253,9 +254,19 @@ namespace SoCot_HC_BE.Services
                             StatusId = statusId.Value,
                             Remarks = dto.Remarks
                         };
-
-                        await _transactionFlowHistoryService.UpdateStatusEntityAsync(currentPDT, updateStatusDto, false, cancellationToken);// calling the method
+                        if (currentPDT != null)
+                        {
+                            await _transactionFlowHistoryService.UpdateStatusEntityAsync<PatientDepartmentTransaction>(
+                              currentPDT,
+                              updateStatusDto,
+                              isSave: false,
+                              cancellationToken
+                          );
+                        }
+                      
                     }
+
+                    await _transactionFlowHistoryService.StarterLogAsync(transaction, cancellationToken);
 
                     await _context.SaveChangesAsync(cancellationToken); // Only save once, here
                     await dbtransaction.CommitAsync(cancellationToken);

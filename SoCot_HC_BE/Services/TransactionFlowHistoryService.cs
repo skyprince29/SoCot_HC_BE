@@ -85,7 +85,6 @@ namespace SoCot_HC_BE.Services
                 throw new Exception("Cannot update status because the transaction is already marked as complete.");
 
             entity.StatusId = newStatus;
-
             if (isSave)
             {
                 await moduleService.UpdateAsync(entity, cancellationToken);
@@ -96,10 +95,8 @@ namespace SoCot_HC_BE.Services
                 _context.Entry(entity).State = EntityState.Modified;
             }
 
-            bool isComplete = await _moduleStatusFlowService.IsCompleteStatusAsync(dto.ModuleId, newStatus, cancellationToken);
-
             var user = _context.GetCurrentUser();
-
+            bool isComplete = await _moduleStatusFlowService.IsCompleteStatusAsync(dto.ModuleId, newStatus, cancellationToken);
             var log = CreateLogEntry(
                 user.UserId,
                 dto.ModuleId,
@@ -116,7 +113,12 @@ namespace SoCot_HC_BE.Services
             }
         }
 
-        public async Task UpdateStatusEntityAsync(PatientDepartmentTransaction entity, UpdateStatusDto dto, Boolean isSave = false, CancellationToken cancellationToken = default)
+        public async Task UpdateStatusEntityAsync<T>(
+            T entity,
+            UpdateStatusDto dto,
+            bool isSave = false,
+            CancellationToken cancellationToken = default
+        ) where T : class, IBaseTransaction
         {
             if (dto.StatusId == null)
                 throw new ArgumentException("StatusId cannot be null.");
@@ -129,25 +131,27 @@ namespace SoCot_HC_BE.Services
 
             if (currentStatus == newStatus)
                 throw new Exception("The new status is the same as the current status.");
-            else if (await _moduleStatusFlowService.IsCompleteStatusAsync(dto.ModuleId, currentStatus, cancellationToken))
+
+            if (await _moduleStatusFlowService.IsCompleteStatusAsync(dto.ModuleId, currentStatus, cancellationToken))
                 throw new Exception("Cannot update status because the transaction is already marked as complete.");
 
             entity.StatusId = newStatus;
 
+            var dbSet = _context.Set<T>();
+
             if (isSave)
             {
-                _context.Set<PatientDepartmentTransaction>().Update(entity);
+                dbSet.Update(entity); // marks all fields modified
             }
             else
             {
-                _context.Set<PatientDepartmentTransaction>().Attach(entity);
-                _context.Set<PatientDepartmentTransaction>().Entry(entity).State = EntityState.Modified;
+                _context.Attach(entity);
+                _context.Entry(entity).Property(nameof(IBaseTransaction.StatusId)).IsModified = true;
             }
 
+            var user = _context.GetCurrentUser();
 
             bool isComplete = await _moduleStatusFlowService.IsCompleteStatusAsync(dto.ModuleId, newStatus, cancellationToken);
-
-            var user = _context.GetCurrentUser();
 
             var log = CreateLogEntry(
                 user.UserId,
@@ -160,7 +164,6 @@ namespace SoCot_HC_BE.Services
             );
 
             await _context.Set<TransactionFlowHistory>().AddAsync(log, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
         }
 
         private async Task<bool> IsDuplicateLoggedStatus(Guid transactionId, int moduleId, CancellationToken cancellationToken)

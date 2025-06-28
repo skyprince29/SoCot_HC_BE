@@ -12,6 +12,11 @@ namespace SoCot_HC_BE.Services.Interfaces
 
         Task UpdateStatusAsync(UpdateStatusDto dto, CancellationToken cancellationToken = default);
         Task UpdateStatusAsync(UpdateStatusDto dto, bool isSave = false, CancellationToken cancellationToken = default);
-        Task UpdateStatusEntityAsync(PatientDepartmentTransaction entity, UpdateStatusDto dto, bool isSave = false, CancellationToken cancellationToken = default);
+        Task UpdateStatusEntityAsync<T>(
+            T entity,
+            UpdateStatusDto dto,
+            bool isSave = false,
+            CancellationToken cancellationToken = default
+        ) where T : class, IBaseTransaction;
     }
 }
